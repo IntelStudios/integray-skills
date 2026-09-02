@@ -1,0 +1,15 @@
+---
+description: When creating Integray configuration, read AGENT.md; Full Sync; preserve CopyIDs; no YAML spec
+alwaysApply: true
+---
+
+# Integray Knowledge Base
+
+Read [AGENT.md](../../AGENT.md) first when the user asks to create or modify Integray transfers, tasks, endpoints, or connectors.
+
+- Config Transfer import is **Full Sync**. Do not generate a partial file that would delete entities on the target company.
+- Preserve **CopyID**s when editing a transfer that was already imported ([recipes/edit-existing-transfer.md](../../recipes/edit-existing-transfer.md)).
+- Connection: `projects/<name>/.integray-connection.json` with `baseUrl`, `companySlug`, and Bearer `token`. Do not infer slug from hostname. Never copy tokens between companies.
+- Working format is Config Transfer **JSON**. Do not invent a YAML entity spec.
+- Company copies are not KB. Nested private git: [docs/projects.md](../../docs/projects.md).
+- Connector track: [docs/connector-dev/rules.md](../../docs/connector-dev/rules.md).

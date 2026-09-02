@@ -1,0 +1,347 @@
+{
+  "schemaVersion": "1.0.0",
+  "project": {
+    "name": "Integray connector project",
+    "description": "C#/.NET 10 Integray connector project created from the Integray Connector SDK template.",
+    "primaryLanguages": [
+      "C#",
+      ".NET 10"
+    ],
+    "links": {
+      "homePage": "https://integray.com",
+      "learnPortal": "https://learn.integray.app",
+      "connectorDocumentation": "https://learn.integray.app/connectoracademy/",
+      "exampleLibrary": "https://learn.integray.app/examplelibrary/",
+      "icrDeveloper": "https://icr.integray.app",
+      "nugetPackage": "https://www.nuget.org/packages/Integray.Connector.CLI",
+      "supportEmail": "support@integray.com"
+    },
+    "domain": {
+      "integray": "Integray is an integration platform that lets users build automated data flows and synchronizations between systems using visual tasks and steps instead of writing integration code directly.",
+      "connector": "A connector is a plug-in component that knows how to talk to a specific system, API or data source. It is responsible for sending and receiving data, handling authentication and exposing concrete actions that can be used in Integray tasks.",
+      "connectorActions": "Each connector exposes one or more actions. An action represents a specific operation, such as reading data, writing data, calling an API endpoint or transforming data. Actions are configured in the Integray UI and then executed by the connector runtime.",
+      "usageInPlatform": "In an Integray task, connectors are used in steps. A step chooses a connector and one of its actions, configures its input and output schemas, and participates in the end-to-end data flow between systems.",
+      "channel": "A channel is a logical container in the Integray Repository (ICR) that groups connectors, configuration schemas and data schemas. Connectors are always published into a specific channel.",
+      "channelVisibility": "Channels can be PUBLIC or PRIVATE. PRIVATE channels are used for development and testing, can be freely modified and deleted, and can later be promoted to a PUBLIC channel. PUBLIC channels are stable, production-ready and visible to all users.",
+      "channelRestriction": "Channels can be restricted or non-restricted. Restricted channels require an access token for API calls and are recommended for sensitive or production data. Non-restricted channels are open and do not require tokens.",
+      "icrDeveloper": "ICR Developer is a web application at https://icr.integray.app for managing channels, entities (connectors, configuration schemas, data schemas), tokens and metadata in the Integray Repository.",
+      "openApiDocs": "The ICR Developer UI provides direct links to OpenAPI/Swagger documentation for the selected repository (for example icr-dev.integray.app or icr.integray.app).",
+      "configurationGenerator": "Configuration schemas (kind Integray/ConfigurationSchema/1.0) define NGX Schema Form structures under the 'schema' property. From these schemas, the SDK generates strongly-typed C# configuration classes (one class per schema) placed in 'Integray.Connector.Generated.Configurations' namespace. Generated classes are annotated with IntegrayEntity attribute containing GUID + semantic version. Extension methods are generated on Configurations dictionary: 'Configurations.Get<SchemaName>()' and 'context.Configurations.Get<SchemaName>()'.",
+      "dataSchemaGenerator": "Data schemas (kind Integray/DataSchema/1.0) describe tabular data (columns and nested tables). From these schemas, the SDK generates strongly-typed C# row models placed in 'Integray.Connector.Generated.DataModels' namespace. Extension methods are generated for input tables: 'input.To<DataSchemaName>RowModels()' to convert tables to strongly-typed row models. Extension methods are generated for output tables: 'result.Output!.AddRow(<RowModel>)' and 'result.Output!.AddRows(IEnumerable<RowModel>)' to add rows using strongly-typed models.",
+      "connectorImplementation": "Connectors inherit from IntegrayConnector base class and implement ProcessInternalAsync method. Use context.GetPrimaryInput() or PrimaryInput property to access input data. Use context.GetAdditionalInputs() for other input tables. Use Configurations.Get<SchemaName>() extension methods to access configurations. Use input.To<DataSchemaName>RowModels() extension methods to iterate over input rows. Use result.Output!.AddRow(<RowModel>) to add output rows. Use ResultFactory.Create() to create result objects. Use GetEmptyResult() for empty results. Use Log property with appropriate log levels (Trace, Debug, Info, Warning, Error, Critical). Always check Log.HasDebugListener() before expensive logging operations. Handle multiple actions via context.Action switch expression. Access context metadata: context.HasTaskRunId(), context.GetTaskRunId(), context.GetEndpointTokenId(), context.GetEndpointTokenName().",
+      "checkpointManagement": "Checkpoints allow connectors to resume processing incrementally. Use CheckpointManager helper class (Integray.Connector.SDK.Helpers) for complex checkpoint data. Simple string checkpoints can be set directly on result.CheckPoint property. CheckpointManager provides GetValue<T>(key) and SetValue<T>(key, value) methods for typed checkpoint access.",
+      "connectorLifecycle": "The lifecycle of an Integray connector typically follows these steps: (1) The developer installs the Integray CLI and generates a connector project from the SDK template. (2) The developer implements and tests the connector. (3) The connector is packaged using 'integray connector pack'. (4) The developer requests a developer account at support@integray.app. (5) The developer creates a channel either in the ICR Developer UI at https://icr.integray.app/ or using CLI: 'integray channel new <CHANNEL_NAME>'. (6) The connector package is uploaded into the channel using 'integray connector publish'. (7) Integray platform users subscribe to this channel in the Integray administration UI. (8) Users install the connector into their Integray environment—either on demand or via an automated background job. (9) Users can then add steps to their tasks and select this connector and its actions."
+    },
+    "testingAndLogging": {
+      "description": "Support for testing connectors and working with logs during execution using the Integray Connector Test SDK.",
+      "testContext": {
+        "description": "During tests, connectors are executed using TestConnectorContext instead of the runtime context. The test context supports capturing logs in memory and optionally forwarding them to a test output."
+      },
+      "logCapture": {
+        "description": "Logs can be captured during connector execution by enabling log capture on the TestConnectorContextBuilder.",
+        "howToEnable": [
+          "Call CaptureLogs() to collect logs in memory (available on the built context).",
+          "Call WithLogOutput(...) to forward logs to the test framework output (for example xUnit ITestOutputHelper)."
+        ],
+        "accessingLogs": "Captured logs are available via TestConnectorContext.Logs as a read-only list of TestLogRecord."
+      },
+      "logLevels": {
+        "Trace": {
+          "value": 0,
+          "description": "In-depth details such as internal decisions, branches, loops, retries, and detailed execution flow. Intended primarily for developers during deep debugging. Typically too verbose for normal runs."
+        },
+        "Debug": {
+          "value": 1,
+          "description": "Technical details, partial steps, and logical blocks (e.g., “parsed input”, “mapped fields”, “calling endpoint”). Useful for developers and administrators when troubleshooting issues. Less verbose than Trace."
+        },
+        "Information": {
+          "value": 2,
+          "description": "High-level, user-friendly information about what the connector is doing (start/finish of an action, summary of performed work). Should be understandable and useful for end users."
+        },
+        "Warning": {
+          "value": 3,
+          "description": "Non-fatal issues and recoverable problems (fallback used, missing optional data, partial success). The connector continues execution, but the situation may require attention."
+        },
+        "Error": {
+          "value": 4,
+          "description": "Major unrecoverable errors related to the action execution (validation failure, API failure that prevents continuation). Execution of the current action fails."
+        },
+        "Critical": {
+          "value": 5,
+          "description": "Severe failures such as initialization errors, corrupted state, or unrecoverable environment problems. Execution cannot proceed. Use sparingly."
+        }
+      }
+    },
+    "ide": {
+      "vscode": "For VS Code, it is recommended to use the C# Dev Kit extension: https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit.",
+      "cursor": "For Cursor, a good choice is the 'dotnetdev-kr-custom.csharp' extension, which improves C#/.NET development experience."
+    }
+  },
+  "repository": {
+    "rootDescription": "This project is a single Integray connector implemented in C#/.NET 10 and created from the Integray Connector SDK template.",
+    "importantPaths": {
+      "projectRoot": ".",
+      "connectorMetadata": "connector.json",
+      "configurationMetadata": "configuration.json",
+      "additionalMetadata": "metadata/",
+      "schemas": "schemas/"
+    }
+  },
+  "metadataFiles": {
+    "description": "Standard metadata files that appear inside a connector package ZIP.",
+    "files": {
+      "connector": {
+        "fileName": "connector.json",
+        "kind": "Integray/ConnectorSchema/1.0",
+        "description": "Main metadata file describing the connector, its actions and references to other entities. For this file, the icon and description fields in metadata (and in each action.metadata) are paths to files inside the metadata/ folder, not literal text.",
+        "schemaReference": "https://icr.integray.app/schemas/connector.json"
+      },
+      "configuration": {
+        "kind": "Integray/ConfigurationSchema/1.0",
+        "description": "Configuration schemas (kind Integray/ConfigurationSchema/1.0) define NGX Schema Form structures under the 'schema' property. From these schemas, the SDK generates strongly-typed C# configuration classes.",
+        "generatedMetadata": {
+          "integrayEntityAttribute": {
+            "description": "Generated configuration classes are annotated with the IntegrayEntity attribute, which defines the stable GUID and version of the configuration schema.",
+            "purpose": "This attribute serves as the single source of truth for configuration identity (GUID + semantic version).",
+            "example": {
+              "attribute": "[IntegrayEntity(\"7140e00f-5d2d-41ae-8910-80fd316c9bc1\", 1, 0, 0)]",
+              "className": "TestConfigurationConfiguration"
+            }
+          },
+          "generatedConfigurationClass": {
+            "description": "Example of a generated configuration class using IntegrayEntity attribute.",
+            "code": "// <auto-generated/>\n#nullable enable\nusing Integray.Connector.Generated.Attributes;\n\nnamespace Integray.Connector.Generated.Configurations;\n\n[IntegrayEntity(\"7140e00f-5d2d-41ae-8910-80fd316c9bc1\", 1, 0, 0)]\npublic class TestConfigurationConfiguration\n{\n    public string? Operation { get; set; }\n    public bool? Round { get; set; }\n    public int? Precision { get; set; }\n}",
+            "usageInCode": "Access configuration via extension method: 'var config = Configurations.Get<SchemaName>();' or 'var config = context.Configurations.Get<SchemaName>();'. Properties are nullable, handle nulls appropriately."
+          },
+          "generatedDataSchemaExtensions": {
+            "description": "For each data schema, extension methods are generated for input and output tables.",
+            "inputExtensions": "input.To<DataSchemaName>RowModels() - converts input table to IEnumerable of strongly-typed row models.",
+            "outputExtensions": "result.Output!.AddRow(<RowModel>) - adds single row, result.Output!.AddRows(IEnumerable<RowModel>) - adds multiple rows."
+          }
+        },
+        "schemaReference": "https://icr.integray.app/schemas/configuration.json"
+      },
+      "dataSchema": {
+        "kind": "Integray/DataSchema/1.0",
+        "description": "Data schema files defining tabular structures (columns, nested tables, constraints). Any JSON file whose $schema points to this URL is treated as a data schema.",
+        "schemaReference": "https://icr.integray.app/schemas/data-schema.json"
+      },
+      "additionalConfiguration": {
+        "kind": "Integray/ConfigurationSchema/1.0",
+        "description": "Additional configuration schemas that can be referenced from connector actions. Any JSON file whose $schema points to this URL is treated as an additional configuration schema.",
+        "schemaReference": "https://icr.integray.app/schemas/configuration.json"
+      }
+    }
+  },
+  "references": {
+    "description": "How connector, configuration and data schema files reference each other.",
+    "connector": {
+      "fileReferences": [
+        "metadata.icon → must point to a file inside the metadata/ folder (e.g. metadata/icon.svg).",
+        "metadata.description → must point to a file inside the metadata/ folder (e.g. metadata/connector.md).",
+        "actions[].metadata.icon → must point to a file inside the metadata/ folder (e.g. metadata/action-icon.svg).",
+        "actions[].metadata.description → must point to a file inside the metadata/ folder (e.g. metadata/action-description.md)."
+      ],
+      "configurationSchemaReferences": "actions[].configurationRefs[] contain guid + version that must match configuration schema metadata files included in the package (kind = Integray/ConfigurationSchema/1.0).",
+      "dataSchemaReferences": "actions[].inputSchema.schemaRef and actions[].outputSchema.schemaRef contain guid + version that must match data schema metadata files included in the package (kind = Integray/DataSchema/1.0).",
+      "actionDataSchemaModes": {
+        "description": "Each action can declare how it uses input/output data schemas via inputSchema.mode and outputSchema.mode.",
+        "modes": {
+          "none": "Action does not work with input/does not produce output. Users cannot assign a data schema.",
+          "required": "Action works with fixed data structure. schemaRef must be provided. Users cannot choose a different schema.",
+          "optional": "Action can work with or without a data schema. Users may select a schema but are not forced to.",
+          "mandatory": "Users must select a data schema, but connector does not enforce a specific one. Connector should handle different shapes."
+        }
+      }
+    },
+    "dataSchema": {
+      "references": "Columns with type = 'table' must contain tableRef.guid + tableRef.version matching another data schema file (kind = Integray/DataSchema/1.0) in the package."
+    },
+    "configuration": {
+      "references": "Configuration schemas (kind = Integray/ConfigurationSchema/1.0) do not reference other entities."
+    }
+  },
+  "entityIdentity": {
+    "description": "Rules for GUID and version usage across connector-related entities.",
+    "guid": {
+      "format": "UUID v4",
+      "rule": "The GUID must be globally unique across all publisher companies, all channels and all metadata entities in Integray (connectors, configuration schemas, data schemas). The same GUID is reused for every version of the same entity.",
+      "fields": [
+        "guid"
+      ]
+    },
+    "version": {
+      "format": "x.y.z",
+      "rule": "Each version of an entity with the same GUID must have a unique semantic version number.",
+      "fields": [
+        "version"
+      ]
+    }
+  },
+  "cli": {
+    "description": "Integray Connector CLI organized into domains: connector, channel, entity, token.",
+    "executable": "integray",
+    "authentication": {
+      "description": "Token can be provided via: (1) command-line --token/-t option, (2) INTEGRAY_TOKEN environment variable, (3) local storage via 'integray token set <TOKEN>' (recommended). Stored token is used automatically.",
+      "tokenStorage": "Use 'integray token set <TOKEN>' to store token locally. Use 'integray token delete' to remove stored token."
+    },
+    "activeChannel": {
+      "description": "CLI can remember active channel in .integray config file. Use 'integray channel set <CHANNEL_GUID>' to set active channel. Use 'integray channel current' to show current channel. Use 'integray channel clear' to clear active channel. When both token and active channel are configured, simplified commands can be used without --token or --channel parameters."
+    },
+    "commands": [
+      {
+        "domain": "connector",
+        "commands": [
+          {
+            "name": "connector new",
+            "usage": "integray connector new --template <TEMPLATE> --name <NAME> <OUTPUT_DIR>",
+            "description": "Scaffold a new connector project from template.",
+            "templates": ["Calculator", "Empty", "GitHub"],
+            "examples": [
+              "integray connector new --template Calculator --name MyCalculator ./MyCalculator"
+            ]
+          },
+          {
+            "name": "connector pack",
+            "usage": "integray connector pack [<project.csproj>] [-o <outputFile>]",
+            "description": "Builds the connector project and creates a ZIP package. Always prefer providing an explicit path to the .csproj file. Short form 'integray connector pack' works when in project directory. CLI remembers last successfully built package.",
+            "parameters": {
+              "project": "Path to the connector .csproj file or project directory (optional if in project directory).",
+              "-o/--output": "Optional path for the resulting ZIP file."
+            },
+            "examples": [
+              "integray connector pack ./MyConnector/MyConnector.csproj",
+              "integray connector pack ./MyConnector/MyConnector.csproj -o ./dist/MyConnector.zip",
+              "integray connector pack"
+            ]
+          },
+          {
+            "name": "connector publish",
+            "usage": "integray connector publish [<package.zip>] [-c <channel>] [-t <token>]",
+            "description": "Publishes a built connector package to an Integray channel. Short form 'integray connector publish' uses last built package, active channel from .integray, and stored token.",
+            "parameters": {
+              "package.zip": "Path to the ZIP package (optional, uses last built package if omitted).",
+              "-c/--channel": "Identifier of the channel to publish to (optional if active channel is set).",
+              "-t/--token": "Bearer token used for authentication (optional if token is stored)."
+            },
+            "examples": [
+              "integray connector publish ./NewConnector.zip -c <CHANNEL_ID> -t <TOKEN>",
+              "integray connector publish"
+            ]
+          }
+        ]
+      },
+      {
+        "domain": "channel",
+        "description": "All channel commands require authentication.",
+        "commands": [
+          {
+            "name": "channel new",
+            "usage": "integray channel new <NAME>",
+            "description": "Create a new private channel.",
+            "examples": ["integray channel new MyDevChannel"]
+          },
+          {
+            "name": "channel list",
+            "usage": "integray channel list",
+            "description": "List channels accessible with the current token."
+          },
+          {
+            "name": "channel delete",
+            "usage": "integray channel delete <CHANNEL_GUID>",
+            "description": "Delete a private channel."
+          },
+          {
+            "name": "channel promote",
+            "usage": "integray channel promote <CHANNEL_GUID>",
+            "description": "Promote content from a private channel to a public channel."
+          },
+          {
+            "name": "channel set",
+            "usage": "integray channel set <CHANNEL_GUID>",
+            "description": "Set the active channel for the current solution (stored in .integray)."
+          },
+          {
+            "name": "channel current",
+            "usage": "integray channel current",
+            "description": "Show the currently active channel for the current solution."
+          },
+          {
+            "name": "channel clear",
+            "usage": "integray channel clear",
+            "description": "Clear the active channel for the current solution."
+          }
+        ]
+      },
+      {
+        "domain": "entity",
+        "commands": [
+          {
+            "name": "entity list",
+            "usage": "integray entity list",
+            "description": "List available entities (configurations and data schemas), with filtering options."
+          },
+          {
+            "name": "entity add",
+            "usage": "integray entity add <ENTITY_GUID>",
+            "description": "Download an entity and add it to the connector project metadata."
+          }
+        ]
+      },
+      {
+        "domain": "token",
+        "commands": [
+          {
+            "name": "token set",
+            "usage": "integray token set <TOKEN>",
+            "description": "Store an Integray API token locally for automatic use."
+          },
+          {
+            "name": "token delete",
+            "usage": "integray token delete",
+            "description": "Remove the stored Integray API token."
+          }
+        ]
+      }
+    ],
+    "versionCheck": {
+      "description": "Check installed version with 'integray --version'. Update with 'dotnet tool update -g Integray.Connector.CLI'."
+    }
+  },
+  "aiHints": {
+    "goals": [
+      "Help the user author valid connector.json files that match the connector JSON Schema.",
+      "Help the user author configuration and data schema files that match their respective schemas.",
+      "Suggest correct references between connectors, configuration schemas and data schemas (GUID + version).",
+      "Validate and explain references between connector.json, configuration schemas, data schemas and file resources (metadata/*.md, metadata/*.svg, etc.).",
+      "Explain in simple terms what Integray is, what a connector is and how connector actions are used in Integray tasks.",
+      "Help the user understand how channels work in the Integray Repository (PUBLIC vs PRIVATE, restricted vs non-restricted) and how connectors, configuration schemas and data schemas are published into channels."
+    ],
+    "rules": [
+      "When generating integray connector pack commands, always prefer using an explicit path to the .csproj file (for example ./MyConnector/MyConnector.csproj).",
+      "If the .csproj name is not obvious, suggest that the user checks the project file name instead of guessing.",
+      "Avoid generating pack commands using only a folder path unless the user explicitly asks for it or there is clearly a single matching project.",
+      "When generating CLI-related advice, ask the user whether they are running the latest version of the Integray CLI. If not clear, suggest checking with 'integray --version' and updating using 'dotnet tool update -g Integray.Connector.CLI'.",
+      "Periodically remind the user to check whether they are using the latest version of the Integray CLI, even outside of packaging workflows. Suggest verifying with 'integray --version' and updating using 'dotnet tool update -g Integray.Connector.CLI'.",
+      "When working with connector projects, proactively help the user identify the correct .csproj file by suggesting they inspect the project directory or use file search patterns such as '*.csproj'. If no clear match exists, ask the user to confirm which project file should be used.",
+      "When discussing channels, briefly explain PUBLIC vs PRIVATE and restricted vs non-restricted in simple terms and help the user choose an appropriate channel type for development, testing or production.",
+      "When suggesting 'integray connector publish' commands, remind the user that the package is being published into a specific channel in the Integray Repository. Channels can be managed in the ICR Developer UI at https://icr.integray.app or via CLI commands. If user has stored token and active channel configured, suggest using short form: 'integray connector publish'.",
+      "When helping with connector implementation in C#, guide users to use extension methods: context.GetPrimaryInput() or PrimaryInput property for input, context.GetAdditionalInputs() for additional inputs, Configurations.Get<SchemaName>() for configurations, input.To<DataSchemaName>RowModels() for iterating input rows, result.Output!.AddRow(<RowModel>) for adding output rows. Use ResultFactory.Create() to create results, GetEmptyResult() for empty results. Always check for empty input (input == null || input.IsEmpty) before processing. Use strongly-typed models instead of raw dictionaries. Handle multiple actions via context.Action switch. Access context metadata when needed: HasTaskRunId(), GetTaskRunId(), GetEndpointTokenId(), GetEndpointTokenName().",
+      "When working with checkpoints, suggest using CheckpointManager helper class (Integray.Connector.SDK.Helpers) for complex checkpoint data with multiple values. For simple cases, direct string assignment to result.CheckPoint is sufficient.",
+      "When the user edits configuration or data schemas, mention that the SDK can generate strongly-typed C# models from these schemas, and that structural changes in schemas may require regenerating the corresponding generated code.",
+      "Help the user test connectors using the Integray Connector Test SDK. Prefer fluent construction via TestConnectorContextBuilder and encourage capturing logs (CaptureLogs) and forwarding them to test output (WithLogOutput) when debugging.",
+      "When working with C# code, do not remove or \"optimize away\" using directives that reference namespaces starting with 'Integray.Connector.Generated'. These namespaces are produced by source generators during build time and may appear unused or unresolved in IDEs or AI-assisted editors. Removing them can break compilation even if the IDE reports them as unused.",
+      "If a using directive references 'Integray.Connector.Generated.*', assume it is required unless the corresponding generated code has been intentionally removed and the project no longer relies on Integray SDK source generators.",
+      "When working with Integray connector projects that use SDK source generators, ensure that a sufficiently recent .NET 10 SDK is installed. Older .NET 10 SDK patch versions may fail to resolve generated types during build. If generated namespaces cannot be found during 'dotnet build', verify the SDK version using 'dotnet --info' and upgrade if necessary.",
+      "If build errors report missing namespaces under 'Integray.Connector.Generated.*', first verify the installed .NET SDK version before changing code. Prefer upgrading the .NET 10 SDK to the latest available patch version instead of modifying generated-code references."
+    ],
+    "safety": {
+      "neverDo": [
+        "Do not invent random GUIDs when the user needs a stable identity; instead, ask if a new entity is being created.",
+        "Do not change existing GUIDs or versions in user files unless the user explicitly requests it.",
+        "Do not add fields that are not defined in the official JSON Schemas.",
+        "Do not assume that referenced schemas or files exist; if they are missing, suggest adding the appropriate metadata file or resource instead of silently inventing one."
+      ]
+    }
+  }
+}

@@ -1,0 +1,1143 @@
+{
+  "TransferType": "ConfigTransfer",
+  "ID": 1,
+  "Name": "Generic Worked Example",
+  "CreatedByProduct": "Integray",
+  "CreatedByVersion": "generic-kb",
+  "CreatedBy": "Integray",
+  "CreatedByUrl": "integray.com",
+  "TransferVersion": 6,
+  "Created": "2026-07-14T11:07:42.935Z",
+  "Tasks": [
+    {
+      "Description": null,
+      "Type": 0,
+      "Cron": "0 0 8 * * ? *",
+      "Priority": 99,
+      "DisposeData": false,
+      "IsRunnable": true,
+      "MaxInstances": 1,
+      "TaskRunSuccessDays": null,
+      "TaskRunFailedDays": null,
+      "TimeSchedule": null,
+      "VariablesDefaults": null,
+      "VariablesSchema": null,
+      "TaskGroupCopyID": "1b50e635-9c1b-48ff-b43a-d4c2cd857ebb",
+      "TemplateCopyID": null,
+      "Steps": [
+        {
+          "Timeout": 60,
+          "InputProcessType": 1,
+          "InputProcessThreads": null,
+          "StopIfEmptyOutput": true,
+          "ConnectorStorageSize": 10,
+          "DataSnapshotCondition": 0,
+          "InputSchemaMapping": null,
+          "VariablesSchemaMapping": null,
+          "ErrorBehavior": 1,
+          "InputDataFilter": null,
+          "IsTempDeactivated": false,
+          "Attempts": 1,
+          "AttemptsDelay": 5,
+          "Connector": {
+            "Guid": "1bea42f2-ca51-4ca7-9585-f10323a1d804",
+            "Version": "3.5.6"
+          },
+          "AgentCopyID": "11111111-1111-1111-1111-111111111111",
+          "PrevStepCopyID": null,
+          "InputSchema": null,
+          "OutputSchema": {
+            "CopyID": "8e058ed1-4dc6-435e-a738-a8bb1b95d0cf"
+          },
+          "Configurations": [
+            {
+              "ConfigurationCopyID": "d7663ecf-0ae9-4035-a38a-ced8089018f3",
+              "ConfigurationSchema": {
+                "Guid": "ab00eb5f-e86e-4107-b8cd-b151a204c4c6",
+                "Version": "1.0.5"
+              },
+              "ID": 18,
+              "Name": null,
+              "CopyID": "17b90eda-859b-4966-946e-602acdd8470a"
+            }
+          ],
+          "AdditionalInputs": null,
+          "SelectedActionCode": "defaultAction",
+          "ID": 19,
+          "Name": "Generate report rows",
+          "CopyID": "dcbee3e7-c3e9-41de-9f0f-a440ef26f035"
+        },
+        {
+          "Timeout": 60,
+          "InputProcessType": 2,
+          "InputProcessThreads": null,
+          "StopIfEmptyOutput": false,
+          "ConnectorStorageSize": 10,
+          "DataSnapshotCondition": 0,
+          "InputSchemaMapping": {
+            "ID": "Generate report rows.ID",
+            "Name": "Generate report rows.Name",
+            "Amount": "Generate report rows.Amount",
+            "CreatedAt": "Generate report rows.CreatedAt"
+          },
+          "VariablesSchemaMapping": null,
+          "ErrorBehavior": 1,
+          "InputDataFilter": "{\"Generate report rows.Amount\": [{\"Type\": \"DecimalGt\", \"Value\": 0}]}",
+          "IsTempDeactivated": false,
+          "Attempts": 1,
+          "AttemptsDelay": 5,
+          "Connector": {
+            "Guid": "1bea42f2-ca51-4ca7-9585-f10323a1d804",
+            "Version": "3.5.6"
+          },
+          "AgentCopyID": "11111111-1111-1111-1111-111111111111",
+          "PrevStepCopyID": "dcbee3e7-c3e9-41de-9f0f-a440ef26f035",
+          "InputSchema": {
+            "CopyID": "8e058ed1-4dc6-435e-a738-a8bb1b95d0cf"
+          },
+          "OutputSchema": {
+            "CopyID": "8e058ed1-4dc6-435e-a738-a8bb1b95d0cf"
+          },
+          "Configurations": [
+            {
+              "ConfigurationCopyID": "be326c60-36cf-4ec9-8926-959c75380a4c",
+              "ConfigurationSchema": {
+                "Guid": "ab00eb5f-e86e-4107-b8cd-b151a204c4c6",
+                "Version": "1.0.5"
+              },
+              "ID": 21,
+              "Name": null,
+              "CopyID": "9a26f553-83ab-4bd1-b2fa-440b65b4cfac"
+            }
+          ],
+          "AdditionalInputs": null,
+          "SelectedActionCode": "defaultAction",
+          "ID": 22,
+          "Name": "Enrich rows",
+          "CopyID": "02fb53cc-3b91-41df-8368-adcaa12ef04b"
+        }
+      ],
+      "ID": 23,
+      "Name": "01 Scheduled report",
+      "CopyID": "1cb2da3e-c556-43f3-b6e5-7f235af9e74b"
+    },
+    {
+      "Description": null,
+      "Type": 1,
+      "Cron": null,
+      "Priority": 99,
+      "DisposeData": false,
+      "IsRunnable": true,
+      "MaxInstances": 1,
+      "TaskRunSuccessDays": null,
+      "TaskRunFailedDays": null,
+      "TimeSchedule": null,
+      "VariablesDefaults": null,
+      "VariablesSchema": null,
+      "TaskGroupCopyID": "1b50e635-9c1b-48ff-b43a-d4c2cd857ebb",
+      "TemplateCopyID": null,
+      "Steps": [
+        {
+          "Timeout": 60,
+          "InputProcessType": 1,
+          "InputProcessThreads": null,
+          "StopIfEmptyOutput": false,
+          "ConnectorStorageSize": 10,
+          "DataSnapshotCondition": 0,
+          "InputSchemaMapping": null,
+          "VariablesSchemaMapping": null,
+          "ErrorBehavior": 1,
+          "InputDataFilter": null,
+          "IsTempDeactivated": false,
+          "Attempts": 1,
+          "AttemptsDelay": 5,
+          "Connector": {
+            "Guid": "1bea42f2-ca51-4ca7-9585-f10323a1d804",
+            "Version": "3.5.6"
+          },
+          "AgentCopyID": "11111111-1111-1111-1111-111111111111",
+          "PrevStepCopyID": null,
+          "InputSchema": null,
+          "OutputSchema": {
+            "Guid": "b76c3662-4903-4512-97a9-72f32eaecd01",
+            "Version": "1.0.0"
+          },
+          "Configurations": [
+            {
+              "ConfigurationCopyID": "d92fe0b3-34a4-407f-a6ae-beb2701c2168",
+              "ConfigurationSchema": {
+                "Guid": "ab00eb5f-e86e-4107-b8cd-b151a204c4c6",
+                "Version": "1.0.5"
+              },
+              "ID": 25,
+              "Name": null,
+              "CopyID": "7539cff5-58ba-4fee-8b05-c8326279b1f2"
+            }
+          ],
+          "AdditionalInputs": null,
+          "SelectedActionCode": "defaultAction",
+          "ID": 26,
+          "Name": "Split",
+          "CopyID": "3205ef8c-54ae-4a6f-ac05-c2a5bc665785"
+        },
+        {
+          "Timeout": 60,
+          "InputProcessType": 1,
+          "InputProcessThreads": null,
+          "StopIfEmptyOutput": true,
+          "ConnectorStorageSize": 10,
+          "DataSnapshotCondition": 0,
+          "InputSchemaMapping": null,
+          "VariablesSchemaMapping": null,
+          "ErrorBehavior": 1,
+          "InputDataFilter": null,
+          "IsTempDeactivated": false,
+          "Attempts": 1,
+          "AttemptsDelay": 5,
+          "Connector": {
+            "Guid": "1bea42f2-ca51-4ca7-9585-f10323a1d804",
+            "Version": "3.5.6"
+          },
+          "AgentCopyID": "11111111-1111-1111-1111-111111111111",
+          "PrevStepCopyID": "3205ef8c-54ae-4a6f-ac05-c2a5bc665785",
+          "InputSchema": null,
+          "OutputSchema": {
+            "CopyID": "8e058ed1-4dc6-435e-a738-a8bb1b95d0cf"
+          },
+          "Configurations": [
+            {
+              "ConfigurationCopyID": "acbe397e-d748-4d2b-880a-94ae44a6ebfc",
+              "ConfigurationSchema": {
+                "Guid": "ab00eb5f-e86e-4107-b8cd-b151a204c4c6",
+                "Version": "1.0.5"
+              },
+              "ID": 28,
+              "Name": null,
+              "CopyID": "c6fc7650-5552-48ae-8da4-99810b349ce8"
+            }
+          ],
+          "AdditionalInputs": null,
+          "SelectedActionCode": "defaultAction",
+          "ID": 29,
+          "Name": "Generate batch A",
+          "CopyID": "3bfee2c7-7e85-41f8-97dd-54e98dded2f8"
+        },
+        {
+          "Timeout": 60,
+          "InputProcessType": 2,
+          "InputProcessThreads": null,
+          "StopIfEmptyOutput": false,
+          "ConnectorStorageSize": 10,
+          "DataSnapshotCondition": 0,
+          "InputSchemaMapping": {
+            "ID": "Generate batch A.ID",
+            "Name": "Generate batch A.Name",
+            "Amount": "Generate batch A.Amount",
+            "CreatedAt": "Generate batch A.CreatedAt"
+          },
+          "VariablesSchemaMapping": null,
+          "ErrorBehavior": 1,
+          "InputDataFilter": null,
+          "IsTempDeactivated": false,
+          "Attempts": 1,
+          "AttemptsDelay": 5,
+          "Connector": {
+            "Guid": "1bea42f2-ca51-4ca7-9585-f10323a1d804",
+            "Version": "3.5.6"
+          },
+          "AgentCopyID": "11111111-1111-1111-1111-111111111111",
+          "PrevStepCopyID": "3bfee2c7-7e85-41f8-97dd-54e98dded2f8",
+          "InputSchema": {
+            "CopyID": "8e058ed1-4dc6-435e-a738-a8bb1b95d0cf"
+          },
+          "OutputSchema": {
+            "CopyID": "8e058ed1-4dc6-435e-a738-a8bb1b95d0cf"
+          },
+          "Configurations": [
+            {
+              "ConfigurationCopyID": "d6b84398-29b9-410c-a905-6cd8bb7e1953",
+              "ConfigurationSchema": {
+                "Guid": "ab00eb5f-e86e-4107-b8cd-b151a204c4c6",
+                "Version": "1.0.5"
+              },
+              "ID": 31,
+              "Name": null,
+              "CopyID": "d36e94ac-4626-4da6-a777-5da331c46cc6"
+            }
+          ],
+          "AdditionalInputs": null,
+          "SelectedActionCode": "defaultAction",
+          "ID": 32,
+          "Name": "Filter batch A",
+          "CopyID": "3c544782-edc7-479a-a4d9-7bfe1bd4bebe"
+        },
+        {
+          "Timeout": 60,
+          "InputProcessType": 1,
+          "InputProcessThreads": null,
+          "StopIfEmptyOutput": true,
+          "ConnectorStorageSize": 10,
+          "DataSnapshotCondition": 0,
+          "InputSchemaMapping": null,
+          "VariablesSchemaMapping": null,
+          "ErrorBehavior": 1,
+          "InputDataFilter": null,
+          "IsTempDeactivated": false,
+          "Attempts": 1,
+          "AttemptsDelay": 5,
+          "Connector": {
+            "Guid": "1bea42f2-ca51-4ca7-9585-f10323a1d804",
+            "Version": "3.5.6"
+          },
+          "AgentCopyID": "11111111-1111-1111-1111-111111111111",
+          "PrevStepCopyID": "3205ef8c-54ae-4a6f-ac05-c2a5bc665785",
+          "InputSchema": null,
+          "OutputSchema": {
+            "CopyID": "8e058ed1-4dc6-435e-a738-a8bb1b95d0cf"
+          },
+          "Configurations": [
+            {
+              "ConfigurationCopyID": "a36123de-6cab-4ea6-99f6-745616b112f8",
+              "ConfigurationSchema": {
+                "Guid": "ab00eb5f-e86e-4107-b8cd-b151a204c4c6",
+                "Version": "1.0.5"
+              },
+              "ID": 34,
+              "Name": null,
+              "CopyID": "dbbc9a5d-9ded-47f5-a8be-5f89bea66ab8"
+            }
+          ],
+          "AdditionalInputs": null,
+          "SelectedActionCode": "defaultAction",
+          "ID": 35,
+          "Name": "Generate batch B",
+          "CopyID": "382d6c90-3db1-4578-a709-4bd9ad523f00"
+        },
+        {
+          "Timeout": 60,
+          "InputProcessType": 1,
+          "InputProcessThreads": null,
+          "StopIfEmptyOutput": true,
+          "ConnectorStorageSize": 10,
+          "DataSnapshotCondition": 0,
+          "InputSchemaMapping": null,
+          "VariablesSchemaMapping": null,
+          "ErrorBehavior": 1,
+          "InputDataFilter": null,
+          "IsTempDeactivated": false,
+          "Attempts": 1,
+          "AttemptsDelay": 5,
+          "Connector": {
+            "Guid": "1bea42f2-ca51-4ca7-9585-f10323a1d804",
+            "Version": "3.5.6"
+          },
+          "AgentCopyID": "11111111-1111-1111-1111-111111111111",
+          "PrevStepCopyID": "3205ef8c-54ae-4a6f-ac05-c2a5bc665785",
+          "InputSchema": null,
+          "OutputSchema": {
+            "CopyID": "8e058ed1-4dc6-435e-a738-a8bb1b95d0cf"
+          },
+          "Configurations": [
+            {
+              "ConfigurationCopyID": "b78efdca-2fb1-437b-a043-d5c2c3716e16",
+              "ConfigurationSchema": {
+                "Guid": "ab00eb5f-e86e-4107-b8cd-b151a204c4c6",
+                "Version": "1.0.5"
+              },
+              "ID": 37,
+              "Name": null,
+              "CopyID": "f85cd9d3-e440-413f-95c8-4a84b162df6c"
+            }
+          ],
+          "AdditionalInputs": [
+            {
+              "StepCopyID": "3c544782-edc7-479a-a4d9-7bfe1bd4bebe",
+              "InputDataFilter": null,
+              "InputSchema": {
+                "CopyID": "8e058ed1-4dc6-435e-a738-a8bb1b95d0cf"
+              },
+              "InputSchemaMapping": {
+                "ID": "Generate batch A.Filter batch A.ID",
+                "Name": "Generate batch A.Filter batch A.Name",
+                "Amount": "Generate batch A.Filter batch A.Amount",
+                "CreatedAt": "Generate batch A.Filter batch A.CreatedAt"
+              }
+            },
+            {
+              "StepCopyID": "382d6c90-3db1-4578-a709-4bd9ad523f00",
+              "InputDataFilter": null,
+              "InputSchema": {
+                "CopyID": "8e058ed1-4dc6-435e-a738-a8bb1b95d0cf"
+              },
+              "InputSchemaMapping": {
+                "ID": "Generate batch B.ID",
+                "Name": "Generate batch B.Name",
+                "Amount": "Generate batch B.Amount",
+                "CreatedAt": "Generate batch B.CreatedAt"
+              }
+            }
+          ],
+          "SelectedActionCode": "defaultAction",
+          "ID": 38,
+          "Name": "Merge results",
+          "CopyID": "f3e5a987-9ed6-4c99-a50c-6b8627fea120"
+        }
+      ],
+      "ID": 39,
+      "Name": "02 Multi-branch merge",
+      "CopyID": "0839b1d9-499e-4b33-a5b5-8c4d12f6e4bc"
+    },
+    {
+      "Description": null,
+      "Type": 2,
+      "Cron": null,
+      "Priority": 99,
+      "DisposeData": false,
+      "IsRunnable": true,
+      "MaxInstances": 1,
+      "TaskRunSuccessDays": null,
+      "TaskRunFailedDays": null,
+      "TimeSchedule": null,
+      "VariablesDefaults": null,
+      "VariablesSchema": null,
+      "TaskGroupCopyID": "1b50e635-9c1b-48ff-b43a-d4c2cd857ebb",
+      "TemplateCopyID": null,
+      "Steps": [
+        {
+          "Timeout": 60,
+          "InputProcessType": 1,
+          "InputProcessThreads": null,
+          "StopIfEmptyOutput": true,
+          "ConnectorStorageSize": 10,
+          "DataSnapshotCondition": 0,
+          "InputSchemaMapping": null,
+          "VariablesSchemaMapping": null,
+          "ErrorBehavior": 1,
+          "InputDataFilter": null,
+          "IsTempDeactivated": false,
+          "Attempts": 1,
+          "AttemptsDelay": 5,
+          "Connector": {
+            "Guid": "1bea42f2-ca51-4ca7-9585-f10323a1d804",
+            "Version": "3.5.6"
+          },
+          "AgentCopyID": "11111111-1111-1111-1111-111111111111",
+          "PrevStepCopyID": null,
+          "InputSchema": null,
+          "OutputSchema": {
+            "Guid": "b76c3662-4903-4512-97a9-72f32eaecd01",
+            "Version": "1.0.0"
+          },
+          "Configurations": [
+            {
+              "ConfigurationCopyID": "ffb2f379-ca7a-42e2-9e15-49eb32c44e8e",
+              "ConfigurationSchema": {
+                "Guid": "ab00eb5f-e86e-4107-b8cd-b151a204c4c6",
+                "Version": "1.0.5"
+              },
+              "ID": 41,
+              "Name": null,
+              "CopyID": "78dba7a5-24a7-4ac0-b661-49f873e1e1a3"
+            }
+          ],
+          "AdditionalInputs": null,
+          "SelectedActionCode": "defaultAction",
+          "ID": 42,
+          "Name": "Return status",
+          "CopyID": "2c32ecd9-c0b4-4e62-9f14-dd1636004b0f"
+        }
+      ],
+      "ID": 43,
+      "Name": "03 Endpoint-triggered status",
+      "CopyID": "255a2a5b-7574-4a01-924b-d5dfd064bf07"
+    },
+    {
+      "Description": null,
+      "Type": 1,
+      "Cron": null,
+      "Priority": 99,
+      "DisposeData": false,
+      "IsRunnable": true,
+      "MaxInstances": 1,
+      "TaskRunSuccessDays": null,
+      "TaskRunFailedDays": null,
+      "TimeSchedule": null,
+      "VariablesDefaults": "{\"Label\":null,\"Quantity\":null}",
+      "VariablesSchema": {
+        "CopyID": "1c5bce77-99e8-4b9b-87ec-008b7ddce9f0"
+      },
+      "TaskGroupCopyID": "1b50e635-9c1b-48ff-b43a-d4c2cd857ebb",
+      "TemplateCopyID": null,
+      "Steps": [
+        {
+          "Timeout": 60,
+          "InputProcessType": 1,
+          "InputProcessThreads": null,
+          "StopIfEmptyOutput": true,
+          "ConnectorStorageSize": 10,
+          "DataSnapshotCondition": 0,
+          "InputSchemaMapping": null,
+          "VariablesSchemaMapping": {
+            "Label": "Label",
+            "Quantity": "Quantity"
+          },
+          "ErrorBehavior": 1,
+          "InputDataFilter": null,
+          "IsTempDeactivated": false,
+          "Attempts": 1,
+          "AttemptsDelay": 5,
+          "Connector": {
+            "Guid": "5a70dfd2-9803-4bcf-b090-652b156f7236",
+            "Version": "3.3.0"
+          },
+          "AgentCopyID": "11111111-1111-1111-1111-111111111111",
+          "PrevStepCopyID": null,
+          "InputSchema": null,
+          "OutputSchema": {
+            "CopyID": "1c5bce77-99e8-4b9b-87ec-008b7ddce9f0"
+          },
+          "Configurations": [
+            {
+              "ConfigurationCopyID": "03c7a77f-7d44-4f47-a6b8-faf86ffa5e06",
+              "ConfigurationSchema": {
+                "Guid": "b0b15d2d-cc48-4dcf-9714-0e11eb98b3e5",
+                "Version": "1.0.0"
+              },
+              "ID": 49,
+              "Name": null,
+              "CopyID": "9846face-c684-43f9-904d-f8719872d8e5"
+            }
+          ],
+          "AdditionalInputs": null,
+          "SelectedActionCode": "defaultAction",
+          "ID": 50,
+          "Name": "Generate checkpoint batch",
+          "CopyID": "e1fd1165-491c-44ef-aeda-d68123a12a86"
+        },
+        {
+          "Timeout": 60,
+          "InputProcessType": 1,
+          "InputProcessThreads": null,
+          "StopIfEmptyOutput": true,
+          "ConnectorStorageSize": 10,
+          "DataSnapshotCondition": 0,
+          "InputSchemaMapping": null,
+          "VariablesSchemaMapping": null,
+          "ErrorBehavior": 1,
+          "InputDataFilter": null,
+          "IsTempDeactivated": false,
+          "Attempts": 1,
+          "AttemptsDelay": 5,
+          "Connector": {
+            "Guid": "1bea42f2-ca51-4ca7-9585-f10323a1d804",
+            "Version": "3.5.6"
+          },
+          "AgentCopyID": "11111111-1111-1111-1111-111111111111",
+          "PrevStepCopyID": "e1fd1165-491c-44ef-aeda-d68123a12a86",
+          "InputSchema": null,
+          "OutputSchema": {
+            "CopyID": "1c5bce77-99e8-4b9b-87ec-008b7ddce9f0"
+          },
+          "Configurations": [
+            {
+              "ConfigurationCopyID": "90faaa44-6984-4135-9573-b2d991868843",
+              "ConfigurationSchema": {
+                "Guid": "ab00eb5f-e86e-4107-b8cd-b151a204c4c6",
+                "Version": "1.0.5"
+              },
+              "ID": 52,
+              "Name": null,
+              "CopyID": "2af61e28-180c-4764-9d34-d6ba0ecf7061"
+            }
+          ],
+          "AdditionalInputs": null,
+          "SelectedActionCode": "defaultAction",
+          "ID": 53,
+          "Name": "Report checkpoint status",
+          "CopyID": "3274ddb2-b3fa-4b02-be3b-2b42f1f2364a"
+        }
+      ],
+      "ID": 54,
+      "Name": "04 NodeJS checkpoint + variables demo",
+      "CopyID": "e827affe-362c-4eea-9461-c7fdad77736e"
+    }
+  ],
+  "Connectors": [
+    {
+      "Name": "JS Mapper",
+      "Guid": "1bea42f2-ca51-4ca7-9585-f10323a1d804",
+      "Version": "3.5.6"
+    },
+    {
+      "Name": "Node.js processor",
+      "Guid": "5a70dfd2-9803-4bcf-b090-652b156f7236",
+      "Version": "3.3.0"
+    }
+  ],
+  "DataSchemas": [
+    {
+      "TemplateCopyID": null,
+      "Columns": [
+        {
+          "Order": 0,
+          "Type": 1,
+          "AllowNull": false,
+          "ID": 2,
+          "Name": "ID",
+          "CopyID": "005e5fd1-cfc5-40fc-a1e6-76710643e761"
+        },
+        {
+          "Order": 1,
+          "Type": 2,
+          "AllowNull": true,
+          "ID": 3,
+          "Name": "Name",
+          "CopyID": "c7fb9788-0131-462d-bbba-203c322b1d74"
+        },
+        {
+          "Order": 2,
+          "Type": 9,
+          "AllowNull": true,
+          "ID": 4,
+          "Name": "Amount",
+          "CopyID": "5133e0f6-d02a-49c7-918d-04f1082112ba"
+        },
+        {
+          "Order": 3,
+          "Type": 5,
+          "AllowNull": true,
+          "ID": 5,
+          "Name": "CreatedAt",
+          "CopyID": "379aace0-5ae3-4b3d-811f-27b8649be494"
+        }
+      ],
+      "IsHidden": false,
+      "ID": 6,
+      "Name": "Sample Record",
+      "CopyID": "8e058ed1-4dc6-435e-a738-a8bb1b95d0cf"
+    },
+    {
+      "TemplateCopyID": null,
+      "Columns": [
+        {
+          "Order": 0,
+          "Type": 2,
+          "AllowNull": false,
+          "ID": 7,
+          "Name": "Label",
+          "CopyID": "52606976-e5b1-47c4-8dce-a209417ca293"
+        },
+        {
+          "Order": 1,
+          "Type": 1,
+          "AllowNull": true,
+          "ID": 8,
+          "Name": "Quantity",
+          "CopyID": "829a7ce6-9d6f-4fd3-b68c-62d7ba7c36f7"
+        }
+      ],
+      "IsHidden": false,
+      "ID": 9,
+      "Name": "Sample Item",
+      "CopyID": "1c5bce77-99e8-4b9b-87ec-008b7ddce9f0"
+    },
+    {
+      "TemplateCopyID": null,
+      "Columns": [
+        {
+          "Order": 0,
+          "Type": 1,
+          "AllowNull": false,
+          "ID": 10,
+          "Name": "ID",
+          "CopyID": "ac88f34b-4586-441b-8a83-a67f988bb199"
+        },
+        {
+          "Order": 1,
+          "Type": 7,
+          "AllowNull": true,
+          "ID": 11,
+          "Name": "Items",
+          "CopyID": "2f447b7d-25c4-4e43-b5c7-24e38d187114",
+          "ComplexType": {
+            "CopyID": "1c5bce77-99e8-4b9b-87ec-008b7ddce9f0"
+          }
+        }
+      ],
+      "IsHidden": false,
+      "ID": 12,
+      "Name": "Sample Record With Items",
+      "CopyID": "ec55ed3a-a167-4f36-90dc-c3b20516826a"
+    },
+    {
+      "ID": 13,
+      "Guid": "b76c3662-4903-4512-97a9-72f32eaecd01",
+      "Version": "1.0.0",
+      "Name": "Text",
+      "CopyID": "79385c6f-3b8c-4a01-abbe-39530fbffb2a",
+      "Columns": [
+        {
+          "Order": 0,
+          "Type": 2,
+          "AllowNull": false,
+          "ID": 14,
+          "Name": "Text",
+          "CopyID": "574af88c-bd09-4503-b6d8-49d05d86cfb5"
+        }
+      ]
+    }
+  ],
+  "Agents": [],
+  "TaskGroups": [
+    {
+      "ID": 15,
+      "Name": "01 Examples",
+      "CopyID": "1b50e635-9c1b-48ff-b43a-d4c2cd857ebb"
+    }
+  ],
+  "EndpointGroups": [
+    {
+      "Slug": "examples",
+      "ID": 16,
+      "Name": "01 Examples",
+      "CopyID": "262dd8c8-b4d2-462e-9bad-8c61b8744292"
+    }
+  ],
+  "Endpoints": [
+    {
+      "GetToken": null,
+      "GetInputTaskCopyID": "255a2a5b-7574-4a01-924b-d5dfd064bf07",
+      "GetInputMapping": null,
+      "GetInputSchema": null,
+      "GetOutputSchema": {
+        "Guid": "b76c3662-4903-4512-97a9-72f32eaecd01",
+        "Version": "1.0.0"
+      },
+      "GetOutputMapping": "{\"Text\": \"Return status.Text\"}",
+      "GetOutputStepCopyID": "2c32ecd9-c0b4-4e62-9f14-dd1636004b0f",
+      "GetIsSystemResponse": false,
+      "GetIsSaveOutput": false,
+      "GetFailMessage": null,
+      "GetSaveInputDataCondition": 1,
+      "GetOutputType": 0,
+      "GetSecondaryTokens": [],
+      "PostToken": null,
+      "PostInputTaskCopyID": null,
+      "PostInputMapping": null,
+      "PostInputSchema": null,
+      "PostOutputSchema": null,
+      "PostOutputMapping": null,
+      "PostOutputStepCopyID": null,
+      "PostIsAsync": true,
+      "PostIsSystemResponse": true,
+      "PostIsSaveOutput": false,
+      "PostFailMessage": null,
+      "PostSaveInputDataCondition": 1,
+      "PostOutputType": 0,
+      "PostSecondaryTokens": [],
+      "PatchToken": null,
+      "PatchInputTaskCopyID": null,
+      "PatchInputMapping": null,
+      "PatchInputSchema": null,
+      "PatchOutputSchema": null,
+      "PatchOutputMapping": null,
+      "PatchOutputStepCopyID": null,
+      "PatchIsAsync": true,
+      "PatchIsSystemResponse": true,
+      "PatchIsSaveOutput": false,
+      "PatchFailMessage": null,
+      "PatchSaveInputDataCondition": 1,
+      "PatchSecondaryTokens": [],
+      "PutToken": null,
+      "PutInputTaskCopyID": null,
+      "PutInputMapping": null,
+      "PutInputSchema": null,
+      "PutOutputSchema": null,
+      "PutOutputMapping": null,
+      "PutOutputStepCopyID": null,
+      "PutIsAsync": true,
+      "PutIsSystemResponse": true,
+      "PutIsSaveOutput": false,
+      "PutFailMessage": null,
+      "PutSaveInputDataCondition": 1,
+      "PutSecondaryTokens": [],
+      "DeleteToken": null,
+      "DeleteInputTaskCopyID": null,
+      "DeleteInputMapping": null,
+      "DeleteInputSchema": null,
+      "DeleteOutputSchema": null,
+      "DeleteOutputMapping": null,
+      "DeleteOutputStepCopyID": null,
+      "DeleteIsSystemResponse": true,
+      "DeleteIsSaveOutput": false,
+      "DeleteFailMessage": null,
+      "DeleteSaveInputDataCondition": 1,
+      "DeleteSecondaryTokens": [],
+      "Slug": "status",
+      "AuthenticationType": 0,
+      "IsDelete": false,
+      "AllowedFrom": null,
+      "MaxMessageSize": null,
+      "EndpointGroupCopyID": "262dd8c8-b4d2-462e-9bad-8c61b8744292",
+      "EndpointDataDays": 0,
+      "WaitTime": 60,
+      "ExtendedInfo": null,
+      "TemplateCopyID": null,
+      "ID": 44,
+      "Name": "01 Status",
+      "CopyID": "5a402222-984d-4629-9375-7773123b63ac"
+    },
+    {
+      "GetToken": null,
+      "GetInputTaskCopyID": null,
+      "GetInputMapping": null,
+      "GetInputSchema": null,
+      "GetOutputSchema": null,
+      "GetOutputMapping": null,
+      "GetOutputStepCopyID": null,
+      "GetIsSystemResponse": true,
+      "GetIsSaveOutput": false,
+      "GetFailMessage": null,
+      "GetSaveInputDataCondition": 1,
+      "GetOutputType": 2,
+      "GetSecondaryTokens": [],
+      "PostToken": null,
+      "PostInputTaskCopyID": null,
+      "PostInputMapping": null,
+      "PostInputSchema": null,
+      "PostOutputSchema": null,
+      "PostOutputMapping": null,
+      "PostOutputStepCopyID": null,
+      "PostIsAsync": true,
+      "PostIsSystemResponse": true,
+      "PostIsSaveOutput": false,
+      "PostFailMessage": null,
+      "PostSaveInputDataCondition": 1,
+      "PostOutputType": 0,
+      "PostSecondaryTokens": [],
+      "PatchToken": null,
+      "PatchInputTaskCopyID": null,
+      "PatchInputMapping": null,
+      "PatchInputSchema": null,
+      "PatchOutputSchema": null,
+      "PatchOutputMapping": null,
+      "PatchOutputStepCopyID": null,
+      "PatchIsAsync": true,
+      "PatchIsSystemResponse": true,
+      "PatchIsSaveOutput": false,
+      "PatchFailMessage": null,
+      "PatchSaveInputDataCondition": 1,
+      "PatchSecondaryTokens": [],
+      "PutToken": null,
+      "PutInputTaskCopyID": null,
+      "PutInputMapping": null,
+      "PutInputSchema": null,
+      "PutOutputSchema": null,
+      "PutOutputMapping": null,
+      "PutOutputStepCopyID": null,
+      "PutIsAsync": true,
+      "PutIsSystemResponse": true,
+      "PutIsSaveOutput": false,
+      "PutFailMessage": null,
+      "PutSaveInputDataCondition": 1,
+      "PutSecondaryTokens": [],
+      "DeleteToken": null,
+      "DeleteInputTaskCopyID": null,
+      "DeleteInputMapping": null,
+      "DeleteInputSchema": null,
+      "DeleteOutputSchema": null,
+      "DeleteOutputMapping": null,
+      "DeleteOutputStepCopyID": null,
+      "DeleteIsSystemResponse": true,
+      "DeleteIsSaveOutput": false,
+      "DeleteFailMessage": null,
+      "DeleteSaveInputDataCondition": 1,
+      "DeleteSecondaryTokens": [],
+      "Slug": "storage",
+      "AuthenticationType": 0,
+      "IsDelete": true,
+      "AllowedFrom": null,
+      "MaxMessageSize": null,
+      "EndpointGroupCopyID": "262dd8c8-b4d2-462e-9bad-8c61b8744292",
+      "EndpointDataDays": 0,
+      "WaitTime": 60,
+      "ExtendedInfo": null,
+      "TemplateCopyID": null,
+      "ID": 45,
+      "Name": "02 No-task storage",
+      "CopyID": "8c597fd3-0a48-4c1b-be73-12ac55fade19"
+    },
+    {
+      "GetToken": "rnE9TBvaDso=",
+      "GetInputTaskCopyID": null,
+      "GetInputMapping": null,
+      "GetInputSchema": null,
+      "GetOutputSchema": null,
+      "GetOutputMapping": null,
+      "GetOutputStepCopyID": null,
+      "GetIsSystemResponse": true,
+      "GetIsSaveOutput": false,
+      "GetFailMessage": null,
+      "GetSaveInputDataCondition": 1,
+      "GetOutputType": 2,
+      "GetSecondaryTokens": [],
+      "PostToken": "rnE9TBvaDso=",
+      "PostInputTaskCopyID": null,
+      "PostInputMapping": null,
+      "PostInputSchema": null,
+      "PostOutputSchema": null,
+      "PostOutputMapping": null,
+      "PostOutputStepCopyID": null,
+      "PostIsAsync": true,
+      "PostIsSystemResponse": true,
+      "PostIsSaveOutput": false,
+      "PostFailMessage": null,
+      "PostSaveInputDataCondition": 1,
+      "PostOutputType": 0,
+      "PostSecondaryTokens": [
+        "5adeeb9d-7a90-4c9e-922f-88ffcd5c589a"
+      ],
+      "PatchToken": "rnE9TBvaDso=",
+      "PatchInputTaskCopyID": null,
+      "PatchInputMapping": null,
+      "PatchInputSchema": null,
+      "PatchOutputSchema": null,
+      "PatchOutputMapping": null,
+      "PatchOutputStepCopyID": null,
+      "PatchIsAsync": true,
+      "PatchIsSystemResponse": true,
+      "PatchIsSaveOutput": false,
+      "PatchFailMessage": null,
+      "PatchSaveInputDataCondition": 1,
+      "PatchSecondaryTokens": [],
+      "PutToken": "rnE9TBvaDso=",
+      "PutInputTaskCopyID": null,
+      "PutInputMapping": null,
+      "PutInputSchema": null,
+      "PutOutputSchema": null,
+      "PutOutputMapping": null,
+      "PutOutputStepCopyID": null,
+      "PutIsAsync": true,
+      "PutIsSystemResponse": true,
+      "PutIsSaveOutput": false,
+      "PutFailMessage": null,
+      "PutSaveInputDataCondition": 1,
+      "PutSecondaryTokens": [],
+      "DeleteToken": "rnE9TBvaDso=",
+      "DeleteInputTaskCopyID": null,
+      "DeleteInputMapping": null,
+      "DeleteInputSchema": null,
+      "DeleteOutputSchema": null,
+      "DeleteOutputMapping": null,
+      "DeleteOutputStepCopyID": null,
+      "DeleteIsSystemResponse": true,
+      "DeleteIsSaveOutput": false,
+      "DeleteFailMessage": null,
+      "DeleteSaveInputDataCondition": 1,
+      "DeleteSecondaryTokens": [],
+      "Slug": "secured-storage",
+      "AuthenticationType": 1,
+      "IsDelete": true,
+      "AllowedFrom": null,
+      "MaxMessageSize": null,
+      "EndpointGroupCopyID": "262dd8c8-b4d2-462e-9bad-8c61b8744292",
+      "EndpointDataDays": 0,
+      "WaitTime": 60,
+      "ExtendedInfo": null,
+      "TemplateCopyID": null,
+      "ID": 47,
+      "Name": "03 Token-secured storage",
+      "CopyID": "4f7c7ed9-b95d-43aa-a3bb-aadff435a322"
+    }
+  ],
+  "SecondaryTokens": [
+    {
+      "Description": "⚠ WARNING: this is a REAL, PUBLICLY KNOWN self-test token value (from docs/transfer/config-transfer-format.md §8.2), not an inert placeholder - see docs/transfer/config-transfer-format.md §8.2. Change it before using this endpoint for anything real.",
+      "Token": "rnE9TBvaDso=",
+      "IsEnabled": true,
+      "ID": 46,
+      "Name": "Example Secondary Token",
+      "CopyID": "5adeeb9d-7a90-4c9e-922f-88ffcd5c589a"
+    }
+  ],
+  "Configurations": [
+    {
+      "Configuration": "{\"Statement\": \"return [\\n  { ID: 1, Name: \\\"Sample A\\\", Amount: 12.5, CreatedAt: new Date().toISOString() },\\n  { ID: 2, Name: \\\"Sample B\\\", Amount: 0, CreatedAt: new Date().toISOString() },\\n];\"}",
+      "IsShared": true,
+      "ConfigurationSchema": {
+        "Guid": "ab00eb5f-e86e-4107-b8cd-b151a204c4c6",
+        "Version": "1.0.5"
+      },
+      "TaskCopyID": null,
+      "TemplateCopyID": null,
+      "ID": 17,
+      "Name": "Generate report rows",
+      "CopyID": "d7663ecf-0ae9-4035-a38a-ced8089018f3"
+    },
+    {
+      "Configuration": "{\"Statement\": \"// InputDataFilter (see below) already narrowed inputData to Amount > 0 rows.\\nreturn inputData.map(r => ({ ...r, Name: r.Name + \\\" (enriched)\\\" }));\"}",
+      "IsShared": true,
+      "ConfigurationSchema": {
+        "Guid": "ab00eb5f-e86e-4107-b8cd-b151a204c4c6",
+        "Version": "1.0.5"
+      },
+      "TaskCopyID": null,
+      "TemplateCopyID": null,
+      "ID": 20,
+      "Name": "Enrich rows",
+      "CopyID": "be326c60-36cf-4ec9-8926-959c75380a4c"
+    },
+    {
+      "Configuration": "{\"Statement\": \"return [];\"}",
+      "IsShared": true,
+      "ConfigurationSchema": {
+        "Guid": "ab00eb5f-e86e-4107-b8cd-b151a204c4c6",
+        "Version": "1.0.5"
+      },
+      "TaskCopyID": null,
+      "TemplateCopyID": null,
+      "ID": 24,
+      "Name": "Split",
+      "CopyID": "d92fe0b3-34a4-407f-a6ae-beb2701c2168"
+    },
+    {
+      "Configuration": "{\"Statement\": \"return [\\n  { ID: 1, Name: \\\"Branch A #1\\\", Amount: 5, CreatedAt: new Date().toISOString() },\\n  { ID: 2, Name: \\\"Branch A #2\\\", Amount: -1, CreatedAt: new Date().toISOString() },\\n];\"}",
+      "IsShared": true,
+      "ConfigurationSchema": {
+        "Guid": "ab00eb5f-e86e-4107-b8cd-b151a204c4c6",
+        "Version": "1.0.5"
+      },
+      "TaskCopyID": null,
+      "TemplateCopyID": null,
+      "ID": 27,
+      "Name": "Generate batch A",
+      "CopyID": "acbe397e-d748-4d2b-880a-94ae44a6ebfc"
+    },
+    {
+      "Configuration": "{\"Statement\": \"return inputData;\"}",
+      "IsShared": true,
+      "ConfigurationSchema": {
+        "Guid": "ab00eb5f-e86e-4107-b8cd-b151a204c4c6",
+        "Version": "1.0.5"
+      },
+      "TaskCopyID": null,
+      "TemplateCopyID": null,
+      "ID": 30,
+      "Name": "Filter batch A",
+      "CopyID": "d6b84398-29b9-410c-a905-6cd8bb7e1953"
+    },
+    {
+      "Configuration": "{\"Statement\": \"return [\\n  { ID: 3, Name: \\\"Branch B #1\\\", Amount: 8, CreatedAt: new Date().toISOString() },\\n];\"}",
+      "IsShared": true,
+      "ConfigurationSchema": {
+        "Guid": "ab00eb5f-e86e-4107-b8cd-b151a204c4c6",
+        "Version": "1.0.5"
+      },
+      "TaskCopyID": null,
+      "TemplateCopyID": null,
+      "ID": 33,
+      "Name": "Generate batch B",
+      "CopyID": "a36123de-6cab-4ea6-99f6-745616b112f8"
+    },
+    {
+      "Configuration": "{\"Statement\": \"return [...inputData2, ...inputData3];\"}",
+      "IsShared": true,
+      "ConfigurationSchema": {
+        "Guid": "ab00eb5f-e86e-4107-b8cd-b151a204c4c6",
+        "Version": "1.0.5"
+      },
+      "TaskCopyID": null,
+      "TemplateCopyID": null,
+      "ID": 36,
+      "Name": "Merge results",
+      "CopyID": "b78efdca-2fb1-437b-a043-d5c2c3716e16"
+    },
+    {
+      "Configuration": "{\"Statement\": \"return [{ Text: \\\"OK\\\" }];\"}",
+      "IsShared": true,
+      "ConfigurationSchema": {
+        "Guid": "ab00eb5f-e86e-4107-b8cd-b151a204c4c6",
+        "Version": "1.0.5"
+      },
+      "TaskCopyID": null,
+      "TemplateCopyID": null,
+      "ID": 40,
+      "Name": "Return status",
+      "CopyID": "ffb2f379-ca7a-42e2-9e15-49eb32c44e8e"
+    },
+    {
+      "Configuration": "{\"Statement\": \"if (!DataCheckpoint) {\\n  DataCheckpoint = 0;\\n}\\nlog.warn(\\\"Demo token in use: ${#DemoApiToken}\\\");\\nvar next = DataCheckpoint + 1;\\nreturn [{ Label: \\\"Batch item \\\" + next, Quantity: next }];\", \"DataStorageColumn\": \"Quantity\"}",
+      "IsShared": true,
+      "ConfigurationSchema": {
+        "Guid": "b0b15d2d-cc48-4dcf-9714-0e11eb98b3e5",
+        "Version": "1.0.0"
+      },
+      "TaskCopyID": null,
+      "TemplateCopyID": null,
+      "ID": 48,
+      "Name": "Generate checkpoint batch",
+      "CopyID": "03c7a77f-7d44-4f47-a6b8-faf86ffa5e06"
+    },
+    {
+      "Configuration": "{\"Statement\": \"var lastLabel = \\\"${LocalVariable.Label}\\\";\\nreturn [{ Label: \\\"Checkpoint report: \\\" + lastLabel, Quantity: 0 }];\"}",
+      "IsShared": true,
+      "ConfigurationSchema": {
+        "Guid": "ab00eb5f-e86e-4107-b8cd-b151a204c4c6",
+        "Version": "1.0.5"
+      },
+      "TaskCopyID": null,
+      "TemplateCopyID": null,
+      "ID": 51,
+      "Name": "Report checkpoint status",
+      "CopyID": "90faaa44-6984-4135-9573-b2d991868843"
+    }
+  ],
+  "Variables": [
+    {
+      "Code": "DemoApiToken",
+      "Description": "Example API token consumed via ${#DemoApiToken} in Task '04 NodeJS checkpoint + variables demo' - replace with a real value.",
+      "Value": "<REPLACE_WITH_REAL_VALUE>",
+      "IsSensitive": true,
+      "VariableGroupCopyID": null,
+      "TemplateCopyID": null,
+      "ID": 55,
+      "Name": "Demo API Token",
+      "CopyID": "c0290f3b-ba3c-4b09-9583-3534fe19caa1"
+    }
+  ],
+  "EntityComments": [
+    {
+      "EntityName": "dxtask",
+      "EntityCopyID": "0839b1d9-499e-4b33-a5b5-8c4d12f6e4bc",
+      "CommentData": "<p>Illustrates the standard multi-branch fan-in pattern: a trivial <strong>Split</strong> root step (Bulk, returns <code>[]</code>) that every parallel branch chains off via <code>PrevStepCopyID</code>, then a <strong>Merge results</strong> step (also Bulk, plus <code>AdditionalInputs</code> from every branch) that fans them back into one output. Branch A nests a RowByRowSequentially step under its own Bulk generator (3-segment address), Branch B stays flat (2-segment address) - see docs/entities/data-addressing.md.</p>",
+      "CreatedByName": "Integray",
+      "ModifiedByName": "Integray"
+    },
+    {
+      "EntityName": "dxschema",
+      "EntityCopyID": "ec55ed3a-a167-4f36-90dc-c3b20516826a",
+      "CommentData": "<p>Illustrates a <code>Type:7</code> (Table) column with <code>ComplexType</code> pointing at a sub-schema (<strong>Sample Item</strong>, also present in <code>DataSchemas[]</code>) \u2014 see docs/transfer/config-transfer-format.md \u00a77. Declared standalone here, not wired into any Step/Task in this example.</p>",
+      "CreatedByName": "Integray",
+      "ModifiedByName": "Integray"
+    },
+    {
+      "EntityName": "dxtask",
+      "EntityCopyID": "e827affe-362c-4eea-9461-c7fdad77736e",
+      "CommentData": "<p>Illustrates three mechanisms not covered by the other tasks: <strong>Data Checkpoint</strong> (<code>DataStorageColumn</code> on the Node.js processor step - see docs/entities/data-checkpoint.md), <strong>Local Variables</strong> (<code>VariablesSchema</code>/<code>VariablesDefaults</code> on the Task, written via <code>VariablesSchemaMapping</code> and read back via the <code>${LocalVariable.Label}</code> placeholder - see docs/entities/local-variables.md), and a top-level <strong>Variable</strong> referenced via <code>${#DemoApiToken}</code> - see docs/entities/variables.md. Also the only task in this example using the <strong>Node.js processor</strong> connector instead of JS Mapper.</p>",
+      "CreatedByName": "Integray",
+      "ModifiedByName": "Integray"
+    },
+    {
+      "EntityName": "dxendpoint",
+      "EntityCopyID": "4f7c7ed9-b95d-43aa-a3bb-aadff435a322",
+      "CommentData": "<p>⚠️ <strong>WARNING - REAL TOKEN VALUE, NOT A PLACEHOLDER.</strong> Every <code>*Token</code> field here and the <code>SecondaryTokens[]</code> entry are set to <code>rnE9TBvaDso=</code> - a real, working self-test token value (encrypted/at-rest form; its plaintext counterpart, used in the <code>Authorization: Bearer ...</code> header, is the literal string <code>Token 1</code> - see <code>docs/transfer/config-transfer-format.md §8.2</code> and docs/transfer/config-transfer-format.md §8.2). It is illustrative of the encrypted-vs-plaintext gotcha, <strong>not a safe secret</strong> - anyone who has read this file knows it. <strong>Generate and substitute your own token before using this endpoint for anything real.</strong></p>",
+      "CreatedByName": "Integray",
+      "ModifiedByName": "Integray"
+    }
+  ],
+  "VariableGroups": [],
+  "Templates": [],
+  "Tags": [],
+  "TagMappings": [],
+  "AuthConnections": []
+}

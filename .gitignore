@@ -1,0 +1,15 @@
+.DS_Store
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Company working copies — never in the public KB
+/projects/
+
+# Local product-source index — never in the public KB
+/internal/
+
+# Per-company Remote API connection — never commit
+**/.integray-connection.json
+**/secrets.json
