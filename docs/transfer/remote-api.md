@@ -15,7 +15,19 @@ company slug are independent — do not derive one from the other.
 |---|---|
 | **Integray instance** | Host of the Integray server (the site), e.g. `https://lzoubek.integray.app`. Ask the user explicitly. |
 | **Company slug** | Target company within that instance, used in the URL path (e.g. `companyA`). Same concept as `${#SYSTEM_CompanySlug}` — see `docs/entities/variables.md`. Ask the user explicitly. |
-| **Bearer token** | JWT for Remote API authentication. Send as `Authorization: Bearer {token}`. **Never** hardcode in a transfer JSON, commit to the repo, or store in the KB. |
+| **Remote control token** | Company secret for Remote API auth. Send as `Authorization: Bearer {token}`. This is **not** a user login JWT and **not** an Endpoint token. **Never** hardcode in a transfer JSON, commit to the repo, or store in the KB. |
+
+### Where to get the token
+
+Product UI ([Remote API help](https://learn.integray.app/knowledgebase/productivity/remoteapi/)):
+
+1. On the Integray **Home** page, click the pencil next to the company name → **Company Detail**.
+2. In the **Remote control** section, enable **Allow control** and choose **Token** — Integray generates a **Remote control token**.
+3. Put that value in `projects/<name>/.integray-connection.json` as `token`. Send it as `Authorization: Bearer {token}`.
+
+Same **Company Detail → Remote control** panel has **Open Remote API documentation** (live OpenAPI for that instance).
+
+HTTP 401 means the header is missing or the string does not match this company's token (rotated, empty, or copied from another company). The token does not expire on its own — regenerate it in Company Detail if needed. Never copy `token` between companies.
 
 Full URL pattern:
 
@@ -47,7 +59,7 @@ All Remote API paths below are relative to `{baseUrl}`.
 ## Agent workflow
 
 1. Confirm the user wants to upload/deploy (not just generate the JSON).
-2. Collect **Integray instance** (base URL), **company slug**, and **Bearer token**. Ask
+2. Collect **Integray instance** (base URL), **company slug**, and **Remote control token**. Ask
    for all three when not already provided — the instance hostname does not imply the
    company slug (and vice versa).
 3. **Upload** the transfer file → review the pre-transfer check response.
@@ -98,7 +110,7 @@ import — report findings to the user first.
 
 | HTTP / symptom | Typical cause | What to do |
 |---|---|---|
-| `401 Unauthorized` | Missing, expired, or wrong Bearer token | Verify `Authorization: Bearer {token}` |
+| `401 Unauthorized` | Missing or wrong Remote control token | Verify `Authorization: Bearer {token}` against this company's Company Detail → Remote control. Not a login JWT. |
 | `400` + ProblemDetails `fileName required` | Missing query param `fileName` | Add `?fileName=Transfer_Name.json` to the URL |
 | `400` + empty response body | Server rejected the transfer content (not necessarily a curl mistake) | Validate JSON structure per `docs/transfer/config-transfer-format.md`; try DX UI import to compare |
 | `200` + `succeeded: false` | Missing connectors on target company | Install connectors listed in `connectors[]` before Process |
@@ -111,7 +123,7 @@ The curl example below is the correct multipart format: `?fileName=...` query pa
 ```bash
 BASE_URL="https://lzoubek.integray.app"
 COMPANY_SLUG="companyA"
-TOKEN="your-jwt-token"
+TOKEN="your-remote-control-token"
 TRANSFER_FILE="Transfer_MyTask_2026_08_10_12_00_00.json"
 
 curl -sS -X POST \
@@ -316,6 +328,13 @@ Authorization: Bearer {token}
 
 Requires **Allow sharing remote config transfer** to be enabled on the company. Returns
 `application/octet-stream` with a filename like `Transfer_{CompanyName}_{timestamp}.json`.
+
+Agent path: **`/download-config`** → `scripts/download-config-transfer.py`.
+
+```bash
+python scripts/download-config-transfer.py \
+  --connection projects/<name>/.integray-connection.json
+```
 
 ```bash
 curl -sS -o exported_transfer.json \

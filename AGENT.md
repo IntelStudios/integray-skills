@@ -56,17 +56,17 @@ Read [docs/connector-dev/rules.md](docs/connector-dev/rules.md). Validate metada
 
 ## Development loop (company config)
 
-Scripts for download / validate / process are **not in this repo yet** ([STATUS.md](STATUS.md)). Use curl as in [remote-api.md](docs/transfer/remote-api.md).
-
 ```text
 baseUrl + companySlug + token
-  → GET Download → snapshots/
+  → /download-config → snapshots/
   → edit complete transfer (preserve CopyIDs)
   → POST Upload → pre-check
   → POST Process onlyTest=true
   → POST Process publish=true   (ask / auto from conventions)
-  → GET Download again
+  → /download-config again
 ```
+
+Download: `python scripts/download-config-transfer.py --connection projects/<name>/.integray-connection.json`. Upload / process / backup scripts are not in this repo yet — use curl as in [remote-api.md](docs/transfer/remote-api.md).
 
 Prefer **Backup** before a real Process when conventions say so (default: ask).
 
@@ -109,9 +109,9 @@ When the user asks for a **new empty company** (`projects/<name>/`):
 |-------|-----------------|
 | `baseUrl` | Integray instance URL (not implied by slug) |
 | `companySlug` | Company slug in DX / `${#SYSTEM_CompanySlug}` |
-| `token` | Remote API Bearer JWT |
+| `token` | **Remote control token** — Company Detail → **Remote control** → **Allow control** / **Token**. Not a login JWT. See [remote-api.md](docs/transfer/remote-api.md). |
 
-File is gitignored. Commit the new folder in `projects/` (private repo), not in integray-skills. Download requires **Allow sharing remote config transfer** on the company. Do not download until connection fields are filled.
+File is gitignored. Commit the new folder in `projects/` (private repo), not in integray-skills. Download requires **Allow sharing remote config transfer** on the company. Do not download until connection fields are filled. Next: `/download-config`.
 
 ## Skills
 
@@ -120,9 +120,10 @@ Canonical location: [`.agents/skills/`](.agents/skills/). Claude CLI: [CLAUDE.md
 | Skill | When | File |
 |-------|------|------|
 | `/new-project` | New empty company under `projects/<name>/` | [`.agents/skills/new-project/SKILL.md`](.agents/skills/new-project/SKILL.md) |
+| `/download-config` | Download Config Transfer JSON into `snapshots/` | [`.agents/skills/download-config/SKILL.md`](.agents/skills/download-config/SKILL.md) |
 | `/sync-main` | Hourly check/pull of **integray-skills `main`** | [`.agents/skills/sync-main/SKILL.md`](.agents/skills/sync-main/SKILL.md) |
 
-Download / publish / backup skills land with Fáze 1 scripts. Until then follow [remote-api.md](docs/transfer/remote-api.md) and this playbook.
+Publish / backup skills are not in this repo yet. Until then follow [remote-api.md](docs/transfer/remote-api.md) after a successful download.
 
 ### Change loop `notes.md`
 
@@ -158,7 +159,7 @@ projects/<name>/
 - System schemas: reference `{"Guid","Version"}`. Custom: `{"CopyID"}`.
 - `InputSchemaMapping` must cover every `AllowNull: false` column; mapped columns must share `Type`.
 - After Process with `publish: true`, inspect `publishResult.messages[]`.
-- Never store the Bearer token in transfer JSON or commit it.
+- Never store the Remote control token in transfer JSON or commit it.
 
 ## Checklist before delivery
 

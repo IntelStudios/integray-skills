@@ -72,6 +72,6 @@ Determine from the user message or ask once:
 |-------|-----------------|
 | `baseUrl` | Integray instance URL (User / DX). Independent of company slug. |
 | `companySlug` | Company slug in DX; same as `${#SYSTEM_CompanySlug}` |
-| `token` | Remote API Bearer JWT |
+| `token` | **Remote control token** — Company Detail → **Remote control** → **Allow control** / **Token**. Not a login JWT. See [remote-api.md](../../../docs/transfer/remote-api.md). |
 
-Remind the user that `.integray-connection.json` is gitignored, and that the new folder should be committed in the nested `projects/` repo (not integray-skills). Next step after filling connection: Download (`GET {baseUrl}/api/Remote/{companySlug}/ConfigTransfer/Download`) — see [docs/transfer/remote-api.md](../../../docs/transfer/remote-api.md).
+Remind the user that `.integray-connection.json` is gitignored, and that the new folder should be committed in the nested `projects/` repo (not integray-skills). Next step after filling connection: `/download-config`.

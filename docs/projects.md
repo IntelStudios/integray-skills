@@ -8,7 +8,7 @@ Do **not** use git submodules. Do **not** `git add -f projects/` in integray-ski
 
 Copy [templates/projects-repo/](../templates/projects-repo/) into the private repo root (`.gitignore` + `README.md`). The parent integray-skills `.gitignore` does **not** apply inside `projects/.git` — without that nested ignore, `.integray-connection.json` and snapshots would be committed.
 
-Version `changes/` and convention files. Snapshot JSON may be gitignored in the nested repo (re-download with Download); until download scripts exist, teams may version a known-good transfer — still never commit `token` or `secrets.json`.
+Version `changes/` and convention files. Snapshot JSON may be gitignored in the nested repo; refresh with `/download-config`. Never commit `token` or `secrets.json`.
 
 ## Instance vs company
 

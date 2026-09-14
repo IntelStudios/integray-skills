@@ -7,8 +7,8 @@ Agent-oriented knowledge base for Integray: **Config Transfer JSON** and **.NET 
 1. Read **[AGENT.md](AGENT.md)** — playbook
 2. If `projects/` is empty or missing, set up the nested private repo — **[docs/projects.md](docs/projects.md)**
 3. Per company (`projects/<name>/` = one Integray company on one instance):
-   - Write `projects/<name>/.integray-connection.json` with `baseUrl`, `companySlug`, and Bearer `token`
-   - Download the live config: `GET {baseUrl}/api/Remote/{companySlug}/ConfigTransfer/Download`
+   - Write `projects/<name>/.integray-connection.json` with `baseUrl`, `companySlug`, and the company's **Remote control token**
+   - **`/download-config`** — `GET {baseUrl}/api/Remote/{companySlug}/ConfigTransfer/Download` into `snapshots/`
    - Edit a **complete** transfer (Full Sync — missing entities are proposed for deletion)
    - Dry-run Process with `onlyTest: true`, then Process with `publish: true`
 
@@ -35,6 +35,7 @@ Agent-oriented knowledge base for Integray: **Config Transfer JSON** and **.NET 
 | [docs/connector-dev/](docs/connector-dev/) | Connector project rules |
 | [docs/best-practices.md](docs/best-practices.md) | CopyIDs, names, `VariablesDefaults` |
 | [data/](data/) | Connector, configuration, and data-schema catalogs |
+| [scripts/download-config-transfer.py](scripts/download-config-transfer.py) | Remote API Config Transfer download |
 | `projects/` | One folder per Integray company (not KB; gitignored) |
 
 ## Two tracks

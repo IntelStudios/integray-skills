@@ -13,7 +13,7 @@ This repository is the **generic** knowledge base. It must stay usable without k
 
 ## Config Transfer in one paragraph
 
-Import is **Full Sync**: match by `CopyID` (update vs insert); anything on the target company that is **absent** from the file is proposed for deletion. System connectors and system DataSchemas are referenced by `Guid`+`Version` (`data/connectors.json`, `data/data-schemas.json`). Custom schemas and all company entities use `CopyID`. Remote API: `{baseUrl}/api/Remote/{companySlug}/ConfigTransfer/…` with a Bearer token.
+Import is **Full Sync**: match by `CopyID` (update vs insert); anything on the target company that is **absent** from the file is proposed for deletion. System connectors and system DataSchemas are referenced by `Guid`+`Version` (`data/connectors.json`, `data/data-schemas.json`). Custom schemas and all company entities use `CopyID`. Remote API: `{baseUrl}/api/Remote/{companySlug}/ConfigTransfer/…` with the company's Remote control token (`Authorization: Bearer …`).
 
 ## Catalogs
 
