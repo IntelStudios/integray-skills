@@ -9,12 +9,12 @@
 | Path | Role |
 |------|------|
 | `docs/`, `recipes/`, `data/`, `AGENT.md`, skills, … | Knowledge base. When the user asks what the KB contains or what it says, answer **only** from here. |
-| `projects/` | Company working copies. Gitignored; one **private** git repo = the whole directory. You may **draw from** them when implementing. They are **not** KB content. |
+| `projects/` | Gitignored directory (**not** a git). Each `projects/<name>/` is **its own** private git. You may **draw from** them when implementing. They are **not** KB content. |
 | `internal/` | Optional local playbook (gitignored). Product-source index for this machine. **Not** KB. If it exists, read it when the KB is incomplete. Write extracted facts into the public KB **only in `project-kb` work mode** — do not copy source paths into `docs/` or `recipes/`. |
 
 Do not present `projects/` or `internal/` as “what’s in the KB”. Mention a project path only if the user asks for a sample or a specific company.
 
-**Check `projects/` first** before creating a company folder, downloading a transfer, or otherwise using that tree. If it has no company folder and no nested `projects/.git`, explain the nested-repo intent and **offer** to initialize it — do not silently scaffold `projects/<name>/`. Canonical text: [docs/projects.md](docs/projects.md).
+**Check `projects/<name>/` first** before downloading a transfer or otherwise using that company. `projects/` may be empty — create it as a directory; do **not** `git init` there. If `projects/<name>/` is missing, **offer** clone (if they gave a URL) or `/new-project` — do not silently scaffold. Canonical text: [docs/projects.md](docs/projects.md).
 
 Milestone and leftover work: [STATUS.md](STATUS.md).
 
@@ -92,11 +92,11 @@ Keys in `projects/<name>/conventions.md` (`ask` | `auto`; missing = `ask`):
 
 When the user asks for a **new empty company** (`projects/<name>/`):
 
-0. **Check `projects/`** — [docs/projects.md](docs/projects.md). If there is no company and no nested git, explain the split, **offer** nested-repo init, and stop until `projects/` is ready.
-1. Create `snapshots/`, `changes/` (`.gitkeep` if needed).
+0. **`projects/`** — [docs/projects.md](docs/projects.md). Create `projects/` as a directory if needed. Do **not** `git init` in `projects/`. If `projects/<name>/` already exists, stop.
+1. Create `snapshots/`, `changes/` (`.gitkeep` if needed). Copy [`templates/projects-repo/.gitignore`](templates/projects-repo/.gitignore) and `README.md` into `projects/<name>/`.
 2. Copy [`templates/project/conventions.md`](templates/project/conventions.md) to `projects/<name>/conventions.md`.
 3. Write **only** `projects/<name>/.integray-connection.json` — empty placeholders. **Never** copy `token` from other companies. **Do not** infer `companySlug` from `baseUrl`.
-4. After creation, tell the user what to fill in.
+4. `git init` **inside** `projects/<name>/`. The user hosts a private remote (you do not create it). After creation, tell the user what to fill in.
 
 ```json
 {
@@ -112,7 +112,7 @@ When the user asks for a **new empty company** (`projects/<name>/`):
 | `companySlug` | Company slug in DX / `${#SYSTEM_CompanySlug}` |
 | `token` | **Remote control token** — Company Detail → **Remote control** → **Allow control** / **Token**. Not a login JWT. See [remote-api.md](docs/transfer/remote-api.md). |
 
-File is gitignored. Commit the new folder in `projects/` (private repo), not in integray-skills. Download requires **Allow sharing remote config transfer** on the company. Do not download until connection fields are filled. Next: `/download-config`.
+File is gitignored in the **company** git (template ignore). Commit in `projects/<name>/`, not in integray-skills. Download requires **Allow sharing remote config transfer** on the company. Do not download until connection fields are filled. Next: `/download-config`.
 
 ## Skills
 

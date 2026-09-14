@@ -5,7 +5,7 @@ Agent-oriented knowledge base for Integray: **Config Transfer JSON** and **.NET 
 ## Quick start
 
 1. Read **[AGENT.md](AGENT.md)** — playbook
-2. If `projects/` is empty or missing, set up the nested private repo — **[docs/projects.md](docs/projects.md)**
+2. Each company is `projects/<name>/` as **its own git** (`projects/` is not a repo) — **[docs/projects.md](docs/projects.md)**
 3. Per company (`projects/<name>/` = one Integray company on one instance):
    - Write `projects/<name>/.integray-connection.json` with `baseUrl`, `companySlug`, and the company's **Remote control token**
    - **`/download-config`** — JSON into `snapshots/`
@@ -23,13 +23,13 @@ Agent-oriented knowledge base for Integray: **Config Transfer JSON** and **.NET 
 
 ## Structure
 
-**KB** is everything in this repo **except** `projects/` and `internal/`. Company folders under `projects/` are working copies (gitignored; one private git repo). They are not KB content. See [docs/projects.md](docs/projects.md).
+**KB** is everything in this repo **except** `projects/` and `internal/`. Company folders under `projects/` are working copies (gitignored; one private git **per company**). They are not KB content. See [docs/projects.md](docs/projects.md).
 
 | Path | Purpose |
 |------|---------|
 | [AGENT.md](AGENT.md) | Agent playbook |
 | [STATUS.md](STATUS.md) | Current milestone and what is not done yet |
-| [docs/projects.md](docs/projects.md) | Nested private git for `projects/` |
+| [docs/projects.md](docs/projects.md) | One private git per `projects/<name>/` |
 | [docs/transfer/config-transfer-format.md](docs/transfer/config-transfer-format.md) | Transfer JSON rules (IDs, Full Sync, checklist) |
 | [docs/transfer/remote-api.md](docs/transfer/remote-api.md) | Download / Upload / Process / Backup |
 | [docs/entities/](docs/entities/) | Tasks, mapping, variables, endpoints, … |
@@ -38,7 +38,7 @@ Agent-oriented knowledge base for Integray: **Config Transfer JSON** and **.NET 
 | [data/](data/) | Connector, configuration, and data-schema catalogs |
 | [scripts/download-config-transfer.py](scripts/download-config-transfer.py) | Remote API Config Transfer download |
 | [scripts/backup-config-transfer.py](scripts/backup-config-transfer.py) | Remote API Config Transfer backup (`transferId`) |
-| `projects/` | One folder per Integray company (not KB; gitignored) |
+| `projects/` | One folder per Integray company, each its own git (not KB; gitignored) |
 
 ## Two tracks
 

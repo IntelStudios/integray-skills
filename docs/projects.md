@@ -1,14 +1,19 @@
-# Local projects (nested git)
+# Local projects (one git per company)
 
-**KB** = this repository except `projects/`. **One private git repo = the whole `projects/` directory.** Each Integray **company** is `projects/<name>/` (not its own git repo, not a branch of integray-skills).
+**KB** = this repository except `projects/`. `projects/` is a directory on disk, **not** a git repository. Each Integray **company** is `projects/<name>/` and **that folder is its own private git**. Not a branch of integray-skills. Not one git for all companies. Do **not** use git submodules. Do **not** `git add -f projects/` in integray-skills.
 
-Company working copies (snapshots, transfers, Remote API connection, secrets) must not appear in the public integray-skills repository. The public clone gitignores `/projects/` entirely — there is no `projects/README.md` in the KB, so `git clone <private> projects` can use an empty path.
+```text
+integray-skills/          ← public KB
+  projects/               ← gitignored; not a repo
+    self-test/            ← git clone …/integray-self-test.git
+    company-a/            ← its own git
+```
 
-Do **not** use git submodules. Do **not** `git add -f projects/` in integray-skills. Forks of the KB stay empty of companies.
+Company working copies (snapshots, transfers, Remote API connection, secrets) must not appear in the public integray-skills repository.
 
-Copy [templates/projects-repo/](../templates/projects-repo/) into the private repo root (`.gitignore` + `README.md`). The parent integray-skills `.gitignore` does **not** apply inside `projects/.git` — without that nested ignore, `.integray-connection.json` and snapshots would be committed.
+Copy [templates/projects-repo/](../templates/projects-repo/) (`.gitignore` + `README.md`) into **each** `projects/<name>/`. The parent integray-skills `.gitignore` does **not** apply inside `projects/<name>/.git` — without that ignore, `.integray-connection.json` would be committed.
 
-Version `changes/` and convention files. Snapshot JSON may be gitignored in the nested repo; refresh with `/download-config`. Never commit `token` or `secrets.json`.
+Version `changes/` and convention files. Snapshot JSON may be gitignored in the company repo; refresh with `/download-config`. Never commit `token` or `secrets.json`.
 
 ## Instance vs company
 
@@ -17,75 +22,57 @@ Version `changes/` and convention files. Snapshot JSON may be gitignored in the 
 | **instance** | Integray host (`baseUrl`) | `.integray-connection.json` |
 | **company** | Tenant inside that instance (`companySlug`) | same file; URL path `/api/Remote/{CompanySlug}/` |
 
-One folder = one company. Two companies on the same instance = two folders (do not copy `token` between them).
+One folder = one company = one git. Two companies on the same instance = two folders and two remotes (do not copy `token` between them).
 
-## Setup A — empty `projects/` (fresh KB clone)
-
-`projects/` is missing or empty. Either clone an existing private companies repo, or initialize one:
+## Clone an existing company
 
 ```bash
-git clone <private-url> projects
+git clone <private-url> projects/<name>
 ```
 
-If the private repo has no template files yet:
+Example — self-test:
 
 ```bash
-cp templates/projects-repo/.gitignore templates/projects-repo/README.md projects/
+git clone https://github.com/IntelStudios/integray-self-test.git projects/self-test
 ```
 
-## Setup B — `projects/` already has companies
-
-This machine already has `company-a/`, `company-b/`, … under `projects/` with no nested git:
+If the clone has no template ignore yet:
 
 ```bash
-cd projects
-cp ../templates/projects-repo/.gitignore ../templates/projects-repo/README.md .
+cp templates/projects-repo/.gitignore templates/projects-repo/README.md projects/<name>/
+```
+
+## New empty company
+
+`/new-project` (or the same steps by hand):
+
+```bash
+mkdir -p projects/<name>
+cp templates/projects-repo/.gitignore templates/projects-repo/README.md projects/<name>/
+cp templates/project/conventions.md projects/<name>/conventions.md
+# write empty .integray-connection.json (see AGENT.md)
+cd projects/<name>
 git init
-git add .
-git commit -m "Initial projects repo"
 ```
 
-Then host a **private** remote and:
+Then the user hosts a **private** remote (the agent does not create the GitHub/Azure repo) and:
 
 ```bash
-cd projects
-git remote add origin git@<host>:<org>/<integray-projects>.git
+cd projects/<name>
+git remote add origin git@<host>:<org>/<company-repo>.git
+git add .
+git commit -m "Initial company repo"
 git push -u origin main
 ```
 
 ## Agent check
 
-Before creating a company folder, downloading a transfer, or otherwise using `projects/`:
+Before creating a company folder, downloading a transfer, or otherwise using `projects/<name>/`:
 
-1. Look at `projects/`. It is ready if it contains at least one company folder (`projects/<name>/`) **or** a nested `projects/.git`.
-2. **If ready** — continue. A new company belongs in the same private repo.
-3. **If not** (`projects/` missing, empty, or neither git nor a company):
-   - Explain the intent (public KB, one private git for all companies, nested `.gitignore` for connection files and secrets).
-   - **Offer** to initialize the nested repo. Do not run it until the user says yes. Do not silently create only `projects/<name>/`.
-   - After init, tell the user to host a **private** remote themselves (the agent does not create the remote) and connect it.
-
-## Initialize a nested repo
-
-After the user agrees:
-
-```bash
-mkdir -p projects
-cp templates/projects-repo/.gitignore templates/projects-repo/README.md projects/
-cd projects
-git init
-```
-
-Then the user hosts an empty **private** repository and:
-
-```bash
-cd projects
-git remote add origin git@<host>:<org>/<integray-projects>.git
-git add .
-git commit -m "Initial projects repo"
-git push -u origin main
-```
-
-`/new-project` adds `projects/<name>/` into this same private repo (including `conventions.md` from [`templates/project/conventions.md`](../templates/project/conventions.md)). Commit there, not in integray-skills.
+1. `projects/` may be missing or empty — that is fine. Create `projects/` as a normal directory if needed. Do **not** `git init` in `projects/`.
+2. For work on a named company, `projects/<name>/` must exist (clone or `/new-project`).
+3. Do **not** silently scaffold `projects/<name>/`. If the folder is missing, **offer** clone (if they gave a URL) or `/new-project`.
+4. Commit company files in `projects/<name>/`, never in integray-skills.
 
 ## Company conventions
 
@@ -95,4 +82,4 @@ git push -u origin main
 
 ## Self-test
 
-The Integray self-test company is a normal project folder (`projects/self-test/`), not a branch of this KB. Until that private repo exists, the live overlay is still `SmarterMDM-IntegrayTest` branch `self-test` (`specific/`). Do not merge that overlay into integray-skills.
+The Integray self-test company is `projects/self-test/` — its own git, remote `https://github.com/IntelStudios/integray-self-test.git`. Until that clone is filled from the old overlay, the live copy is still `SmarterMDM-IntegrayTest` branch `self-test` (`specific/`). Do not merge that overlay into integray-skills. Do not commit token pools.

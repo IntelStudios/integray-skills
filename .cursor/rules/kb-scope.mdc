@@ -11,4 +11,4 @@ When the user asks what the KB contains or what it says, answer only from KB pat
 
 You may **draw from** `projects/` when implementing. Mention a project path only if they ask for a sample or a specific company. If `internal/` exists, read it when the KB is incomplete; write extracted facts into the public KB **only in `project-kb` work mode** (`internal/work-mode.md`; missing file → `project`). Do not copy source paths into `docs/` or `recipes/`.
 
-Before creating a company folder, downloading a transfer, or otherwise using `projects/`, check that it has a company folder or nested `projects/.git`. If not, explain the nested-repo intent and offer to initialize it — see [docs/projects.md](../../docs/projects.md). Do not silently scaffold `projects/<name>/`.
+Before downloading a transfer or otherwise using `projects/<name>/`, that folder must exist (clone or `/new-project`). `projects/` is a directory, not a git. If the company folder is missing, offer clone or `/new-project` — see [docs/projects.md](../../docs/projects.md). Do not silently scaffold `projects/<name>/`. Do not `git init` in `projects/`.

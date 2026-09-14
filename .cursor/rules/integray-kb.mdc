@@ -12,5 +12,5 @@ Read [AGENT.md](../../AGENT.md) first when the user asks to create or modify Int
 - Connection: `projects/<name>/.integray-connection.json` with `baseUrl`, `companySlug`, and Remote control `token`. Do not infer slug from hostname. Never copy tokens between companies.
 - Download live config with `/download-config` before editing an existing company. `/backup` is an on-instance undo point before Process — not a local snapshot.
 - Working format is Config Transfer **JSON**. Do not invent a YAML entity spec.
-- Company copies are not KB. Nested private git: [docs/projects.md](../../docs/projects.md).
+- Company copies are not KB. One private git per `projects/<name>/`: [docs/projects.md](../../docs/projects.md).
 - Connector track: [docs/connector-dev/rules.md](../../docs/connector-dev/rules.md).

@@ -2,7 +2,7 @@
 
 **KB** = this repository **except** `projects/` and `internal/`. When the user asks what the KB contains or what it says, answer only from `docs/`, `recipes/`, `data/`, `AGENT.md`, skills — not from `projects/` or `internal/`. You may draw from `projects/` when implementing; they are company working copies, not KB.
 
-**Check `projects/` first** before creating a company folder or downloading a transfer. If it has no company folder and no nested `projects/.git`, explain the nested-repo intent and **offer** to initialize it — do not silently scaffold `projects/<name>/`. See [docs/projects.md](docs/projects.md).
+**Check `projects/<name>/` first** before downloading a transfer. `projects/` is a directory, not a git — each company folder is its own git. If `projects/<name>/` is missing, **offer** clone or `/new-project` — do not silently scaffold. See [docs/projects.md](docs/projects.md).
 
 When the user asks to create or modify Integray transfers, tasks, endpoints, or connectors:
 

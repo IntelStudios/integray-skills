@@ -1,9 +1,9 @@
 # Remote API connection (parent integray-skills .gitignore does not apply here)
-**/.integray-connection.json
+.integray-connection.json
 
 # Secrets / token pools — never commit
-**/secrets.json
+secrets.json
 **/*tokens*.md
 
 # Optional: large snapshot downloads (uncomment if you re-fetch instead of versioning)
-# **/snapshots/**/*.json
+# snapshots/**/*.json

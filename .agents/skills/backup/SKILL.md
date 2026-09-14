@@ -18,7 +18,7 @@ Read [AGENT.md](../../../AGENT.md). Protocol: [docs/transfer/remote-api.md](../.
 
 ## Prerequisites
 
-- `projects/` is ready: a company folder **or** nested `projects/.git`. If not, follow [docs/projects.md](../../../docs/projects.md).
+- `projects/<name>/` exists (clone or `/new-project`). `projects/` is a directory, not a git. If the company folder is missing, follow [docs/projects.md](../../../docs/projects.md).
 - `projects/<name>/.integray-connection.json` exists and is filled in:
   - `baseUrl` — Integray instance URL (not implied by slug)
   - `companySlug` — company in that instance

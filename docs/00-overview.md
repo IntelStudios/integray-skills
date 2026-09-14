@@ -2,7 +2,7 @@
 
 Integray is an integration platform: **tasks** made of **steps**, each step using a **connector** action. Configuration moves between companies as a **Config Transfer** JSON file.
 
-This repository is the **generic** knowledge base. It must stay usable without knowing any one company. Live company transfers, credentials, and conventions live under `projects/` (see [projects.md](projects.md)).
+This repository is the **generic** knowledge base. It must stay usable without knowing any one company. Live company transfers, credentials, and conventions live under `projects/<name>/` — each company is its own git; `projects/` is not a repo (see [projects.md](projects.md)).
 
 ## Two work tracks
 
