@@ -414,6 +414,50 @@ curl -sS -X POST \
 
 ---
 
+## List and Delete (transfer records on the instance)
+
+These operate on **stored records** in DX (from Backup or Upload), not on `snapshots/` files.
+
+### List
+
+```
+GET /api/Remote/{CompanySlug}/ConfigTransfer/List
+Authorization: Bearer {token}
+```
+
+Returns metadata of **active** records. The transfer JSON is **not** in the response. Inactive (deleted) records are omitted.
+
+Typical fields (camelCase): `id`, `fileName`, `requirementsChecked`, `processedBy`, `processedDate`, `createdByProduct`, `createdByVersion`, `created`, `transferVersion`, `createdByUser`, `createdByUrl`.
+
+`id` is the same number as `transferId` from Backup/Upload — use it with Process or Delete.
+
+```bash
+curl -sS \
+  "${BASE_URL}/api/Remote/${COMPANY_SLUG}/ConfigTransfer/List" \
+  -H "Authorization: Bearer ${TOKEN}"
+```
+
+### Delete
+
+Soft-deletes an active record. Does not change the live company configuration.
+
+```
+DELETE /api/Remote/{CompanySlug}/ConfigTransfer/{transferId}
+Authorization: Bearer {token}
+```
+
+**404** when the record does not exist, belongs to another company, or is already inactive.
+
+```bash
+curl -sS -X DELETE \
+  "${BASE_URL}/api/Remote/${COMPANY_SLUG}/ConfigTransfer/${TRANSFER_ID}" \
+  -H "Authorization: Bearer ${TOKEN}"
+```
+
+No agent skill. Use when the user asks to list or remove server-side transfer records (e.g. after `/backup`). Do not Process a Backup `id` as the deploy — Process the id from Upload.
+
+---
+
 ## Cross-links
 
 | Topic | File |
