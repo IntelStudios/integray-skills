@@ -27,6 +27,12 @@ Variables, Agents, Tags, ...) between Integray instances. Import is a **Full Syn
 entities matched by identifier are updated, unmatched ones are inserted, and anything
 present in the target instance but absent from the transfer is proposed for deletion.
 
+Full Sync is about which entities exist. It does not by itself overwrite variable
+values, endpoint tokens, task triggers, runnable settings, or retention on entities
+that already exist. Those stay unless Process is called with the matching
+`override*` field set to `true` (defaults are `false`) — see
+`docs/transfer/remote-api.md` (Process filter).
+
 Import can be performed via the DX UI or programmatically through the Integray Remote API
 (Upload → Process) — see `docs/transfer/remote-api.md`.
 

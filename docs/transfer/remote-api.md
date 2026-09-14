@@ -184,7 +184,9 @@ agent sets based on user choice.
 | `importEntityTags` | `false` | Import entity tags from the transfer. |
 | `dataSnapshotCondition` | omitted | `0` = Never, `1` = OnError, `2` = EveryTime, `null` = keep current per step. |
 
-Import behaviour is **Full Sync** — see `docs/transfer/config-transfer-format.md` §1.
+Missing entities are still proposed for deletion (Full Sync,
+`docs/transfer/config-transfer-format.md` §1). The `override*` flags above only
+control whether those fields on existing entities are replaced from the file.
 
 ### Response — `RemoteTransferProcessResult`
 
