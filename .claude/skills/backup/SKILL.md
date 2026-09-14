@@ -69,3 +69,5 @@ Upload the edited complete transfer, then Process **that** Upload id (`onlyTest`
 - **401** — missing or wrong Remote control token. Ask the user to paste the current token from Company Detail → Remote control into `.integray-connection.json`. Do not use a DX login JWT.
 - **404** — wrong `baseUrl` or `companySlug` (do not guess slug from hostname). If both are correct, the company may be missing from the runtime configuration cache — publish it in DX and retry.
 - **Timeout** — large companies can be slow; retry with higher `--timeout`.
+
+Remote API errors **401/403/404/400** often have an **empty body**. Use the status code; do not treat a missing JSON error as a client bug.

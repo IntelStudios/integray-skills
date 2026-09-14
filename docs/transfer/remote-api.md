@@ -31,6 +31,8 @@ HTTP 401 means the header is missing or the string does not match this company's
 
 HTTP **404** means `{CompanySlug}` was not found in the **runtime configuration cache** (the published company), not merely “this slug exists in Company Detail”. Typical causes: typo in `companySlug` / `baseUrl` (do not guess the slug from the hostname), or the company has never been published / the last publish failed. If the slug is correct, publish the company in DX and retry.
 
+**Empty error bodies.** For **401**, **403**, **404**, and many **400**s the Runtime sets the status and writes **no JSON** (no ProblemDetails, no `message`). An empty curl body is normal — interpret the status using this file, not the payload. **422** on Process is the exception: it includes `publishResult`. **500** is also often body-less.
+
 Full URL pattern:
 
 ```
