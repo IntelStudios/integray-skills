@@ -139,6 +139,15 @@ import — report findings to the user first.
 The curl example below is the correct multipart format: `?fileName=...` query param +
 `-F "file=@...;type=application/json"`.
 
+Agent path: **`/publish`** (Upload is the first step) → `scripts/upload-config-transfer.py`.
+
+```bash
+python scripts/upload-config-transfer.py \
+  --connection projects/<name>/.integray-connection.json
+```
+
+Default file: the single `*.json` under `working/`. Override with `--file`.
+
 ### curl example
 
 ```bash
@@ -240,6 +249,22 @@ Task-bound GET endpoints may return **201** with `Content-Type: text/html` (or a
 raw type per §8.4) instead of the usual JSON wrapper.
 
 ### curl examples
+
+Agent path: **`/publish`** → `scripts/process-config-transfer.py` (`--only-test`, then `--publish`). Use the `transferId` from Upload.
+
+```bash
+python scripts/process-config-transfer.py \
+  --connection projects/<name>/.integray-connection.json \
+  --transfer-id <upload-id> \
+  --only-test
+
+python scripts/process-config-transfer.py \
+  --connection projects/<name>/.integray-connection.json \
+  --transfer-id <upload-id> \
+  --publish
+```
+
+`--apply` is Process with `publish: false` (no cache rebuild). Rare; prefer `--publish`.
 
 **Dry-run (no changes applied):**
 

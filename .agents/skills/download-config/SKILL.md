@@ -62,7 +62,7 @@ Optional flags:
 
 Note the JSON path from stdout (`Wrote projects/<name>/snapshots/<stamp>/<file>.json`).
 
-Keep the snapshot; do not delete it. Do not generate a partial transfer from this download — import is Full Sync.
+Keep the snapshot; do not delete it and **do not edit it**. Import is Full Sync — do not generate a partial transfer from this download.
 
 ## Output
 
@@ -76,7 +76,7 @@ Remove `snapshots/.gitkeep` if real content was written.
 
 ## On success — suggest next step
 
-Editing starts from this snapshot (preserve CopyIDs). Do not offer `/publish` from download alone.
+Editing starts from a **copy** of this snapshot in `working/` (preserve CopyIDs). Overwrite `working/` when starting from this download. Do not offer `/publish` from download alone.
 
 ## Errors
 

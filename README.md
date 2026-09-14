@@ -8,18 +8,17 @@ Agent-oriented knowledge base for Integray: **Config Transfer JSON** and **.NET 
 2. Each company is `projects/<name>/` as **its own git** (`projects/` is not a repo) — **[docs/projects.md](docs/projects.md)**
 3. Per company (`projects/<name>/` = one Integray company on one instance):
    - Write `projects/<name>/.integray-connection.json` with `baseUrl`, `companySlug`, and the company's **Remote control token**
-   - **`/download-config`** — JSON into `snapshots/`
-   - Edit a **complete** transfer (Full Sync — missing entities are proposed for deletion)
-   - **`/backup`** before Process when conventions say so (server `transferId`, not a local file)
-   - Dry-run Process with `onlyTest: true`, then Process with `publish: true`
+   - **`/download-config`** — JSON into `snapshots/<stamp>/` (do not edit)
+   - Copy the newest snapshot into `working/` and edit that **complete** transfer (Full Sync)
+   - **`/publish`** when asked — backup per conventions, Upload `working/`, Process `onlyTest`, then `publish`
 
 ## Read vs generate
 
 | | Config Transfer |
 |---|---|
-| **integray-skills reads** | Download via Remote API → snapshot under `projects/<name>/snapshots/` |
-| **integray-skills generates** | Full Config Transfer JSON (not a delta) |
-| **Deploy** | Remote API Upload → Process (`onlyTest` then `publish`) |
+| **integray-skills reads** | Download via Remote API → `projects/<name>/snapshots/` |
+| **integray-skills generates** | Full Config Transfer JSON in `working/` (not a delta) |
+| **Deploy** | Upload `working/` → Process (`onlyTest` then `publish`) — [remote-api.md](docs/transfer/remote-api.md) |
 
 ## Structure
 
@@ -38,6 +37,8 @@ Agent-oriented knowledge base for Integray: **Config Transfer JSON** and **.NET 
 | [data/](data/) | Connector, configuration, and data-schema catalogs |
 | [scripts/download-config-transfer.py](scripts/download-config-transfer.py) | Remote API Config Transfer download |
 | [scripts/backup-config-transfer.py](scripts/backup-config-transfer.py) | Remote API Config Transfer backup (`transferId`) |
+| [scripts/upload-config-transfer.py](scripts/upload-config-transfer.py) | Remote API Config Transfer upload (pre-check + `transferId`) |
+| [scripts/process-config-transfer.py](scripts/process-config-transfer.py) | Remote API Process (`--only-test` / `--publish`) |
 | `projects/` | One folder per Integray company, each its own git (not KB; gitignored) |
 
 ## Two tracks

@@ -13,7 +13,7 @@ Company working copies (snapshots, transfers, Remote API connection, secrets) mu
 
 Copy [templates/projects-repo/](../templates/projects-repo/) (`.gitignore` + `README.md`) into **each** `projects/<name>/`. The parent integray-skills `.gitignore` does **not** apply inside `projects/<name>/.git` — without that ignore, `.integray-connection.json` would be committed.
 
-Version `changes/` and convention files. Snapshot JSON may be gitignored in the company repo; refresh with `/download-config`. Never commit `token` or `secrets.json`.
+Version `working/`, convention files, and snapshot stamps you want to keep. **Do not edit** files under `snapshots/` — copy the newest stamp into `working/` and edit that. Never commit `token` or `secrets.json`.
 
 ## Instance vs company
 
@@ -51,6 +51,7 @@ mkdir -p projects/<name>
 cp templates/projects-repo/.gitignore templates/projects-repo/README.md projects/<name>/
 cp templates/project/conventions.md projects/<name>/conventions.md
 # write empty .integray-connection.json (see AGENT.md)
+mkdir -p projects/<name>/snapshots projects/<name>/working
 cd projects/<name>
 git init
 ```
@@ -74,6 +75,17 @@ Before creating a company folder, downloading a transfer, or otherwise using `pr
 3. Do **not** silently scaffold `projects/<name>/`. If the folder is missing, **offer** clone (if they gave a URL) or `/new-project`.
 4. Commit company files in `projects/<name>/`, never in integray-skills.
 
+## Snapshots vs working
+
+| Path | Role |
+|------|------|
+| `snapshots/<stamp>/*.json` | Output of `/download-config`. Immutable. New download = new stamp. |
+| `working/*.json` | Copy of the newest snapshot. Edit here. Upload this file. |
+
+Start work: copy the newest snapshot into `working/` (overwrite if you are starting from a fresh download). Two parallel edits = a git branch, not a second working folder. There is no `changes/<slug>/` loop.
+
+After a successful Process with `publish: true`, `/download-config` again, then copy that snapshot into `working/`. Deploy is `/publish` (Upload `working/` → Process `--only-test` → `--publish` per conventions).
+
 ## Company conventions
 
 `projects/<name>/conventions.md` holds **company-specific** rules. The agent reads it at the start of company work. Template defaults: **Agent loop** `ask` for publish after dry-run, download after publish, and backup before process. Edit per company; do not put these rules into the public KB.
@@ -82,4 +94,4 @@ Before creating a company folder, downloading a transfer, or otherwise using `pr
 
 ## Self-test
 
-The Integray self-test company is `projects/self-test/` — its own git, remote `https://github.com/IntelStudios/integray-self-test.git`. Until that clone is filled from the old overlay, the live copy is still `SmarterMDM-IntegrayTest` branch `self-test` (`specific/`). Do not merge that overlay into integray-skills. Do not commit token pools.
+The Integray self-test company is `projects/self-test/` — its own git, remote `https://github.com/IntelStudios/integray-self-test.git`. Do not merge company files into integray-skills. Do not commit token pools.

@@ -14,7 +14,7 @@
 > not in `data/configuration-schemas.json` — connector-specific overrides),
 > `docs/transfer/remote-api.md` (upload and process a transfer via the Integray Remote API),
 > `examples/generic_worked_example.json`
-> (generic worked example, §10). Company working copies live under `projects/<name>/`
+> (generic worked example, §10). Company working copies live under `projects/<name>/working/`
 > (not KB). Read that project's `conventions.md` and live transfer when implementing
 > for a specific company — they may extend or override generic rules.
 

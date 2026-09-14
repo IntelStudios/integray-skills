@@ -8,8 +8,21 @@ python scripts/download-config-transfer.py \
 
 python scripts/backup-config-transfer.py \
   --connection projects/<name>/.integray-connection.json
+
+python scripts/upload-config-transfer.py \
+  --connection projects/<name>/.integray-connection.json
+
+python scripts/process-config-transfer.py \
+  --connection projects/<name>/.integray-connection.json \
+  --transfer-id <upload-id> \
+  --only-test
+
+python scripts/process-config-transfer.py \
+  --connection projects/<name>/.integray-connection.json \
+  --transfer-id <upload-id> \
+  --publish
 ```
 
-Download writes JSON under `snapshots/`. Backup stores a record on the instance and prints `transferId`. Process the id from Upload, not from Backup.
+Download writes JSON under `snapshots/` (do not edit). Copy into `working/` to edit. Upload sends `working/` (or `--file`) and prints `transferId`. Process that id (`--only-test`, then `--publish`). Do not Process a Backup id. `--apply` is Process with `publish: false` (rare).
 
-Still planned: `upload-config-transfer.py`, `process-config-transfer.py` (`--only-test` / `--publish`), `validate-transfer.py`.
+Still planned: `validate-transfer.py`.

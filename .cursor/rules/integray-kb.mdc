@@ -10,7 +10,7 @@ Read [AGENT.md](../../AGENT.md) first when the user asks to create or modify Int
 - Config Transfer import is **Full Sync**. Do not generate a partial file that would delete entities on the target company.
 - Preserve **CopyID**s when editing a transfer that was already imported ([recipes/edit-existing-transfer.md](../../recipes/edit-existing-transfer.md)).
 - Connection: `projects/<name>/.integray-connection.json` with `baseUrl`, `companySlug`, and Remote control `token`. Do not infer slug from hostname. Never copy tokens between companies.
-- Download live config with `/download-config` before editing an existing company. `/backup` is an on-instance undo point before Process — not a local snapshot.
+- Download live config with `/download-config` into `snapshots/` (do not edit those files). Copy into `working/` before editing. `/backup` is an on-instance undo point before Process — not a local snapshot.
 - Working format is Config Transfer **JSON**. Do not invent a YAML entity spec.
 - Company copies are not KB. One private git per `projects/<name>/`: [docs/projects.md](../../docs/projects.md).
 - Connector track: [docs/connector-dev/rules.md](../../docs/connector-dev/rules.md).

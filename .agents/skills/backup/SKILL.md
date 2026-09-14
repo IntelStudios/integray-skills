@@ -62,7 +62,7 @@ Report:
 
 ## On success — next step
 
-Upload the edited complete transfer, then Process **that** Upload id (`onlyTest`, then `publish` per conventions). Do not offer `/publish` from backup alone.
+When the user wants to deploy `working/`, follow `/publish` (Upload this file, Process that Upload id). Do not offer `/publish` from backup alone.
 
 ## Errors
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Integray Remote API connection, Config Transfer download, and backup."""
+"""Integray Remote API connection, Config Transfer download, backup, upload, and process."""
 
 from __future__ import annotations
 
@@ -217,3 +217,203 @@ def backup_config_transfer(
         raise RemoteError(
             f"{config.backup_url}: transferId is not an integer: {transfer_id!r}"
         ) from exc
+
+
+@dataclass
+class UploadCheckResult:
+    transfer_id: int
+    succeeded: bool
+    has_unresolved_references: bool
+    has_sensitive_variables: bool
+    connectors: list
+    sensitive_variables: list
+    raw: dict
+
+
+@dataclass
+class ProcessResult:
+    http_status: int
+    only_test: bool
+    publish: bool
+    publish_result: dict | None
+    raw: dict | None
+
+
+def _json_flag(payload: dict, *keys: str, default: bool = False) -> bool:
+    for key in keys:
+        if key in payload:
+            return bool(payload[key])
+    return default
+
+
+def resolve_working_file(project: Path, file: Path | None = None) -> Path:
+    """Return the Config Transfer JSON to Upload. Default: the single *.json in working/."""
+    if file is not None:
+        path = Path(file)
+        if not path.is_file():
+            raise RemoteError(f"{path}: file not found")
+        return path
+    working = Path(project) / "working"
+    jsons = sorted(p for p in working.glob("*.json") if p.is_file())
+    if len(jsons) == 1:
+        return jsons[0]
+    if not jsons:
+        raise RemoteError(
+            f"{working}: no *.json. Copy the newest snapshot into working/ first."
+        )
+    names = ", ".join(p.name for p in jsons)
+    raise RemoteError(
+        f"{working}: multiple JSON files ({names}). Pass --file path."
+    )
+
+
+def _require_config_transfer_file(path: Path) -> None:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise RemoteError(f"{path}: not UTF-8 JSON ({exc})") from exc
+    if not isinstance(payload, dict):
+        raise RemoteError(f"{path}: expected a JSON object (Config Transfer)")
+    transfer_type = payload.get("TransferType")
+    if transfer_type and transfer_type != "ConfigTransfer":
+        raise RemoteError(
+            f"{path}: TransferType is {transfer_type!r}, expected 'ConfigTransfer'"
+        )
+
+
+def upload_config_transfer(
+    config: ConnectionConfig,
+    path: Path,
+    *,
+    timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
+    client: httpx.Client | None = None,
+) -> UploadCheckResult:
+    """POST Config Transfer Upload (multipart). Does not apply. Returns pre-check."""
+    path = Path(path)
+    _require_config_transfer_file(path)
+    file_name = path.name
+    url = config.config_transfer_url("Upload")
+    headers = config.auth_headers(accept="application/json")
+    content = path.read_bytes()
+
+    own_client = client is None
+    http = client or httpx.Client(timeout=timeout_seconds, follow_redirects=True)
+    try:
+        try:
+            response = http.post(
+                url,
+                headers=headers,
+                params={"fileName": file_name},
+                files={"file": (file_name, content, "application/json")},
+            )
+        except httpx.HTTPError as exc:
+            raise RemoteError(f"{url}: {exc}") from exc
+    finally:
+        if own_client:
+            http.close()
+
+    _raise_http_error(url, response)
+
+    try:
+        payload = response.json()
+    except json.JSONDecodeError as exc:
+        raise RemoteError(f"{url}: response is not JSON ({exc})") from exc
+    if not isinstance(payload, dict):
+        raise RemoteError(f"{url}: expected a JSON object")
+
+    transfer_id = payload.get("transferId", payload.get("TransferId"))
+    if transfer_id is None:
+        raise RemoteError(f"{url}: missing transferId in {payload!r}")
+    try:
+        transfer_id_int = int(transfer_id)
+    except (TypeError, ValueError) as exc:
+        raise RemoteError(f"{url}: transferId is not an integer: {transfer_id!r}") from exc
+
+    connectors = payload.get("connectors", payload.get("Connectors")) or []
+    if not isinstance(connectors, list):
+        connectors = []
+    sensitive = (
+        payload.get("sensitiveVariables", payload.get("SensitiveVariables")) or []
+    )
+    if not isinstance(sensitive, list):
+        sensitive = []
+
+    return UploadCheckResult(
+        transfer_id=transfer_id_int,
+        succeeded=_json_flag(payload, "succeeded", "Succeeded", default=False),
+        has_unresolved_references=_json_flag(
+            payload, "hasUnresolvedReferences", "HasUnresolvedReferences"
+        ),
+        has_sensitive_variables=_json_flag(
+            payload, "hasSensitiveVariables", "HasSensitiveVariables"
+        ),
+        connectors=connectors,
+        sensitive_variables=sensitive,
+        raw=payload,
+    )
+
+
+def process_config_transfer(
+    config: ConnectionConfig,
+    transfer_id: int,
+    *,
+    only_test: bool = False,
+    publish: bool = False,
+    timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
+    client: httpx.Client | None = None,
+) -> ProcessResult:
+    """POST Process for an Upload (or Backup) transferId.
+
+    only_test and publish cannot both be true. HTTP 422 = import applied, publish failed.
+    """
+    if only_test and publish:
+        raise RemoteError("onlyTest and publish cannot be combined (HTTP 400).")
+
+    url = config.config_transfer_url(f"{int(transfer_id)}/Process")
+    headers = config.auth_headers(accept="application/json")
+    headers["Content-Type"] = "application/json"
+    body: dict = {}
+    if only_test:
+        body["onlyTest"] = True
+    elif publish:
+        body["publish"] = True
+    else:
+        body["publish"] = False
+
+    own_client = client is None
+    http = client or httpx.Client(timeout=timeout_seconds, follow_redirects=True)
+    try:
+        try:
+            response = http.post(url, headers=headers, json=body)
+        except httpx.HTTPError as exc:
+            raise RemoteError(f"{url}: {exc}") from exc
+    finally:
+        if own_client:
+            http.close()
+
+    if response.status_code != 422:
+        _raise_http_error(url, response)
+
+    raw: dict | None = None
+    if response.content and response.content.strip():
+        try:
+            parsed = response.json()
+        except json.JSONDecodeError as exc:
+            raise RemoteError(f"{url}: response is not JSON ({exc})") from exc
+        if parsed is not None and not isinstance(parsed, dict):
+            raise RemoteError(f"{url}: expected a JSON object")
+        raw = parsed if isinstance(parsed, dict) else None
+
+    publish_result = None
+    if raw:
+        publish_result = raw.get("publishResult", raw.get("PublishResult"))
+        if publish_result is not None and not isinstance(publish_result, dict):
+            publish_result = None
+
+    return ProcessResult(
+        http_status=response.status_code,
+        only_test=only_test,
+        publish=publish,
+        publish_result=publish_result,
+        raw=raw,
+    )

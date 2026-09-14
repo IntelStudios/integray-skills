@@ -2,7 +2,7 @@
 name: new-project
 description: >-
   Scaffold a new empty Integray company project under projects/<name>/ with
-  snapshots, changes folders and .integray-connection.json template.
+  snapshots, working folders and .integray-connection.json template.
   Use when the user asks to create a new Integray project, company, or workspace
   folder, or invokes /new-project.
 disable-model-invocation: true
@@ -31,7 +31,7 @@ Determine from the user message or ask once:
    projects/<name>/
      conventions.md
      snapshots/.gitkeep
-     changes/.gitkeep
+     working/.gitkeep
      .integray-connection.json
    ```
 

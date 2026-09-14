@@ -14,8 +14,8 @@ Full workflow lives in the parent integray-skills clone: `docs/projects.md`. Typ
 conventions.md              # company rules; agent reads before transfer work
 .integray-connection.json   # gitignored — baseUrl + companySlug + token
 secrets.json                # gitignored
-snapshots/                  # downloaded Config Transfer JSON
-changes/<loop-slug>/        # change loops + output transfer
+snapshots/<stamp>/*.json    # /download-config — do not edit
+working/*.json              # copy of newest snapshot; edit and Upload this
 ```
 
 Do not add this tree to the public integray-skills repository. Pull KB updates in the integray-skills root; pull this company here.
