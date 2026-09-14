@@ -1,6 +1,6 @@
-# Status — Fáze 0 + `/download-config` (2026-09-14)
+# Status — Fáze 0 + `/download-config` + `/backup` (2026-09-14)
 
-Public Integray KB in the xeelo-skills layout. **Fáze 0 is done.** `/download-config` is in (snapshot JSON only, no `env/` extract). Nested `projects/` git and self-test migration are **not** done.
+Public Integray KB in the xeelo-skills layout. **Fáze 0 is done.** `/download-config` (snapshot JSON) and `/backup` (on-instance `transferId`) are in. Nested `projects/` git and self-test migration are **not** done.
 
 ## Decisions (do not reopen without a reason)
 
@@ -17,15 +17,15 @@ Public Integray KB in the xeelo-skills layout. **Fáze 0 is done.** `/download-c
 ## What this version contains
 
 - Ported generic KB from `SmarterMDM-IntegrayTest` `master` (docs, catalogs, generic example).
-- `AGENT.md`, `CLAUDE.md`, `.cursor/rules/`, skills `/new-project`, `/download-config`, `/sync-main`.
-- `scripts/download-config-transfer.py` (`/download-config`).
+- `AGENT.md`, `CLAUDE.md`, `.cursor/rules/`, skills `/new-project`, `/download-config`, `/backup`, `/sync-main`.
+- `scripts/download-config-transfer.py`, `scripts/backup-config-transfer.py`.
 - Templates for the nested `projects/` git and per-company `conventions.md`.
 - Catalogs in `data/` (`connectors.json`, `configuration-schemas.json`, `data-schemas.json`).
 
 ## What is not done (next after vacation)
 
 1. **Private `projects/` repo** — user hosts a private remote; agent may `git init` only if asked. Then move self-test from `SmarterMDM-IntegrayTest` / `specific/` into `projects/self-test/`.
-2. **Fáze 1 remainder** — `upload` / `process` (`onlyTest` / `publish`) / `backup` / `validate-transfer`. Skills `/publish`, `/backup`, `/remote-api`. Extract snapshot → `env/` later.
+2. **Fáze 1 remainder** — `upload` / `process` (`onlyTest` / `publish`) / `validate-transfer`. Skills `/publish`, `/remote-api`. Extract snapshot → `env/` later.
 3. **Overlay merge** — edit named entities, merge onto downloaded snapshot, emit a **complete** transfer. Still JSON, not YAML.
 4. **Connector track skill** `/new-connector` — later.
 5. **`make extract`** for catalogs from ICR / a live instance — catalogs are a static snapshot for now.

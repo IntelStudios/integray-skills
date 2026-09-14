@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Integray Remote API connection and Config Transfer download."""
+"""Integray Remote API connection, Config Transfer download, and backup."""
 
 from __future__ import annotations
 
@@ -25,8 +25,11 @@ _CONTENT_DISPOSITION_FILENAME = re.compile(
 )
 
 
-class DownloadError(RuntimeError):
-    """Remote API download failed."""
+class RemoteError(RuntimeError):
+    """Remote API call failed."""
+
+
+DownloadError = RemoteError
 
 
 @dataclass
@@ -65,10 +68,21 @@ class ConnectionConfig:
             f"token='***', path={self.path!r})"
         )
 
+    def config_transfer_url(self, suffix: str) -> str:
+        slug = self.company_slug.strip("/")
+        rel = f"api/Remote/{slug}/ConfigTransfer/{suffix.lstrip('/')}"
+        return urljoin(self.base_url + "/", rel)
+
     @property
     def download_url(self) -> str:
-        slug = self.company_slug.strip("/")
-        return urljoin(self.base_url + "/", f"api/Remote/{slug}/ConfigTransfer/Download")
+        return self.config_transfer_url("Download")
+
+    @property
+    def backup_url(self) -> str:
+        return self.config_transfer_url("Backup")
+
+    def auth_headers(self, *, accept: str) -> dict[str, str]:
+        return {"Authorization": f"Bearer {self.token}", "Accept": accept}
 
 
 def filename_from_content_disposition(header: str | None, fallback: str) -> str:
@@ -84,6 +98,35 @@ def filename_from_content_disposition(header: str | None, fallback: str) -> str:
     return name
 
 
+def _raise_http_error(
+    url: str,
+    response: httpx.Response,
+    *,
+    allow_sharing_hint: bool = False,
+) -> None:
+    if response.status_code == 401:
+        raise RemoteError(
+            f"{url}: 401 Unauthorized. Check the Remote control token "
+            "(Company Detail → Remote control). Not a login JWT."
+        )
+    if response.status_code == 403:
+        if allow_sharing_hint:
+            raise RemoteError(
+                f"{url}: 403 Forbidden. Enable "
+                "'Allow sharing remote config transfer' on the company, or the token "
+                "cannot download."
+            )
+        body = (response.text or "")[:500]
+        raise RemoteError(f"{url}: 403 Forbidden. {body}")
+    if response.status_code == 404:
+        raise RemoteError(
+            f"{url}: 404 Not Found. Check baseUrl and companySlug."
+        )
+    if response.status_code >= 400:
+        body = (response.text or "")[:500]
+        raise RemoteError(f"{url}: HTTP {response.status_code}. {body}")
+
+
 def download_config_transfer(
     config: ConnectionConfig,
     *,
@@ -96,7 +139,7 @@ def download_config_transfer(
     dest_dir.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     fallback_name = f"Transfer_{config.company_slug}_{stamp}.json"
-    headers = {"Authorization": f"Bearer {config.token}", "Accept": "application/octet-stream"}
+    headers = config.auth_headers(accept="application/octet-stream")
 
     own_client = client is None
     http = client or httpx.Client(timeout=timeout_seconds, follow_redirects=True)
@@ -104,30 +147,12 @@ def download_config_transfer(
         try:
             response = http.get(config.download_url, headers=headers)
         except httpx.HTTPError as exc:
-            raise DownloadError(f"{config.download_url}: {exc}") from exc
+            raise RemoteError(f"{config.download_url}: {exc}") from exc
     finally:
         if own_client:
             http.close()
 
-    if response.status_code == 401:
-        raise DownloadError(
-            f"{config.download_url}: 401 Unauthorized. Check the Bearer token."
-        )
-    if response.status_code == 403:
-        raise DownloadError(
-            f"{config.download_url}: 403 Forbidden. Enable "
-            "'Allow sharing remote config transfer' on the company, or the token "
-            "cannot download."
-        )
-    if response.status_code == 404:
-        raise DownloadError(
-            f"{config.download_url}: 404 Not Found. Check baseUrl and companySlug."
-        )
-    if response.status_code >= 400:
-        body = (response.text or "")[:500]
-        raise DownloadError(
-            f"{config.download_url}: HTTP {response.status_code}. {body}"
-        )
+    _raise_http_error(config.download_url, response, allow_sharing_hint=True)
 
     filename = filename_from_content_disposition(
         response.headers.get("content-disposition"), fallback_name
@@ -140,12 +165,53 @@ def download_config_transfer(
     try:
         payload = json.loads(out_path.read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
-        raise DownloadError(f"{out_path}: downloaded file is not UTF-8 JSON ({exc})") from exc
+        raise RemoteError(f"{out_path}: downloaded file is not UTF-8 JSON ({exc})") from exc
     if not isinstance(payload, dict):
-        raise DownloadError(f"{out_path}: expected a JSON object (Config Transfer)")
+        raise RemoteError(f"{out_path}: expected a JSON object (Config Transfer)")
     transfer_type = payload.get("TransferType")
     if transfer_type and transfer_type != "ConfigTransfer":
-        raise DownloadError(
+        raise RemoteError(
             f"{out_path}: TransferType is {transfer_type!r}, expected 'ConfigTransfer'"
         )
     return out_path
+
+
+def backup_config_transfer(
+    config: ConnectionConfig,
+    *,
+    timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
+    client: httpx.Client | None = None,
+) -> int:
+    """POST Backup. Stores a transfer record on the server. Returns transferId.
+
+    Do not Process this id as a deploy — Process the id from Upload of the edited file.
+    """
+    headers = config.auth_headers(accept="application/json")
+    own_client = client is None
+    http = client or httpx.Client(timeout=timeout_seconds, follow_redirects=True)
+    try:
+        try:
+            response = http.post(config.backup_url, headers=headers)
+        except httpx.HTTPError as exc:
+            raise RemoteError(f"{config.backup_url}: {exc}") from exc
+    finally:
+        if own_client:
+            http.close()
+
+    _raise_http_error(config.backup_url, response)
+
+    try:
+        payload = response.json()
+    except json.JSONDecodeError as exc:
+        raise RemoteError(f"{config.backup_url}: response is not JSON ({exc})") from exc
+    if not isinstance(payload, dict):
+        raise RemoteError(f"{config.backup_url}: expected a JSON object")
+    transfer_id = payload.get("transferId", payload.get("TransferId"))
+    if transfer_id is None:
+        raise RemoteError(f"{config.backup_url}: missing transferId in {payload!r}")
+    try:
+        return int(transfer_id)
+    except (TypeError, ValueError) as exc:
+        raise RemoteError(
+            f"{config.backup_url}: transferId is not an integer: {transfer_id!r}"
+        ) from exc

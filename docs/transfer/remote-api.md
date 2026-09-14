@@ -62,14 +62,17 @@ All Remote API paths below are relative to `{baseUrl}`.
 2. Collect **Integray instance** (base URL), **company slug**, and **Remote control token**. Ask
    for all three when not already provided — the instance hostname does not imply the
    company slug (and vice versa).
-3. **Upload** the transfer file → review the pre-transfer check response.
-4. If pre-check passes, **ask the user** whether to run Process with **`publish: true`**
+3. If conventions say **Backup before process**, run **`/backup`** first. Keep that
+   `transferId`; do **not** Process it as the deploy.
+4. **Upload** the transfer file → review the pre-transfer check response. Process uses
+   **this** `transferId`.
+5. If pre-check passes, **ask the user** whether to run Process with **`publish: true`**
    (apply + rebuild cache) or **`publish: false`** (apply only). Do not assume — confirm
    unless the user already stated a preference. For a full deploy, suggest `publish: true`
    as the default when asking.
-5. **Process** with the chosen `publish` value.
-6. Report the outcome. When `publish: true`, inspect `publishResult` in the response.
-7. If the transfer declares sensitive variables (`hasSensitiveVariables`), remind the user
+6. **Process** with the chosen `publish` value.
+7. Report the outcome. When `publish: true`, inspect `publishResult` in the response.
+8. If the transfer declares sensitive variables (`hasSensitiveVariables`), remind the user
    to set values via the Variable API or DX administration — see below.
 
 **Do not** call the standalone `POST .../Publish` endpoint unless the user explicitly
@@ -96,7 +99,7 @@ file: <binary JSON>
 
 | Field | Meaning |
 |---|---|
-| `transferId` | Required for Process. Store this value. |
+| `transferId` | Required for Process. Use the id from **this Upload**, not from `/backup`. |
 | `succeeded` | `true` when every required connector is installed (`Status` ≠ `Missing`). |
 | `connectors[]` | Per-connector check: `guid`, `version`, `name`, `status` (`Installed` / `Missing`). |
 | `hasUnresolvedReferences` | `true` when the transfer references entities missing in the target company. |
@@ -317,6 +320,22 @@ Alternatively, the user can set values manually in DX administration.
 
 ---
 
+## Download vs Backup
+
+| | **Download** | **Backup** |
+|---|---|---|
+| Endpoint | `GET …/ConfigTransfer/Download` | `POST …/ConfigTransfer/Backup` |
+| Skill | `/download-config` | `/backup` |
+| Result | JSON file under `projects/<name>/snapshots/` | `{ transferId }` on the Integray server |
+| Pre-check / apply | No | No |
+| Use | Local snapshot to edit | Undo point **on the instance** before Process |
+
+Process the `transferId` from **Upload** of the edited file. Processing the Backup id reapplies the live company as it was at backup time — it is not a deploy of your JSON.
+
+Conventions **Backup before process** means `/backup`, then Upload, then Process the **Upload** id. **Download after publish** means `/download-config` again.
+
+---
+
 ## Download (export)
 
 Export the full company configuration as a transfer file:
@@ -339,6 +358,33 @@ python scripts/download-config-transfer.py \
 ```bash
 curl -sS -o exported_transfer.json \
   "${BASE_URL}/api/Remote/${COMPANY_SLUG}/ConfigTransfer/Download" \
+  -H "Authorization: Bearer ${TOKEN}"
+```
+
+---
+
+## Backup (on-instance record)
+
+Stores the current company configuration as a transfer record. Does not return the JSON
+and does not apply anything.
+
+```
+POST /api/Remote/{CompanySlug}/ConfigTransfer/Backup
+Authorization: Bearer {token}
+```
+
+Response: `{ "transferId": <long> }`.
+
+Agent path: **`/backup`** → `scripts/backup-config-transfer.py`.
+
+```bash
+python scripts/backup-config-transfer.py \
+  --connection projects/<name>/.integray-connection.json
+```
+
+```bash
+curl -sS -X POST \
+  "${BASE_URL}/api/Remote/${COMPANY_SLUG}/ConfigTransfer/Backup" \
   -H "Authorization: Bearer ${TOKEN}"
 ```
 

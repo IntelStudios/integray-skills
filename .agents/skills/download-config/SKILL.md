@@ -12,7 +12,7 @@ disable-model-invocation: true
 
 Download the full company Config Transfer (`GET /api/Remote/{CompanySlug}/ConfigTransfer/Download`) into `projects/<name>/snapshots/<stamp>/`. Read [AGENT.md](../../../AGENT.md) for the development loop. Protocol: [docs/transfer/remote-api.md](../../../docs/transfer/remote-api.md).
 
-This skill does **not** extract `env/` and does **not** publish. There is no `/download-db` — Integray has no Xeelo DB transfer.
+This skill does **not** extract `env/` and does **not** publish. There is no `/download-db` — Integray has no Xeelo DB transfer. This is **not** `/backup` (that stores a transfer record on the server, no JSON file).
 
 ## Prerequisites
 

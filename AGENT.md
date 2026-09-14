@@ -60,15 +60,16 @@ Read [docs/connector-dev/rules.md](docs/connector-dev/rules.md). Validate metada
 baseUrl + companySlug + token
   → /download-config → snapshots/
   → edit complete transfer (preserve CopyIDs)
+  → /backup                    (ask / auto — server undo; do not Process this id)
   → POST Upload → pre-check
   → POST Process onlyTest=true
   → POST Process publish=true   (ask / auto from conventions)
   → /download-config again
 ```
 
-Download: `python scripts/download-config-transfer.py --connection projects/<name>/.integray-connection.json`. Upload / process / backup scripts are not in this repo yet — use curl as in [remote-api.md](docs/transfer/remote-api.md).
+Download: `python scripts/download-config-transfer.py --connection projects/<name>/.integray-connection.json`. Backup: `python scripts/backup-config-transfer.py --connection projects/<name>/.integray-connection.json`. Upload / process scripts are not in this repo yet — use curl as in [remote-api.md](docs/transfer/remote-api.md).
 
-Prefer **Backup** before a real Process when conventions say so (default: ask).
+**Download ≠ Backup.** `/download-config` writes JSON locally. `/backup` stores a record on the instance and returns `transferId` only. Process the id from **Upload**, not from Backup. Prefer **Backup** before a real Process when conventions say so (default: ask).
 
 `onlyTest` and `publish` **cannot** be combined (HTTP 400).
 
@@ -85,7 +86,7 @@ Keys in `projects/<name>/conventions.md` (`ask` | `auto`; missing = `ask`):
 | **`auto`** | Do it. Announce that this company’s conventions say so. |
 | **`ask`** | Offer three options (do it / do it and remember / skip). Do not run unless they pick a run option. |
 
-**Remember** → set that key to `auto` in this company’s `conventions.md`. Failed `onlyTest` or missing connection: do not offer publish.
+**Remember** → set that key to `auto` in this company’s `conventions.md`. Failed `onlyTest` or missing connection: do not offer publish. **Backup before process** runs `/backup` (keep the `transferId`; do not Process it as the deploy). **Download after publish** runs `/download-config`.
 
 ## Creating a new project
 
@@ -121,9 +122,10 @@ Canonical location: [`.agents/skills/`](.agents/skills/). Claude CLI: [CLAUDE.md
 |-------|------|------|
 | `/new-project` | New empty company under `projects/<name>/` | [`.agents/skills/new-project/SKILL.md`](.agents/skills/new-project/SKILL.md) |
 | `/download-config` | Download Config Transfer JSON into `snapshots/` | [`.agents/skills/download-config/SKILL.md`](.agents/skills/download-config/SKILL.md) |
+| `/backup` | Store a transfer record on the instance (`transferId` only) | [`.agents/skills/backup/SKILL.md`](.agents/skills/backup/SKILL.md) |
 | `/sync-main` | Hourly check/pull of **integray-skills `main`** | [`.agents/skills/sync-main/SKILL.md`](.agents/skills/sync-main/SKILL.md) |
 
-Publish / backup skills are not in this repo yet. Until then follow [remote-api.md](docs/transfer/remote-api.md) after a successful download.
+Publish / upload skills are not in this repo yet. Until then follow [remote-api.md](docs/transfer/remote-api.md) after a successful download.
 
 ### Change loop `notes.md`
 
