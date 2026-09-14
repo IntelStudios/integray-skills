@@ -48,6 +48,19 @@ OpenAPI spec (instance-specific):
 
 All Remote API paths below are relative to `{baseUrl}`.
 
+### JSON field names
+
+Two different JSON documents:
+
+| Document | Where | Field names | Examples |
+|---|---|---|---|
+| **Remote API** request/response | Upload/Process/Backup HTTP JSON | camelCase | `transferId`, `onlyTest`, `publish`, `overrideVariables`, `publishResult` |
+| **Config Transfer file** | The `.json` you download, edit, and upload as `file` | PascalCase | `TransferType`, `Tasks`, `CopyID`, `IsSensitive`, `Value` |
+
+Do not put `onlyTest` / `transferId` into the transfer file, and do not send `TransferType` / `Tasks` as the Process body. ASP.NET model binding on Remote API is case-insensitive, but generate camelCase for API JSON and PascalCase for the transfer file.
+
+`.integray-connection.json` is also camelCase (`baseUrl`, `companySlug`, `token`) — that file is ours, not either of the above.
+
 ---
 
 ## When to use

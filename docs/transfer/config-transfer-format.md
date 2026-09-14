@@ -110,6 +110,7 @@ until proven otherwise, not just Step.
 ```
 
 - `TransferType` — always exactly `"ConfigTransfer"`.
+- Field names in this file are **PascalCase** (`Tasks`, `CopyID`, `IsSensitive`). That is not the Remote API JSON (`transferId`, `onlyTest`) — see `docs/transfer/remote-api.md` (JSON field names).
 - `Name` — **always ask the user.**
 - `CreatedByProduct`/`CreatedBy` — `"Integray"`. `CreatedByUrl` — `"integray.com"`. `TransferVersion` — `6`, unless the user specifies otherwise.
 - `Created` — current ISO 8601 timestamp.
