@@ -32,6 +32,13 @@ human editing it via DX administration changes the value.
 - **`IsSensitive: true`** for passwords, connection strings, API keys, tokens, logins —
   anything secret. Don't hardcode secret values inline in a `Configurations[].Configuration`
   string (or anywhere else in the transfer) — put them here instead.
+- **Export / `/download-config` always blanks those values.** The platform writes
+  `Value: ""` whenever `IsSensitive` is `true`. The variable stays in `Variables[]`
+  (`Code`, `CopyID`, `IsSensitive: true`); only the secret is omitted. A snapshot is not a
+  password dump. After import onto a **new** company, set values via the Variable API or DX
+  (see below). Re-import onto a company that already has values: Process default
+  `overrideVariables: false` leaves the live secrets in place — do not set
+  `overrideVariables: true` unless the user wants the (empty) transfer values to win.
 - **`VariableGroupCopyID`** — optional grouping (`VariableGroups[]`), not required.
 - **Why `Variables[]` over hardcoding:** a Config Transfer JSON is meant to be portable
   and often gets exported, committed, or shared. A hardcoded secret gets baked into every

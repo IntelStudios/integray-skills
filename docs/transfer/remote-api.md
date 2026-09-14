@@ -29,6 +29,8 @@ Same **Company Detail → Remote control** panel has **Open Remote API documenta
 
 HTTP 401 means the header is missing or the string does not match this company's token (rotated, empty, or copied from another company). The token does not expire on its own — regenerate it in Company Detail if needed. Never copy `token` between companies.
 
+HTTP **404** means `{CompanySlug}` was not found in the **runtime configuration cache** (the published company), not merely “this slug exists in Company Detail”. Typical causes: typo in `companySlug` / `baseUrl` (do not guess the slug from the hostname), or the company has never been published / the last publish failed. If the slug is correct, publish the company in DX and retry.
+
 Full URL pattern:
 
 ```
@@ -114,6 +116,7 @@ import — report findings to the user first.
 | HTTP / symptom | Typical cause | What to do |
 |---|---|---|
 | `401 Unauthorized` | Missing or wrong Remote control token | Verify `Authorization: Bearer {token}` against this company's Company Detail → Remote control. Not a login JWT. |
+| `404 Not Found` | Slug not in the runtime configuration cache | Check `baseUrl` and `companySlug`. If both are correct, publish the company in DX and retry. |
 | `400` + ProblemDetails `fileName required` | Missing query param `fileName` | Add `?fileName=Transfer_Name.json` to the URL |
 | `400` + empty response body | Server rejected the transfer content (not necessarily a curl mistake) | Validate JSON structure per `docs/transfer/config-transfer-format.md`; try DX UI import to compare |
 | `200` + `succeeded: false` | Missing connectors on target company | Install connectors listed in `connectors[]` before Process |
@@ -291,9 +294,9 @@ a wrong target or an incomplete transfer.
 
 ### Sensitive variables (`hasSensitiveVariables === true`)
 
-The transfer declares `IsSensitive: true` variables (see `docs/entities/variables.md`). Import does
-not require values to be present in the JSON (they should be empty in portable transfers),
-but the user must set them before affected Steps can run.
+The transfer declares `IsSensitive: true` variables (see `docs/entities/variables.md`). Download
+and Backup already store those with empty `Value`. Import does not require values in the JSON,
+but the user must set them on a new company before affected Steps can run.
 
 Set values after import via the Variable API:
 
@@ -347,6 +350,10 @@ Authorization: Bearer {token}
 
 Requires **Allow sharing remote config transfer** to be enabled on the company. Returns
 `application/octet-stream` with a filename like `Transfer_{CompanyName}_{timestamp}.json`.
+
+Sensitive company variables (`IsSensitive: true`) are exported with an **empty** `Value`.
+The snapshot is not a secret dump — see `docs/entities/variables.md`. Backup uses the same
+export, so the on-instance record is stripped the same way.
 
 Agent path: **`/download-config`** → `scripts/download-config-transfer.py`.
 

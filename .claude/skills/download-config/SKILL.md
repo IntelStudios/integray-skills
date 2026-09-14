@@ -70,6 +70,7 @@ Report:
 
 - **Snapshot JSON** — path and byte size
 - **Transfer `Name`** (and task/endpoint counts if cheap to read from the file)
+- **Sensitive variables** — `IsSensitive: true` entries have empty `Value` (platform export). Do not treat the file as a secret dump.
 
 Remove `snapshots/.gitkeep` if real content was written.
 
@@ -81,5 +82,5 @@ Editing starts from this snapshot (preserve CopyIDs). Do not offer `/publish` fr
 
 - **401** — missing or wrong Remote control token. Ask the user to paste the current token from Company Detail → Remote control into `.integray-connection.json`. Do not use a DX login JWT.
 - **403** — enable **Allow sharing remote config transfer** on the company, or the token cannot download.
-- **404** — wrong `baseUrl` or `companySlug` (do not guess slug from hostname).
+- **404** — wrong `baseUrl` or `companySlug` (do not guess slug from hostname). If both are correct, the company may be missing from the runtime configuration cache — publish it in DX and retry.
 - **Timeout** — large companies can be slow; retry with higher `--timeout`.

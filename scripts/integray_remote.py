@@ -120,7 +120,9 @@ def _raise_http_error(
         raise RemoteError(f"{url}: 403 Forbidden. {body}")
     if response.status_code == 404:
         raise RemoteError(
-            f"{url}: 404 Not Found. Check baseUrl and companySlug."
+            f"{url}: 404 Not Found. Check baseUrl and companySlug "
+            "(do not guess slug from hostname). If both are correct, the company "
+            "may be missing from the runtime configuration cache — publish it in DX."
         )
     if response.status_code >= 400:
         body = (response.text or "")[:500]
