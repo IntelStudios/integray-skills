@@ -26,7 +26,7 @@ Do **not** run this after download or after generating JSON unless the user aske
 
 Determine from the user message or ask once:
 
-- **`<name>`** — project slug under `projects/`.
+- **`<name>`** — folder under `projects/`. Default to `project:` in `internal/work-mode.md`, then the folder named in chat. This is not the Integray `companySlug`.
 - **`--file`** — only if `working/` has more than one JSON.
 
 ## Python environment

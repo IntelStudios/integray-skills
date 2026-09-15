@@ -11,7 +11,7 @@ Public Integray KB in the xeelo-skills layout. **Fáze 0 is done.** `/download-c
 - **No YAML entity spec** for now. JSON (full snapshot ± overlay later) is the working format. A higher-level DSL is a later decision, not Fáze 1.
 - **Snapshots** are immutable. Copy into `working/` and edit there. Do not use Xeelo-style `changes/<slug>/` loops; git is the history. Deploy is Remote API Upload + Process of `working/` ([docs/transfer/remote-api.md](docs/transfer/remote-api.md)).
 - **No** `platform-gotchas.md`. Repeatable platform facts go into the matching `docs/entities/` or `docs/transfer/` file. Project bugs stay with the company (`PLATFORM_BUGS.md` u self-testu) until filed.
-- **Harvest** = in work mode `project-kb` only: write a repeatable platform fact into the public KB. Default mode `project` only edits `projects/<name>/`.
+- **Work mode** (`internal/work-mode.md`): `kb: read` \| `write` (default `read`) and `project:` = folder under `projects/` (not Integray `companySlug`). `kb: write` may record repeatable platform facts into the public KB. `kb: read` only edits `projects/<name>/` as a side effect.
 - **Connection** is `baseUrl` + `companySlug` + **Remote control token** (not a login JWT). Do not infer slug from hostname.
 - **CopyID** is the import matching key. On edit, keep existing CopyIDs. See [docs/best-practices.md](docs/best-practices.md) and [recipes/edit-existing-transfer.md](recipes/edit-existing-transfer.md).
 
@@ -29,7 +29,6 @@ Public Integray KB in the xeelo-skills layout. **Fáze 0 is done.** `/download-c
 2. **Overlay merge** — edit named entities, merge onto downloaded snapshot, emit a **complete** transfer. Still JSON, not YAML.
 3. **Connector track skill** `/new-connector` — later.
 4. **`make extract`** for catalogs from ICR / a live instance — catalogs are a static snapshot for now.
-5. **`internal/`** on this machine — optional `work-mode.md` + pointer at `/Users/tomas/Sources/Intelstudios/SmarterMDM-Integray`. Template: `templates/internal/work-mode.md`.
 
 ## Old repo
 

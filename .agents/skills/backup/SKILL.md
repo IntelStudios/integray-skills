@@ -29,7 +29,7 @@ Read [AGENT.md](../../../AGENT.md). Protocol: [docs/transfer/remote-api.md](../.
 
 Determine from the user message or ask once:
 
-- **`<name>`** — project slug under `projects/`. Default to the company mentioned in chat or the one whose connection file is open.
+- **`<name>`** — folder under `projects/`. Default to `project:` in `internal/work-mode.md`, then the folder named in chat, then the one whose connection file is open. This is not the Integray `companySlug`.
 
 ## Python environment
 

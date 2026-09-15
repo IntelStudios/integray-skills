@@ -1,26 +1,33 @@
 ---
-description: Read internal/work-mode.md before company work; default project; harvest KB only in project-kb
+description: Read internal/work-mode.md; kb read|write; project is the folder under projects/
 alwaysApply: true
 ---
 
 # Work mode
 
-**Read** `internal/work-mode.md` before company work (and at the start of a chat when the task is a project). This file is an exception: other `internal/` content is read only when the KB is incomplete. Do not present the file as KB.
+**Read** `internal/work-mode.md` before project work (and at the start of a chat when the task is a project). This file is an exception: other `internal/` content is read only when the KB is incomplete. Do not present the file as KB.
 
-Parse the `mode:` line. Allowed: `project` | `project-kb`. Missing `internal/`, missing file, empty, or any other value → **`project`**.
+Parse two keys:
 
-Do **not** rewrite `internal/work-mode.md` unless the user asks to switch.
+- **`kb:`** `read` | `write`. Missing `internal/`, missing file, missing key, empty, or any other value → **`read`**.
+- **`project:`** folder name under `projects/`. This is **not** the Integray `companySlug` (that lives in `.integray-connection.json`). Empty or missing → no project. If set, `projects/<name>/` must already exist (clone or `/new-project`); do not silently scaffold.
 
-Announce once at the start of company work (`Režim: project` or `Režim: project-kb`), not on every reply.
+Old single key `mode: project` / `mode: project-kb` (if still present and `kb:` is absent): treat `project-kb` as `kb: write` and `project` as `kb: read`. Do not rewrite the file to migrate unless the user asks.
 
-## project (default)
+Do **not** rewrite `internal/work-mode.md` unless the user asks to switch `kb` or `project`.
 
-Edit only `projects/<name>/`. **Read** KB; do **not** edit it as a side effect of company work. If you hit a KB gap, one sentence at the end — do not fix it.
+Announce once at the start of project work (`KB: read` or `KB: write`, plus `projekt: <name>` or `bez projektu`), not on every reply. If `projects/<name>/conventions.md` exists, **read it** before editing transfers.
 
-## project-kb
+## kb: read (default)
 
-Same company work, plus harvest repeatable platform facts into `docs/` / `recipes/` / `data/`. Do not copy `internal/` paths into those files. Do not put company-specific data or a chat dump into the KB.
+If `project:` is set, edit only `projects/<name>/`. **Read** the KB; do **not** edit it as a side effect of project work. If you hit a KB gap, one sentence at the end — do not fix it.
 
-Direct KB requests (“fix this recipe”, “what does the KB say…”) are **not** gated.
+## kb: write
 
-Write extracted facts from `internal/` into the public KB **only** in `project-kb` (or when the user explicitly asks to update the KB).
+Same project work, plus write repeatable platform facts into `docs/` / `recipes/` / `data/`. Do not copy `internal/` paths into those files. Do not put company-specific data or a chat dump into the KB.
+
+Direct KB requests (“fix this recipe”, “what does the KB say…”) are **not** gated — do them even when `kb: read`.
+
+Write extracted facts from `internal/` into the public KB **only** when `kb: write` (or when the user explicitly asks to update the KB).
+
+If the user names a different `projects/` folder than `project:`, use that folder for the request. Do not change the file unless they ask to switch the stored project.
