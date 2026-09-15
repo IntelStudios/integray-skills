@@ -7,7 +7,7 @@ Agent-oriented knowledge base for Integray: **Config Transfer JSON** and **.NET 
 1. Read **[AGENT.md](AGENT.md)** — playbook
 2. Each company is `projects/<name>/` as **its own git** (`projects/` is not a repo) — **[docs/projects.md](docs/projects.md)**
 3. Per company (`projects/<name>/` = one Integray company on one instance):
-   - Write `projects/<name>/.integray-connection.json` with `baseUrl`, `companySlug`, and the company's **Remote control token**
+   - Write `projects/<name>/.integray-connection.json` with `baseUrl`, `companySlug`, the company's **Remote control token**, and `permission` (`read-only` | `read-write` | `full`; missing = `read-only`)
    - **`/download-config`** — JSON into `snapshots/<stamp>/` (do not edit)
    - Copy the newest snapshot into `working/` and edit that **complete** transfer (Full Sync)
    - **`/publish`** when asked — backup per conventions, Upload `working/`, Process `onlyTest`, then `publish`

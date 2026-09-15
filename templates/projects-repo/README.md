@@ -12,7 +12,7 @@ Full workflow lives in the parent integray-skills clone: `docs/projects.md`. Typ
 
 ```text
 conventions.md              # company rules; agent reads before transfer work
-.integray-connection.json   # gitignored — baseUrl + companySlug + token
+.integray-connection.json   # gitignored — baseUrl + companySlug + token + permission
 secrets.json                # gitignored
 snapshots/<stamp>/*.json    # /download-config — do not edit
 working/*.json              # copy of newest snapshot; edit and Upload this

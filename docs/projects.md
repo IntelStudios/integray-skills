@@ -21,6 +21,7 @@ Version `working/`, convention files, and snapshot stamps you want to keep. **Do
 |------|---------|--------|
 | **instance** | Integray host (`baseUrl`) | `.integray-connection.json` |
 | **company** | Tenant inside that instance (`companySlug`) | same file; URL path `/api/Remote/{CompanySlug}/` |
+| **permission** | Agent + script gate (`read-only` / `read-write` / `full`) | same file; missing = `read-only`. Not the Integray slug. See [AGENT.md](../AGENT.md#project-permission). |
 
 One folder = one company = one git. Two companies on the same instance = two folders and two remotes (do not copy `token` between them).
 

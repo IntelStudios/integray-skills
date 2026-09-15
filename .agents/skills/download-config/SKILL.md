@@ -21,6 +21,7 @@ This skill does **not** extract `env/` and does **not** publish. There is no `/d
   - `baseUrl` — Integray instance URL (not implied by slug)
   - `companySlug` — company in that instance
   - `token` — company **Remote control token** (Company Detail → Remote control → Allow control / Token). Not a login JWT. See [remote-api.md](../../../docs/transfer/remote-api.md).
+  - `permission` — missing/empty = `read-only`. Download is allowed at every level.
 - If the connection file is missing or any field is empty, stop and tell the user to complete it first (see `/new-project` checklist).
 - The company must have **Allow sharing remote config transfer** enabled (otherwise HTTP 403).
 

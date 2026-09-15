@@ -43,7 +43,7 @@ Direct KB requests (“fix this recipe”, “what does the KB say”) are **not
 
 If the user names a different `projects/` folder than `project:`, use that folder for the request. Do not change the stored value unless they ask to switch.
 
-Announce once at the start of project work (`KB: read` or `KB: write`, plus `projekt: <name>` or `bez projektu`). If `projects/<name>/conventions.md` exists, **read it** before editing transfers.
+Announce once at the start of project work (`KB: read` or `KB: write`, plus `projekt: <name>` or `bez projektu`, plus `Oprávnění: read-only` / `read-write` / `full` from that project’s `.integray-connection.json` when the file exists). If `projects/<name>/conventions.md` exists, **read it** before editing transfers.
 
 Compatibility: if the file still has only `mode: project` / `mode: project-kb` and no `kb:` key, treat `project-kb` as `kb: write` and `project` as `kb: read`.
 
@@ -73,15 +73,15 @@ Read [docs/connector-dev/rules.md](docs/connector-dev/rules.md). Validate metada
 `snapshots/` is **immutable**. Edit only `working/`. History is git (no Xeelo-style `changes/` loops).
 
 ```text
-baseUrl + companySlug + token
+baseUrl + companySlug + token + permission
   → /download-config → snapshots/<stamp>/     (do not edit)
   → copy newest snapshot → working/
   → edit working/ (complete transfer, preserve CopyIDs)
-  → deploy working/ when the user asks:
-       /backup  (ask / auto — server undo; do not Process this id)
+  → deploy working/ when the user asks (needs read-write, then full for --publish):
+       /backup  (ask / auto — allowed at every permission; do not Process this id)
        Upload working JSON → pre-check
        Process onlyTest=true
-       Process publish=true  (ask / auto)
+       Process publish=true  (ask / auto; **full** only)
   → /download-config again → copy that snapshot into working/
 ```
 
@@ -108,6 +108,24 @@ Keys in `projects/<name>/conventions.md` (`ask` | `auto`; missing = `ask`):
 
 **Remember** → set that key to `auto` in this company’s `conventions.md`. Failed `onlyTest` or missing connection: do not offer publish. **Backup before process** runs `/backup` (keep the `transferId`; do not Process it as the deploy). **Download after publish** runs `/download-config`.
 
+### Project permission
+
+`permission` in `projects/<name>/.integray-connection.json` is an **agent + script gate** (not the Remote control token, not work-mode `kb` / `project`). Missing or empty → **`read-only`**. Invalid value → stop (allowed: `read-only` | `read-write` | `full`). Do not rewrite existing connection files to add the key. Do not change `permission` unless the user asks.
+
+Higher level = everything from the previous plus the extra column.
+
+| Level | May | Extra vs previous |
+|-------|-----|-------------------|
+| **`read-only`** | `/download-config`; `/backup`; read `snapshots/` / `working/` | (base — do not Upload or Process) |
+| **`read-write`** | everything from `read-only` | edit `working/`; Upload; Process `--only-test` |
+| **`full`** | everything from `read-write` | Process `--publish` (and `--apply`) |
+
+`/backup` does not apply the transfer; it only stores a server-side undo record. It is allowed at every level. Do not Process a Backup `transferId`.
+
+`permission` beats **Publish after dry-run: auto** for **`read-only`** (do not upload) and for **`read-write`** (Upload + `onlyTest` yes; skip `--publish` and announce that it needs `full`). At `full`, conventions `ask` / `auto` work as before.
+
+Local file edits in `projects/<name>/` are not this gate — `kb: read` still allows them. This key is about the **live company** via Remote API.
+
 ## Creating a new project
 
 When the user asks for a **new empty company** (`projects/<name>/`):
@@ -115,14 +133,15 @@ When the user asks for a **new empty company** (`projects/<name>/`):
 0. **`projects/`** — [docs/projects.md](docs/projects.md). Create `projects/` as a directory if needed. Do **not** `git init` in `projects/`. If `projects/<name>/` already exists, stop.
 1. Create `snapshots/` and `working/` (`.gitkeep` if needed). Copy [`templates/projects-repo/.gitignore`](templates/projects-repo/.gitignore) and `README.md` into `projects/<name>/`.
 2. Copy [`templates/project/conventions.md`](templates/project/conventions.md) to `projects/<name>/conventions.md`.
-3. Write **only** `projects/<name>/.integray-connection.json` — empty placeholders. **Never** copy `token` from other companies. **Do not** infer `companySlug` from `baseUrl`.
+3. Write **only** `projects/<name>/.integray-connection.json` — empty placeholders and `"permission": "read-only"`. **Never** copy `token` from other companies. **Do not** infer `companySlug` from `baseUrl`. Ask once whether to set `permission` to `read-write` or `full`.
 4. `git init` **inside** `projects/<name>/`. The user hosts a private remote (you do not create it). After creation, tell the user what to fill in.
 
 ```json
 {
   "baseUrl": "https://<instance>.integray.app",
   "companySlug": "",
-  "token": ""
+  "token": "",
+  "permission": "read-only"
 }
 ```
 
@@ -131,6 +150,7 @@ When the user asks for a **new empty company** (`projects/<name>/`):
 | `baseUrl` | Integray instance URL (not implied by slug) |
 | `companySlug` | Company slug in DX / `${#SYSTEM_CompanySlug}` |
 | `token` | **Remote control token** — Company Detail → **Remote control** → **Allow control** / **Token**. Not a login JWT. See [remote-api.md](docs/transfer/remote-api.md). |
+| `permission` | `read-only` (default) / `read-write` (edit + Upload + `onlyTest`) / `full` (also Process `--publish`). Missing = `read-only`. Ask once whether to set `read-write` or `full`. Do not change it later unless the user asks. |
 
 File is gitignored in the **company** git (template ignore). Commit in `projects/<name>/`, not in integray-skills. Download requires **Allow sharing remote config transfer** on the company. Do not download until connection fields are filled. Next: `/download-config`.
 
@@ -171,6 +191,7 @@ projects/<name>/
 - `InputSchemaMapping` must cover every `AllowNull: false` column; mapped columns must share `Type`.
 - After Process with `publish: true`, inspect `publishResult.messages[]`.
 - Never store the Remote control token in transfer JSON or commit it.
+- Connection `permission` (`read-only` / `read-write` / `full`) gates Remote API writes. Missing = `read-only`.
 
 ## Checklist before delivery
 
@@ -180,4 +201,5 @@ projects/<name>/
 - [ ] Connector Guid+Version from `data/connectors.json` (flag if catalog may be stale)
 - [ ] Mapping coverage and type match ([config-transfer-format.md](docs/transfer/config-transfer-format.md) §7)
 - [ ] `onlyTest` succeeded before offering publish
+- [ ] Connection `permission` is `full` before Process `--publish`
 - [ ] Sensitive variables empty in portable JSON; user sets values via Variable API after import

@@ -25,4 +25,6 @@ python scripts/process-config-transfer.py \
 
 Download writes JSON under `snapshots/` (do not edit). Copy into `working/` to edit. Upload sends `working/` (or `--file`) and prints `transferId`. Process that id (`--only-test`, then `--publish`). Do not Process a Backup id. `--apply` is Process with `publish: false` (rare).
 
+Connection `permission`: download and backup at every level; Upload and `--only-test` need `read-write` or `full`; `--publish` / `--apply` need `full`. Missing `permission` defaults to `read-only`.
+
 Still planned: `validate-transfer.py`.

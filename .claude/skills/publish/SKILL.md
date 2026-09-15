@@ -19,6 +19,9 @@ Do **not** run this after download or after generating JSON unless the user aske
 
 - `projects/<name>/` exists (clone or `/new-project`).
 - `projects/<name>/.integray-connection.json` is filled (`baseUrl`, `companySlug`, Remote control `token`).
+- `permission` — **`read-write`** or **`full`** to start this skill. Missing/empty = `read-only` → **stop**. Tell the user to set `permission` if they want to deploy. Do not change the field unless they ask.
+  - `read-write`: Upload + Process `--only-test`. Skip `--publish` and announce that it needs `full`.
+  - `full`: also Process `--publish` per conventions.
 - `working/` has the complete Config Transfer JSON (copy of the newest snapshot, then edited). One `*.json`, or the user named the file.
 - Full Sync: the file must contain everything the company should keep.
 
@@ -71,7 +74,9 @@ If this fails, report the error. Do **not** offer `--publish`.
 
 ## Step 3 — Publish (conventions)
 
-**Publish after dry-run** (`ask` | `auto`; missing = `ask`).
+**Stop** `--publish` unless connection `permission` is **`full`**. At `read-write`, announce that `onlyTest` ran and Process `--publish` needs `"permission": "full"`. Do not treat **Publish after dry-run: auto** as an override.
+
+**Publish after dry-run** (`ask` | `auto`; missing = `ask`) applies only at **`full`**.
 
 - `auto` — Process `--publish`. Announce that conventions say so.
 - `ask` — **Publish now** / **Publish now and remember for this company** / **Don't publish**. Remember → set the key to `auto` in `conventions.md`.
@@ -98,6 +103,7 @@ Failed publish: do not download.
 ## Errors
 
 - **401** — Remote control token. Not a login JWT.
+- **Permission** — script exits if Upload/`onlyTest` needs `read-write` or `--publish` needs `full`. Do not retry until the user sets `permission`.
 - **404** — `baseUrl` / `companySlug`, or company missing from runtime cache — publish in DX.
 - **400** — often empty body; `onlyTest` + `publish` together is invalid (the script forbids it).
 - **422** — import applied, publish failed.

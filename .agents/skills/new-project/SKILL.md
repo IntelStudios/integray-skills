@@ -44,11 +44,12 @@ Determine from the user message or ask once:
    {
      "baseUrl": "https://<instance>.integray.app",
      "companySlug": "",
-     "token": ""
+     "token": "",
+     "permission": "read-only"
    }
    ```
 
-   Fill `baseUrl` only when the user gave it. Leave `companySlug` empty unless they stated it.
+   Fill `baseUrl` only when the user gave it. Leave `companySlug` empty unless they stated it. `permission` template default is **`read-only`**. Ask once whether to set `read-write` (edit + Upload + `onlyTest`) or `full` (also Process `--publish`). Do not change it later unless the user asks.
 
 4. **`git init` inside `projects/<name>/`** (not in `projects/`). Then tell the user to host a **private** remote (you do not create the GitHub/Azure repo) and:
 
@@ -71,5 +72,6 @@ Determine from the user message or ask once:
 | `baseUrl` | Integray instance URL (User / DX). Independent of company slug. |
 | `companySlug` | Company slug in DX; same as `${#SYSTEM_CompanySlug}` |
 | `token` | **Remote control token** — Company Detail → **Remote control** → **Allow control** / **Token**. Not a login JWT. See [remote-api.md](../../../docs/transfer/remote-api.md). |
+| `permission` | `read-only` (default) / `read-write` / `full`. Missing = `read-only`. See [AGENT.md § Project permission](../../../AGENT.md#project-permission). |
 
 Remind the user that `.integray-connection.json` is gitignored **in this company git** (via the copied template ignore). Commit in `projects/<name>/`, never in integray-skills. Next step after filling connection: `/download-config`.

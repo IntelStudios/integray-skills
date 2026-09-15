@@ -8,6 +8,7 @@ import re
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 from urllib.parse import unquote, urljoin
 
 import httpx
@@ -15,6 +16,19 @@ import httpx
 CONNECTION_HELP = (
     "Fill projects/<name>/.integray-connection.json with baseUrl, companySlug, and token. "
     "Do not infer companySlug from baseUrl."
+)
+
+PERMISSION_READ_ONLY = "read-only"
+PERMISSION_READ_WRITE = "read-write"
+PERMISSION_FULL = "full"
+PERMISSIONS = (
+    PERMISSION_READ_ONLY,
+    PERMISSION_READ_WRITE,
+    PERMISSION_FULL,
+)
+PERMISSION_HELP = (
+    '.integray-connection.json permission must be "read-only", "read-write", or "full". '
+    "Missing or empty defaults to read-only."
 )
 
 DEFAULT_TIMEOUT_SECONDS = 300.0
@@ -29,7 +43,27 @@ class RemoteError(RuntimeError):
     """Remote API call failed."""
 
 
+class ConnectionPermissionError(RemoteError):
+    """Project permission in .integray-connection.json forbids this operation."""
+
+
 DownloadError = RemoteError
+
+
+def _optional_str(value: Any) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
+
+
+def _parse_permission(value: Any, path: Path) -> str:
+    text = _optional_str(value)
+    if text is None:
+        return PERMISSION_READ_ONLY
+    if text not in PERMISSIONS:
+        raise ValueError(f"{path}: invalid permission {text!r}. {PERMISSION_HELP}")
+    return text
 
 
 @dataclass
@@ -38,6 +72,7 @@ class ConnectionConfig:
     company_slug: str
     token: str
     path: Path | None = None
+    permission: str = PERMISSION_READ_ONLY
 
     @classmethod
     def load(cls, path: Path) -> "ConnectionConfig":
@@ -59,14 +94,40 @@ class ConnectionConfig:
             company_slug=str(company_slug).strip(),
             token=str(token).strip(),
             path=path,
+            permission=_parse_permission(data.get("permission"), path),
         )
 
     def __repr__(self) -> str:
         return (
             "ConnectionConfig("
             f"base_url={self.base_url!r}, company_slug={self.company_slug!r}, "
-            f"token='***', path={self.path!r})"
+            f"token='***', path={self.path!r}, permission={self.permission!r})"
         )
+
+    @property
+    def can_write(self) -> bool:
+        return self.permission in (PERMISSION_READ_WRITE, PERMISSION_FULL)
+
+    @property
+    def can_publish(self) -> bool:
+        return self.permission == PERMISSION_FULL
+
+    def require_write(self) -> None:
+        if not self.can_write:
+            where = self.path or ".integray-connection.json"
+            raise ConnectionPermissionError(
+                f"{where}: permission is {self.permission!r} "
+                "(needs read-write or full). "
+                'Set "permission" in .integray-connection.json.'
+            )
+
+    def require_publish(self) -> None:
+        if not self.can_publish:
+            where = self.path or ".integray-connection.json"
+            raise ConnectionPermissionError(
+                f"{where}: permission is {self.permission!r} (needs full). "
+                'Set "permission": "full" in .integray-connection.json.'
+            )
 
     def config_transfer_url(self, suffix: str) -> str:
         slug = self.company_slug.strip("/")
@@ -289,6 +350,7 @@ def upload_config_transfer(
     client: httpx.Client | None = None,
 ) -> UploadCheckResult:
     """POST Config Transfer Upload (multipart). Does not apply. Returns pre-check."""
+    config.require_write()
     path = Path(path)
     _require_config_transfer_file(path)
     file_name = path.name
@@ -368,6 +430,10 @@ def process_config_transfer(
     """
     if only_test and publish:
         raise RemoteError("onlyTest and publish cannot be combined (HTTP 400).")
+    if only_test:
+        config.require_write()
+    else:
+        config.require_publish()
 
     url = config.config_transfer_url(f"{int(transfer_id)}/Process")
     headers = config.auth_headers(accept="application/json")

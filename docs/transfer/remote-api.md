@@ -16,6 +16,7 @@ company slug are independent — do not derive one from the other.
 | **Integray instance** | Host of the Integray server (the site), e.g. `https://lzoubek.integray.app`. Ask the user explicitly. |
 | **Company slug** | Target company within that instance, used in the URL path (e.g. `companyA`). Same concept as `${#SYSTEM_CompanySlug}` — see `docs/entities/variables.md`. Ask the user explicitly. |
 | **Remote control token** | Company secret for Remote API auth. Send as `Authorization: Bearer {token}`. This is **not** a user login JWT and **not** an Endpoint token. **Never** hardcode in a transfer JSON, commit to the repo, or store in the KB. |
+| **`permission`** | Agent + script gate in `.integray-connection.json` (`read-only` \| `read-write` \| `full`; missing = `read-only`). Not the Remote control token. See [AGENT.md § Project permission](../../AGENT.md#project-permission). |
 
 ### Where to get the token
 
@@ -78,7 +79,10 @@ Do not put `onlyTest` / `transferId` into the transfer file, and do not send `Tr
 1. Confirm the user wants to upload/deploy (not just generate the JSON).
 2. Collect **Integray instance** (base URL), **company slug**, and **Remote control token**. Ask
    for all three when not already provided — the instance hostname does not imply the
-   company slug (and vice versa).
+   company slug (and vice versa). Check connection `permission` (`read-only` |
+   `read-write` | `full`; missing = `read-only`). `read-only` may `/backup` but must not
+   Upload or Process. `read-write` may Upload and Process `--only-test`. Process
+   `--publish` / `--apply` needs **`full`**. Do not change `permission` unless the user asks.
 3. If conventions say **Backup before process**, run **`/backup`** first. Keep that
    `transferId`; do **not** Process it as the deploy.
 4. **Upload** the transfer file → review the pre-transfer check response. Process uses

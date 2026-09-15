@@ -16,7 +16,7 @@ Old single key `mode: project` / `mode: project-kb` (if still present and `kb:` 
 
 Do **not** rewrite `internal/work-mode.md` unless the user asks to switch `kb` or `project`.
 
-Announce once at the start of project work (`KB: read` or `KB: write`, plus `projekt: <name>` or `bez projektu`), not on every reply. If `projects/<name>/conventions.md` exists, **read it** before editing transfers.
+Announce once at the start of project work (`KB: read` or `KB: write`, plus `projekt: <name>` or `bez projektu`, plus `Oprávnění:` from `.integray-connection.json` when it exists), not on every reply. If `projects/<name>/conventions.md` exists, **read it** before editing transfers.
 
 ## kb: read (default)
 
