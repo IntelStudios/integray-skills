@@ -126,15 +126,16 @@ that constructs a URL back into Integray's own API, not just that one case.
 
 After importing a transfer via the Remote API (`docs/transfer/remote-api.md`), sensitive
 variable values declared in `Variables[]` must still be set on the target company before
-affected Steps can run. Use the Variable API:
+affected Steps can run.
 
-```
-PUT /api/Remote/{CompanySlug}/Variable/Code/{code}
-{"value": "the-full-new-value"}
-```
+| Call | What you get |
+|------|----------------|
+| Download / Backup JSON | `IsSensitive: true` → `Value` is **empty string**. Not a secret dump. |
+| `GET …/Variable/{id}` or `GET …/Variable/Code/{code}` | Same secret is **masked with asterisks**. Inactive variables are omitted. **Company-level only** — template and system variables are not on this API. |
+| `PUT` the same paths | Body is `{"value": "<complete new value>"}` only. Code, name, description stay unchanged. Partial updates are not supported. Response masks sensitive values again. |
 
-See `docs/transfer/remote-api.md` for curl examples and workflow context. Values can also
-be set manually in DX administration.
+Needs connection `permission` `read-write` or `full`. There is no skill — curl is in
+`docs/transfer/remote-api.md`. Values can also be set in DX administration.
 
 ---
 

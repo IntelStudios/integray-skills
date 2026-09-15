@@ -4,6 +4,15 @@ Integray is an integration platform: **tasks** made of **steps**, each step usin
 
 This repository is the **generic** knowledge base. It must stay usable without knowing any one company. Live company transfers, credentials, and conventions live under `projects/<name>/` — each company is its own git; `projects/` is not a repo (see [projects.md](projects.md)).
 
+## Read order (agent)
+
+1. [AGENT.md](../AGENT.md) — playbook: work mode, `permission`, skills, Full Sync loop
+2. This file — map of docs and catalogs
+3. The entity/transfer file for the thing you are changing
+4. That project’s `conventions.md` before editing `working/`
+
+Work mode (`internal/work-mode.md`, gitignored): `kb: read|write` and `project:` = folder under `projects/` (not Integray `companySlug`). Connection `permission` (`read-only` | `read-write` | `full`) gates live Remote API writes — [AGENT.md § Project permission](../AGENT.md#project-permission).
+
 ## Two work tracks
 
 | Track | Start here |
@@ -14,6 +23,10 @@ This repository is the **generic** knowledge base. It must stay usable without k
 ## Config Transfer in one paragraph
 
 Import is **Full Sync**: match by `CopyID` (update vs insert); anything on the target company that is **absent** from the file is proposed for deletion. System connectors and system DataSchemas are referenced by `Guid`+`Version` (`data/connectors.json`, `data/data-schemas.json`). Custom schemas and all company entities use `CopyID`. Remote API: `{baseUrl}/api/Remote/{companySlug}/ConfigTransfer/…` with the company's Remote control token (`Authorization: Bearer …`).
+
+## Skills (company config)
+
+`/new-project` → `/download-config` → edit `working/` → `/backup` → `/publish` (Upload, `onlyTest`, `--publish` at `full`). `/sync-main` is git on this KB, not a company deploy.
 
 ## Catalogs
 
@@ -30,7 +43,7 @@ These files are a snapshot. If a transfer uses a connector version not in the ca
 | Topic | File |
 |-------|------|
 | Transfer JSON, IDs, tasks, endpoints, publish errors | [transfer/config-transfer-format.md](transfer/config-transfer-format.md) |
-| Remote API Download / Backup / Upload / Process | [transfer/remote-api.md](transfer/remote-api.md) |
+| Remote API (Config Transfer + Variable + other live endpoints) | [transfer/remote-api.md](transfer/remote-api.md) |
 | CopyIDs on edit, unique names, `VariablesDefaults` | [best-practices.md](best-practices.md) |
 | Step-to-step addressing | [entities/data-addressing.md](entities/data-addressing.md) |
 | `InputDataFilter` | [entities/input-data-filter.md](entities/input-data-filter.md) |

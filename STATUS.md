@@ -1,4 +1,4 @@
-# Status — Fáze 0 + download / backup / upload / process (2026-09-14)
+# Status — company loop + permission (2026-09-15)
 
 Public Integray KB in the xeelo-skills layout. **Fáze 0 is done.** `/download-config`, `/backup`, and `/publish` (Upload + Process) are in. Self-test lives at `projects/self-test/`.
 
@@ -22,6 +22,7 @@ Public Integray KB in the xeelo-skills layout. **Fáze 0 is done.** `/download-c
 - `scripts/download-config-transfer.py`, `scripts/backup-config-transfer.py`, `scripts/upload-config-transfer.py`, `scripts/process-config-transfer.py`.
 - Templates for each company git (`templates/projects-repo/`) and per-company `conventions.md`.
 - Catalogs in `data/` (`connectors.json`, `configuration-schemas.json`, `data-schemas.json`).
+- Connection `permission` (`read-only` / `read-write` / `full`) on `.integray-connection.json` and in the Remote API scripts.
 
 ## What is not done (next after vacation)
 

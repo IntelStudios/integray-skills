@@ -1,8 +1,29 @@
-# Remote API — Upload and Process Config Transfer
+# Remote API
 
-> Companion to `docs/transfer/config-transfer-format.md` (transfer JSON generation and Full Sync import
-> behaviour). Use this file when the user explicitly asks to **upload**, **deploy**, or
-> **import** a generated Config Transfer into an Integray company via the Remote API.
+> Companion to `docs/transfer/config-transfer-format.md`. Config Transfer deploy is the
+> main loop (`/publish`). The same Remote control token also covers variables, task runs,
+> agents, and orchestrator. Live OpenAPI: `{baseUrl}/apidocs/remote-api`.
+
+All paths are `{baseUrl}/api/Remote/{CompanySlug}/…`. Auth: `Authorization: Bearer {token}`
+(Remote control token, not a login JWT). Instance hostname and company slug are independent.
+
+## Remote API map
+
+Skills wrap **Config Transfer** only. Other rows are live company operations — use them when
+the user asks (start a task, set a secret). Do not invent extra paths.
+
+| Area | Paths (relative) | Skill | `permission` |
+|------|------------------|-------|----------------|
+| Config Transfer | `GET ConfigTransfer/Download`; `POST ConfigTransfer/Backup`; `POST ConfigTransfer/Upload`; `POST ConfigTransfer/{id}/Process`; `GET ConfigTransfer/List`; `DELETE ConfigTransfer/{id}` | `/download-config`, `/backup`, `/publish` | download + backup: every level; Upload + `--only-test`: `read-write` or `full`; `--publish` / `--apply`: `full`. List/Delete: treat like backup (`read-only` OK — they do not apply config) |
+| Variable | `GET Variable/{id}`; `GET Variable/Code/{code}`; `PUT` same | none (curl in this file) | GET: `read-only`; PUT: `read-write` or `full` |
+| Cache publish | `POST Publish` | none — prefer Process `--publish` | `full` |
+| Task | `GET Task`; `POST Task/{id}/Start`; `/Kill`; `/Clean`; `/Runnable` | none | GET: `read-only`; Start/Kill/Clean/Runnable: `read-write` or `full` |
+| Task run | `GET TaskRun/…`; logs; restart | none | GET: `read-only`; restart: `read-write` or `full` |
+| Agent | `GET Agent/List` | none | `read-only` |
+| Orchestrator | `GET Orchestrator`; `POST Orchestrator/Runnable` | none | GET: `read-only`; set runnable: `read-write` or `full` |
+
+Scripts enforce the Config Transfer rows. For the rest, the agent must still honour `permission`
+(do not PUT a variable or start a task in `read-only`).
 
 ---
 
@@ -216,6 +237,10 @@ control whether those fields on existing entities are replaced from the file.
 
 ### Response — `RemoteTransferProcessResult`
 
+When `onlyTest` is true (or `publish` is false), a successful Process returns **HTTP 200** with
+an **empty** `RemoteTransferProcessResult` (no `publishResult`). That is normal — the Runtime
+does not attach a body unless publish ran.
+
 When `publish: true`, the response includes `publishResult`:
 
 | Field | Meaning |
@@ -317,6 +342,10 @@ curl -sS -X POST \
   "${BASE_URL}/api/Remote/${COMPANY_SLUG}/Publish" \
   -H "Authorization: Bearer ${TOKEN}"
 ```
+
+The call is **synchronous**: it waits for running task runs to finish, then rebuilds the
+cache. On a busy or large company this can take several minutes. HTTP 200 may still include
+warnings in `messages`; HTTP 422 means publish failed.
 
 Response: `RemotePublishResult` (same shape as `publishResult` on Process). HTTP 422 when
 publish fails.

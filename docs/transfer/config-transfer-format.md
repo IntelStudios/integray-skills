@@ -18,6 +18,20 @@
 > (not KB). Read that project's `conventions.md` and live transfer when implementing
 > for a specific company — they may extend or override generic rules.
 
+| Need | Section |
+|------|---------|
+| Full Sync, what is in the file | §1 |
+| `ID` vs `CopyID` vs `Guid` | §2 |
+| Top-level arrays | §3 |
+| Connectors / `SelectedActionCode` | §4 |
+| Nested `Configuration` JSON | §5 |
+| Tasks and steps | §6 |
+| DataSchemas and mapping | §7 |
+| Endpoints | §8 |
+| `EntityComments` | §9 |
+| Worked example | §10 |
+| Pre-generation checklist | §11 |
+
 ---
 
 ## 1. What a Config Transfer is
