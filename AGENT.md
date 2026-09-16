@@ -60,7 +60,8 @@ When the user asks to create, edit, upload, or deploy Integray tasks / endpoints
 5. Shape: [examples/generic_worked_example.json](examples/generic_worked_example.json). Live company file under `projects/<name>/working/` if present
 6. **Full Sync:** the file you upload must contain everything the company should keep. Do not emit “only the new tasks” unless `conventions.md` says `greenfield: true`
 7. **CopyID:** editing a transfer that was already imported → keep existing CopyIDs ([recipes/edit-existing-transfer.md](recipes/edit-existing-transfer.md))
-8. Deploy only when the user asks — [docs/transfer/remote-api.md](docs/transfer/remote-api.md)
+8. **Sibling `Name`s:** Endpoint and Step names need not be globally unique — they must not collide as **siblings** in the data tree Process will assemble (Columns are given; system Columns cannot be renamed). Nested same `Name` is fine. Exception: the collision is the test. If Process merge fails, check this first ([config-transfer-format.md](docs/transfer/config-transfer-format.md) §2)
+9. Deploy only when the user asks — [docs/transfer/remote-api.md](docs/transfer/remote-api.md)
 
 There is **no** YAML spec. Output is Config Transfer JSON.
 

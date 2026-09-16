@@ -62,7 +62,11 @@ The single most important concept in this format.
 | **`CopyID`** (UUID) | Stable, globally unique, cross-instance. | **Import matching key** (insert vs. update). New entity → generate a fresh UUIDv4. Cross-references inside the transfer go through `*CopyID` fields (`TaskGroupCopyID`, `AgentCopyID`, `PrevStepCopyID`, `TaskCopyID`, ...) or a nested `{"CopyID": "..."}` object (custom `InputSchema`/`OutputSchema`). |
 | **`Guid` + `Version`** | Platform-global (not per-company) — connectors and **system** DataSchemas. | `Steps[].Connector` is always `{"Guid": ..., "Version": "X.Y.Z"}`. System DataSchemas carry `Guid`+`Version` *in addition to* `CopyID` — reference them via `{"Guid":...,"Version":...}`, **not** `CopyID` (CopyID there is a DB-export artifact, not the real key). Custom DataSchemas have no `Guid`/`Version` at all — reference via `{"CopyID":...}`. |
 
-**Disambiguation rule:** if a schema/entity has `Guid`+`Version` populated in `DataSchemas[]`, reference it that way; otherwise use `CopyID`.
+**Disambiguation rule:** if a schema/entity has `Guid`+`Version` populated in `DataSchemas[]`, reference it that way; otherwise use `CopyID`. Process (`MigrateMappingsAsync`) looks up system schemas by `Guid`+`Version` only — a `{ "CopyID": ... }` ref to System User (or any system schema) during that pass is a null schema and merge dies with NRE.
+
+**Sibling display `Name`s:** Process builds the mapping data-structure schema with `AddColumn(Name)` (Endpoint node, Step node, Column). Two **siblings** with the same `Name` (Bulk Endpoint = Step at root, or RowByRow Step = Column in the same schema) abort merge before insert. The same `Name` elsewhere is fine — another Task, another level (Endpoint + Column inside it, pagination). Names do not need to be globally unique. This is independent of the runtime identity-key tree (`{e:}` / `{ts:}` / `{dsc:}`).
+
+When **creating** a Task, pick Endpoint `Name` and Step `Name` so they do not meet as siblings in the tree Process will assemble. Columns are already in that tree (system Columns cannot be renamed). A Bulk first Step must not share the Endpoint's `Name` at root; a RowByRow Step must not share a Column `Name` in the schema it nests into (e.g. do not call that Step `Name` or `ID` on System User). Nested same `Name` is fine. Do not mass-rename an already-imported company; leave collisions in place when they **are** the test. If Process / onlyTest fails with merge NRE or `An item with the same key has already been added`, check sibling `Name`s in the tree first.
 
 **Shared Agent constant** — `AgentCopyID` for the built-in Shared agent is always
 `11111111-1111-1111-1111-111111111111`, identical across all instances. Do not declare
@@ -100,6 +104,8 @@ JS`) and it publishes fine. Root cause is presumably the platform's own `StepNam
 dot-addressing convention (`docs/entities/data-addressing.md`, `*OutputMapping` strings) choking on a
 literal `.` inside the name segment itself — treat `.` as forbidden in every entity `Name`
 until proven otherwise, not just Step.
+
+**Name Step and Endpoint for the assembled tree** — not globally unique, just no two siblings with the same `Name` (Bulk Step vs Endpoint at root; RowByRow Step vs a Column in the nested schema). Columns are given; system Columns cannot be renamed. Nested same `Name` is fine. If import fails, a sibling collision is a likely cause (see §2).
 
 ---
 
