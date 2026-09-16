@@ -9,6 +9,6 @@ alwaysApply: true
 
 When the user asks what the KB contains or what it says, answer only from KB paths (`docs/`, `recipes/`, `data/`, `AGENT.md`, skills). Do not present `projects/` or `internal/` as KB.
 
-You may **draw from** `projects/` when implementing. Mention a project path only if they ask for a sample or a specific company. If `internal/` exists, read it when the KB is incomplete; write extracted facts into the public KB **only when `kb: write`** in `internal/work-mode.md` (missing file or `kb: read` → do not). Do not copy source paths into `docs/` or `recipes/`. The `project:` key is the folder under `projects/`, not the Integray company slug.
+You may **draw from** `projects/` when implementing. Mention a project path only if they ask for a sample or a specific company. If `internal/` exists, read it when the KB is incomplete; write extracted facts into the public KB **only when `kb: read-write`** in `internal/work-mode.md` (missing file, `kb: read`, or legacy-unmapped → do not). Do not copy source paths into `docs/` or `recipes/`. The `project:` key is the folder under `projects/`, not the Integray company slug.
 
 Before downloading a transfer or otherwise using `projects/<name>/`, that folder must exist (clone or `/new-project`). `projects/` is a directory, not a git. If the project folder is missing, offer clone or `/new-project` — see [docs/projects.md](../../docs/projects.md). Do not silently scaffold `projects/<name>/`. Do not `git init` in `projects/`.

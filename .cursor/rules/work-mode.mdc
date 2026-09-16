@@ -1,5 +1,5 @@
 ---
-description: Read internal/work-mode.md; kb read|write; project is the folder under projects/
+description: Read internal/work-mode.md; kb read|read-write; project is the folder under projects/
 alwaysApply: true
 ---
 
@@ -9,25 +9,25 @@ alwaysApply: true
 
 Parse two keys:
 
-- **`kb:`** `read` | `write`. Missing `internal/`, missing file, missing key, empty, or any other value → **`read`**.
+- **`kb:`** `read` | `read-write`. There is no write-only mode. Missing `internal/`, missing file, missing key, empty, or any other value → **`read`**. Legacy `kb: write` → **`read-write`**.
 - **`project:`** folder name under `projects/`. This is **not** the Integray `companySlug` (that lives in `.integray-connection.json`). Empty or missing → no project. If set, `projects/<name>/` must already exist (clone or `/new-project`); do not silently scaffold.
 
-Old single key `mode: project` / `mode: project-kb` (if still present and `kb:` is absent): treat `project-kb` as `kb: write` and `project` as `kb: read`. Do not rewrite the file to migrate unless the user asks.
+Old single key `mode: project` / `mode: project-kb` (if still present and `kb:` is absent): treat `project-kb` as `kb: read-write` and `project` as `kb: read`. Do not rewrite the file to migrate unless the user asks.
 
 Do **not** rewrite `internal/work-mode.md` unless the user asks to switch `kb` or `project`.
 
-Announce once at the start of project work (`KB: read` or `KB: write`, plus `projekt: <name>` or `bez projektu`, plus `Oprávnění:` from `.integray-connection.json` when it exists), not on every reply. If `projects/<name>/conventions.md` exists, **read it** before editing transfers.
+Announce once at the start of project work (`KB: read` or `KB: read-write`, plus `projekt: <name>` or `bez projektu`, plus `Oprávnění:` from `.integray-connection.json` when it exists), not on every reply. If `projects/<name>/conventions.md` exists, **read it** before editing transfers.
 
 ## kb: read (default)
 
 If `project:` is set, edit only `projects/<name>/`. **Read** the KB; do **not** edit it as a side effect of project work. If you hit a KB gap, one sentence at the end — do not fix it.
 
-## kb: write
+## kb: read-write
 
-Same project work, plus write repeatable platform facts into `docs/` / `recipes/` / `data/`. Do not copy `internal/` paths into those files. Do not put company-specific data or a chat dump into the KB.
+Same as `read`, plus write repeatable platform facts into `docs/` / `recipes/` / `data/`. Do not copy `internal/` paths into those files. Do not put company-specific data or a chat dump into the KB.
 
 Direct KB requests (“fix this recipe”, “what does the KB say…”) are **not** gated — do them even when `kb: read`.
 
-Write extracted facts from `internal/` into the public KB **only** when `kb: write` (or when the user explicitly asks to update the KB).
+Write extracted facts from `internal/` into the public KB **only** when `kb: read-write` (or when the user explicitly asks to update the KB).
 
 If the user names a different `projects/` folder than `project:`, use that folder for the request. Do not change the file unless they ask to switch the stored project.

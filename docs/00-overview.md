@@ -11,7 +11,7 @@ This repository is the **generic** knowledge base. It must stay usable without k
 3. The entity/transfer file for the thing you are changing
 4. That project’s `conventions.md` before editing `working/`
 
-Work mode (`internal/work-mode.md`, gitignored): `kb: read|write` and `project:` = folder under `projects/` (not Integray `companySlug`). Connection `permission` (`read-only` | `read-write` | `full`) gates live Remote API writes — [AGENT.md § Project permission](../AGENT.md#project-permission).
+Work mode (`internal/work-mode.md`, gitignored): `kb: read|read-write` (no write-only) and `project:` = folder under `projects/` (not Integray `companySlug`). Connection `permission` (`read-only` | `read-write` | `full`) gates live Remote API writes — [AGENT.md § Project permission](../AGENT.md#project-permission).
 
 ## Two work tracks
 

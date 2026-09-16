@@ -10,7 +10,7 @@
 |------|------|
 | `docs/`, `recipes/`, `data/`, `AGENT.md`, skills, … | Knowledge base. When the user asks what the KB contains or what it says, answer **only** from here. |
 | `projects/` | Gitignored directory (**not** a git). Each `projects/<name>/` is **its own** private git. You may **draw from** them when implementing. They are **not** KB content. |
-| `internal/` | Optional local playbook (gitignored). Product-source index for this machine. **Not** KB. If it exists, read it when the KB is incomplete. Write extracted facts into the public KB **only when `kb: write`** — do not copy source paths into `docs/` or `recipes/`. |
+| `internal/` | Optional local playbook (gitignored). Product-source index for this machine. **Not** KB. If it exists, read it when the KB is incomplete. Write extracted facts into the public KB **only when `kb: read-write`** — do not copy source paths into `docs/` or `recipes/`. |
 
 Do not present `projects/` or `internal/` as “what’s in the KB”. Mention a project path only if the user asks for a sample or a specific company.
 
@@ -29,7 +29,7 @@ project: self-test
 
 | Key | Values | Default |
 |-----|--------|---------|
-| **`kb`** | `read` \| `write` | Missing file, missing key, empty, or any other value → **`read`** |
+| **`kb`** | `read` \| `read-write` | Missing file, missing key, empty, or any other value → **`read`**. Legacy `write` → **`read-write`**. There is no write-only mode. |
 | **`project`** | Folder name under `projects/` | Empty or missing → no project |
 
 `project` is the **directory** `projects/<name>/`, not the Integray `companySlug` in `.integray-connection.json`. Two folders can wrap the same slug on different instances. If `project:` is set, that folder must already exist (clone or `/new-project`).
@@ -37,15 +37,15 @@ project: self-test
 | `kb` | Project work | Public KB |
 |------|----------------|-----------|
 | **`read`** (default) | Edit `projects/<name>/` when `project:` is set | **Read** only as a side effect. If you hit a KB gap, one sentence at the end — do not fix it. |
-| **`write`** | Same | Also write repeatable platform facts into `docs/` / `recipes/` / `data/`. Not company-specific data, not `internal/` paths, not a chat dump. |
+| **`read-write`** | Same | Same as `read`, plus write repeatable platform facts into `docs/` / `recipes/` / `data/`. Not company-specific data, not `internal/` paths, not a chat dump. |
 
 Direct KB requests (“fix this recipe”, “what does the KB say”) are **not** gated.
 
 If the user names a different `projects/` folder than `project:`, use that folder for the request. Do not change the stored value unless they ask to switch.
 
-Announce once at the start of project work (`KB: read` or `KB: write`, plus `projekt: <name>` or `bez projektu`, plus `Oprávnění: read-only` / `read-write` / `full` from that project’s `.integray-connection.json` when the file exists). If `projects/<name>/conventions.md` exists, **read it** before editing transfers.
+Announce once at the start of project work (`KB: read` or `KB: read-write`, plus `projekt: <name>` or `bez projektu`, plus `Oprávnění: read-only` / `read-write` / `full` from that project’s `.integray-connection.json` when the file exists). If `projects/<name>/conventions.md` exists, **read it** before editing transfers.
 
-Compatibility: if the file still has only `mode: project` / `mode: project-kb` and no `kb:` key, treat `project-kb` as `kb: write` and `project` as `kb: read`.
+Compatibility: if the file still has only `mode: project` / `mode: project-kb` and no `kb:` key, treat `project-kb` as `kb: read-write` and `project` as `kb: read`. Legacy `kb: write` → `kb: read-write`.
 
 ## Two tracks
 
