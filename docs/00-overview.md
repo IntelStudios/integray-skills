@@ -35,6 +35,7 @@ Import is **Full Sync**: match by `CopyID` (update vs insert); anything on the t
 | [data/connectors.json](../data/connectors.json) | Production connectors — Guid, Version, actions |
 | [data/configuration-schemas.json](../data/configuration-schemas.json) | NGX Configuration schemas |
 | [data/data-schemas.json](../data/data-schemas.json) | System DataSchemas and nested table refs |
+| [data/connector-restrictions.json](../data/connector-restrictions.json) | Which agent kinds a connector Guid may run on |
 
 These files are a snapshot. If a transfer uses a connector version not in the catalog, say so and verify against the target instance.
 
@@ -51,3 +52,4 @@ These files are a snapshot. If a transfer uses a connector version not in the ca
 | Task local variables | [entities/local-variables.md](entities/local-variables.md) |
 | Data checkpoint | [entities/data-checkpoint.md](entities/data-checkpoint.md) |
 | Hidden configuration fields | [entities/configuration-overrides.md](entities/configuration-overrides.md) |
+| Which agent a connector may run on | [entities/connector-restrictions.md](entities/connector-restrictions.md) |

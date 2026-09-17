@@ -70,7 +70,8 @@ When **creating** a Task, pick Endpoint `Name` and Step `Name` so they do not me
 
 **Shared Agent constant** — `AgentCopyID` for the built-in Shared agent is always
 `11111111-1111-1111-1111-111111111111`, identical across all instances. Do not declare
-it in `Agents[]`.
+it in `Agents[]`. Not every connector may run there — see
+[connector-restrictions.md](../entities/connector-restrictions.md).
 
 **Exception:** `TaskGroups[]` and `EndpointGroups[]` need a real, unique, non-zero `ID` —
 unlike every other entity, `ID: 0`/missing `ID` here means the group is silently never
@@ -1130,7 +1131,7 @@ about a company-specific detail. That tree is not KB content.
    - Each Configuration has `IsShared` + `TaskCopyID`/`TemplateCopyID` per §5.
    - Endpoint GET with raw HTML: generally Step and Endpoint share the same special schema (§8.4 default).
    - HTML Creator exception: Step `OutputSchema` = connector native HTML (`cc494d6c…`); Endpoint `GetOutputSchema` = Endpoint HTML Output (`50619995…`); mapping `{"HTML": "StepName.HTML"}` (§8.4).
-   - `AgentCopyID` on Steps is either the Shared-agent constant or a real `Agents[]` entry.
+   - `AgentCopyID` on Steps is either the Shared-agent constant or a real `Agents[]` entry, and the connector Guid must be allowed on that agent kind ([connector-restrictions.md](../entities/connector-restrictions.md)).
    - `ErrorBehavior` matches intent (§6.1) — for parallel branches that feed a merge (typical self-test pattern), consider `FailStepAndContinue`/`FailTaskAndContinue` so one branch's failure doesn't strand the merge.
    - `Task.Type`: `2` only with a real bound Endpoint; `0` only for a genuinely intended schedule; otherwise `1`.
    - `Cron`: `null` unless `Type: 0` — never copy it from another task without checking `Type` first.
