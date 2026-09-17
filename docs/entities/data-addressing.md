@@ -60,7 +60,8 @@ storage then follows Rule 1 from the **primary** mapping only. Do not treat
 ```
 
 Root attachment → two segments (`Echo.Out`). Nested under an Endpoint named `Name` →
-three (`Name.Echo.Out`).
+three (`Name.Echo.Out`). A nested Step may reuse the Endpoint’s `Name`; the path
+repeats that segment (`<Endpoint>.<Prep>.<Endpoint>.Col`). Still one tree.
 
 ### Rule 5 — task-bound Endpoint is step zero
 
@@ -118,7 +119,8 @@ tree and shows up as `inputData2`, `inputData3`, … in JS Mapper / Node.js.
 ```
 
 Designer showing two mapping roots is two trees, not a join. Put one tree on primary
-input, the other on `AdditionalInputs`.
+input, the other on `AdditionalInputs`. Repeated `Name` on **one** branch is not two
+trees — keep it on the primary path.
 
 ---
 
@@ -288,5 +290,5 @@ Two inputs on a merge Step — one nested RowByRow tree, one Bulk tree at root:
 5. Every mapped pair: same `Type` (and `ComplexType` for tables). Import will not save
    you.
 6. Two root nodes needed on one Step → primary + `AdditionalInputs`, never two forks in
-   one mapping.
+   one mapping. Nested same Name stays primary.
 7. One `PrevStepCopyID: null` per Task.

@@ -67,23 +67,23 @@ This confirms substitution isn't JS-Mapper-`Statement`-specific — it applies t
 confirmed** whether it also applies to `InputSchemaMapping`/`InputDataFilter` (neither is
 a `Configuration` field).
 
-**Gotcha — the runtime substitutes the raw value as-is; it does not add surrounding
+**The runtime substitutes the raw value as-is; it does not add surrounding
 quotes.** If the substituted text is going into a script as a string literal (e.g. a JS
 Mapper/Node.js `Statement`), **you must supply the quotes yourself around the
 placeholder** — `` `const token = "${#RemoteApiToken}";` `` — not
 `` `const token = ${#RemoteApiToken};` ``, which would splice the raw value in as bare
-(likely invalid) JS. Same underlying behavior as `${LocalVariable.X}`
-(`docs/entities/local-variables.md`'s "always quote it yourself" gotcha) — confirmed here from how
+(likely invalid) JS. Same as `${LocalVariable.X}`
+(`docs/entities/local-variables.md`: quote it yourself) — confirmed here from how
 a live company transfer actually uses it: every `${#...}`/
 `${#SYSTEM_...}` reference inside a script is manually wrapped in `\"..\"` by the
 transfer's own author, never embedded bare. The Postgre SQL Database connector's
 `ConnectionString` field works without extra quotes only because the *whole field value*
 is the substituted text (no surrounding script syntax to break).
 
-**Gotcha — `${#<Code>}` is statically validated against `Variables[]` at *publish* time,
+**`${#<Code>}` is statically validated against `Variables[]` at *publish* time,
 scanning literally any occurrence of the pattern anywhere in a `Configuration`'s string
 content — including inside a comment or a human-readable label that was never meant as a
-real substitution site.** Confirmed the hard way: a self-test `TestName` string containing
+real substitution site.** Confirmed: a self-test `TestName` string containing
 the literal documentation text `${#Code}` (meant as generic placeholder notation, not a
 real reference) made the DX publish step fail with `"configurations for step ... uses
 invalid variable Code, Code"` — publish rejected the whole Task/Endpoint because no

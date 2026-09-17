@@ -201,7 +201,7 @@ codes used in actual transfers, see the table in §7.
 Connectors with no configuration on an action (pure converters/readers) legitimately have
 `configurationRefs: []`.
 
-**Gotcha — `Node.js processor` (`Guid: 5a70dfd2-9803-4bcf-b090-652b156f7236`) has its
+**`Node.js processor` (`Guid: 5a70dfd2-9803-4bcf-b090-652b156f7236`) has its
 *own* `Timeout` inside its Configuration, separate from the Step's platform `Timeout`.**
 Any step whose `Statement` calls `fetch(...)` is bound by both: the Step's own `Timeout`
 field governs the whole step, but the connector's internal HTTP client has a **second,
@@ -295,7 +295,7 @@ read or quote it as documentation.
 
 `Type: 2` is only valid if such an Endpoint actually exists in the transfer — otherwise the task has no trigger and won't run from the UI. `Type: 0` only makes sense if `Cron` reflects an actually-intended schedule. **Default to `Type: 1` when unsure** and ask the user to confirm a schedule/endpoint trigger.
 
-**Gotcha:** `Cron` is only meaningful for `Type: 0`. For `Type: 1`/`2` it **must be `null`** — a populated value there is a copy-paste leftover that misleads the UI into showing a schedule that doesn't exist. Never copy `Cron` from an existing task without checking its `Type` first.
+**`Cron` is only meaningful for `Type: 0`.** For `Type: 1`/`2` it **must be `null`** — a populated value there is a copy-paste leftover that misleads the UI into showing a schedule that doesn't exist. Never copy `Cron` from an existing task without checking its `Type` first.
 
 ### `Cron` — Quartz.NET syntax, not Unix cron
 
@@ -531,6 +531,13 @@ omitted — the engine fills them as null/missing. A missing *required* column p
 **"Incorrect Mapping"** (primary) or **"Incorrect Additional Input Mapping"**
 (`AdditionalInputs`) on open/import. Always check `AllowNull` before generating a mapping.
 
+**Changing a Step `InputSchema` CopyID does not rewrite `InputSchemaMapping` keys.**
+Working JSON uses display names; the company stores keys as `{dsc:<column CopyID>}`.
+Compare translates both sides to names. Equal names → Process skips mapping, so keys
+stay on the **old** schema. Designer chips bind by those keys and look empty even when
+the file is right. Same JSON will not heal it. Remap in the designer and save, or change
+a path so compare differs (then Process rewrites `{dsc:}`).
+
 **On a GET-bound task, a missing required-column mapping can surface only at publish
 time, as `CACHE_BINDING_GET_TASK_NOT_EXECUTABLE`, instead of "Incorrect Mapping" at
 import.** Import can succeed with no mapping error even though a required column is
@@ -612,7 +619,7 @@ referenced.
   placeholder on individual DataSchema Columns (import remaps it) is the one long-standing
   exception seen in practice — don't extend that same leniency to Steps/Configurations/
   Tasks/Variables, keep those genuinely unique.
-  - **Gotcha:** a Step's own `Configurations[]` entry (the join/reference object, its own
+  - A Step's own `Configurations[]` entry (the join/reference object, its own
     `ID`+`CopyID`) is a *different* entity from the top-level `Configuration` it points at
     via `ConfigurationCopyID` (a *different* `ID`+`CopyID`) — don't reuse the target
     Configuration's `ID` for the step-level entry when adding a step later (e.g. patching
@@ -642,7 +649,7 @@ column `<X>` in schema `<Name>` (ID = ...)"**, not a vague error.
 | Endpoint HTML Output | 50619995-8af1-4692-a2ec-789bc44f7e17 | 1.0.0 | `HTML` |
 | Integray Task Run Status | f7cb5a42-c936-42d3-bd9e-6065a71cd5b5 | 1.0.1 | `TaskRunID`, `TaskRunStatus` |
 
-**Gotcha — `examples/generic_worked_example.json` had the `Text` schema's column wrong
+**`examples/generic_worked_example.json` had the `Text` schema's column wrong
 (`Content` instead of the real `Text`) until this was caught by a live import failure.**
 That file is explicitly *not* validated against a live instance (see the file table at
 the top of this KB) — it's illustrative, and a column name is exactly the kind of detail
@@ -651,7 +658,7 @@ genuinely does have a `Content` column, which is presumably where the confusion 
 from) without ever noticing, since the JSON stays perfectly well-formed either way. Trust
 the table above (or a real imported transfer) over that example file for column names.
 
-**Gotcha — reading `Rest API Output`'s `ContentJSON` column through `AdditionalInputs`
+**Reading `Rest API Output`'s `ContentJSON` column through `AdditionalInputs`
 into a JS Mapper crashes the consuming step, even with a trivial `return [];` body.**
 Mapping `ContentJSON` (the `json`-typed column) via `AdditionalInputs[].InputSchemaMapping`
 into a JS Mapper's `inputDataN` fails with `FailedConnector` / Jint `SyntaxError:
@@ -710,7 +717,7 @@ wrong *column name*, produces — see `docs/entities/data-addressing.md` §3 for
 - `EndpointGroupCopyID` groups endpoints (like `TaskGroupCopyID` groups tasks).
 - New endpoint → generate `CopyID`, any `ID`.
 
-**Gotcha — cloning an endpoint from a template.** Rewriting `*InputTaskCopyID`,
+**Cloning an endpoint from a template.** Rewriting `*InputTaskCopyID`,
 `*OutputStepCopyID`, `ID`, `Name`, `CopyID` is not enough. **`*OutputMapping` (e.g.
 `GetOutputMapping`) is a JSON string with hard-coded `"StepName.Column"` addresses** —
 if the output/merge step's name differs between the template task and the new one (e.g.
@@ -828,7 +835,7 @@ Confirmed by hand-testing:
 
   **⚠️ `examples/generic_worked_example.json`'s Endpoint "03 Token-secured storage" uses
   one real pair from that self-test pool** (`rnE9TBvaDso=` encrypted / `Token 1`
-  plaintext) instead of an inert placeholder, specifically to illustrate this gotcha
+  plaintext) instead of an inert placeholder, specifically to illustrate this
   end-to-end — flagged with an explicit `dxendpoint` `EntityComment` and in the
   `SecondaryTokens[]` entry's own `Description`. It is **not a safe secret** — it's
   publicly known the moment this file is read. Never reuse it (or copy this pattern with
@@ -975,19 +982,18 @@ request itself into the Task's effective input, via two Endpoint-level fields pe
   | `<token_name>.<nested_token_name>` | a nested request-body property, dotted path |
   | `$.<JSONPath_expression>` | a JSONPath expression into the request body |
 
-**Gotcha — the bound Task's first Step still needs its own
+**The bound Task's first Step still needs its own
 `InputSchemaMapping`, and it must address the Endpoint by name.** Treat the Endpoint as
 an implicit **"step zero"** in the `docs/entities/data-addressing.md` addressing tree: it deposits
 its `*InputMapping`-populated data at the tree root under **its own `Name`**, exactly
 like any Step would under its own name. The bound Step must therefore set
 `InputSchemaMapping: {"ColumnName": "<Endpoint Name>.ColumnName"}` — leaving
-`InputSchemaMapping: null` doesn't magically inherit the Endpoint-level mapping; it just
+`InputSchemaMapping: null` does not inherit the Endpoint-level mapping; it just
 leaves every `AllowNull:false` column unmapped, producing the ordinary **"Incorrect
-Mapping"** error from §7. (The Endpoint's own `*InputMapping` and the Step's
-`InputSchemaMapping` are two separate, both-required layers — easy to assume the first
-makes the second redundant, per this exact mistake.)
+Mapping"** error from §7. The Endpoint's own `*InputMapping` and the Step's
+`InputSchemaMapping` are two separate, both-required layers.
 
-**Knock-on consequence for that Step's own output address.** Once the Step has a real
+**Consequence for that Step's own output address.** Once the Step has a real
 `InputSchema` + `InputSchemaMapping` and is not Bulk, `docs/entities/data-addressing.md`
 Rule 2 no longer applies — Rule 1 does, so the Step nests **under the Endpoint's node**:
 its own output is addressed as `<Endpoint Name>.<Step Name>.<Column>` (3 segments), not

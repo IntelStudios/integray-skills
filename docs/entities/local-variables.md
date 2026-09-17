@@ -86,7 +86,7 @@ value:
    Note the syntax difference: top-level `Variables[]`/`SYSTEM` placeholders take a
    leading `#`, this one doesn't — three distinct placeholder families, don't mix them up.
 
-### Gotchas (all confirmed against a live instance)
+### Confirmed against a live instance
 
 - **Always treat the placeholder's substituted text as an opaque string — quote it,
   never embed it bare/unquoted, regardless of the column's type.** Bare embedding

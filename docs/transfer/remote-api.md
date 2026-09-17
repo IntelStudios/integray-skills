@@ -520,7 +520,7 @@ No agent skill. Use when the user asks to list or remove server-side transfer re
 
 | Topic | File |
 |---|---|
-| Transfer JSON structure, Full Sync, publish gotchas | `docs/transfer/config-transfer-format.md` (§8.4, §8.6) |
+| Transfer JSON structure, Full Sync, publish failures | `docs/transfer/config-transfer-format.md` (§8.4, §8.6) |
 | Top-level `Variables[]`, `${#Code}`, `${#SYSTEM_...}` | `docs/entities/variables.md` |
 | Connector GUIDs and versions | `data/connectors.json` |
 | In-platform scripts building Remote API URLs | Use `${#SYSTEM_BaseURL}` (instance) and `${#SYSTEM_CompanySlug}` (company within that instance) separately — `docs/entities/variables.md` |

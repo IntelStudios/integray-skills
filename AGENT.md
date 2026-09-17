@@ -190,7 +190,7 @@ projects/<name>/
 - No `.` in any entity `Name`. Respect varchar length limits in config-transfer-format §2.1.
 - System schemas: reference `{"Guid","Version"}` **and** list that schema once in this transfer’s `DataSchemas[]`. Custom: `{"CopyID"}`. Connector `Guid`+`Version` looks up the instance catalog; schema Guid does not — ICR / `data/data-schemas.json` is not a substitute.
 - After every create/edit of `projects/<name>/working/*.json`, run `python scripts/check-transfer-schemas.py <that-file>`. Empty **stdout** and exit 0 required; do not deliver until stdout is clean. Stderr catalog lines: mention to the user, do not block ([config-transfer-format.md](docs/transfer/config-transfer-format.md) §7 / §11).
-- `InputSchemaMapping` must cover every `AllowNull: false` column; mapped columns must share `Type`.
+- `InputSchemaMapping` must cover every `AllowNull: false` column; mapped columns must share `Type`. Nested same Name stays on the primary path ([data-addressing.md](docs/entities/data-addressing.md)). After an `InputSchema` CopyID swap, remap chips or change a path ([config-transfer-format.md](docs/transfer/config-transfer-format.md) §7).
 - After Process with `publish: true`, inspect `publishResult.messages[]`.
 - Never store the Remote control token in transfer JSON or commit it.
 - Connection `permission` (`read-only` / `read-write` / `full`) gates Remote API writes. Missing = `read-only`.

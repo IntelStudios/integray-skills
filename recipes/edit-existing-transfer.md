@@ -18,3 +18,6 @@ Full notes: [docs/best-practices.md](../docs/best-practices.md). Identifiers: [d
 
 - Unique, meaningful `Name` on every named entity; no `.` in names.
 - `VariablesDefaults` compact JSON (no spaces) so DX “Changes” does not false-diff — see best-practices.
+- After changing a Step `InputSchema` CopyID, remap chips on the instance (or change a
+  mapping path). Same display strings do not rewrite `{dsc:}` keys
+  ([config-transfer-format.md](../docs/transfer/config-transfer-format.md) §7).
