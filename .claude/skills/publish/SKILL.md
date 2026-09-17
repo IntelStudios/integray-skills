@@ -24,6 +24,7 @@ Do **not** run this after download or after generating JSON unless the user aske
   - `full`: also Process `--publish` per conventions.
 - `working/` has the complete Config Transfer JSON (copy of the newest snapshot, then edited). One `*.json`, or the user named the file.
 - Full Sync: the file must contain everything the company should keep.
+- Schema check already passed: `$PYTHON scripts/check-transfer-schemas.py projects/<name>/working/<file>.json` (empty **stdout**, exit 0). If stdout prints anything, **stop** — do not Upload. Stderr catalog lines: tell the user, do not block.
 
 ## Inputs
 

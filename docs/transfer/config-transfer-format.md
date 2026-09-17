@@ -60,9 +60,9 @@ The single most important concept in this format.
 |---|---|---|
 | **`ID`** | Local DB auto-increment, per-instance. **Not portable.** | Placeholder value when generating from scratch (e.g. `0`) — import remaps it. Array order never matters. |
 | **`CopyID`** (UUID) | Stable, globally unique, cross-instance. | **Import matching key** (insert vs. update). New entity → generate a fresh UUIDv4. Cross-references inside the transfer go through `*CopyID` fields (`TaskGroupCopyID`, `AgentCopyID`, `PrevStepCopyID`, `TaskCopyID`, ...) or a nested `{"CopyID": "..."}` object (custom `InputSchema`/`OutputSchema`). |
-| **`Guid` + `Version`** | Platform-global (not per-company) — connectors and **system** DataSchemas. | `Steps[].Connector` is always `{"Guid": ..., "Version": "X.Y.Z"}`. System DataSchemas carry `Guid`+`Version` *in addition to* `CopyID` — reference them via `{"Guid":...,"Version":...}`, **not** `CopyID` (CopyID there is a DB-export artifact, not the real key). Custom DataSchemas have no `Guid`/`Version` at all — reference via `{"CopyID":...}`. |
+| **`Guid` + `Version`** | Platform-global (not per-company) — connectors and **system** DataSchemas. | `Steps[].Connector` is always `{"Guid": ..., "Version": "X.Y.Z"}` and looks up the **instance catalog** — do not copy a connector into `Connectors[]` just to reference it. System DataSchemas are different: `{"Guid":...,"Version":...}` is only the **reference form**. The schema must still appear in this file’s `DataSchemas[]` (once). `data/data-schemas.json` / another company’s transfer is a catalog, not a substitute. Custom DataSchemas have no `Guid`/`Version` — reference via `{"CopyID":...}`. |
 
-**Disambiguation rule:** if a schema/entity has `Guid`+`Version` populated in `DataSchemas[]`, reference it that way; otherwise use `CopyID`. Process (`MigrateMappingsAsync`) looks up system schemas by `Guid`+`Version` only — a `{ "CopyID": ... }` ref to System User (or any system schema) during that pass is a null schema and merge dies with NRE.
+**Disambiguation rule:** if a schema/entity has `Guid`+`Version` populated in `DataSchemas[]`, reference it that way; otherwise use `CopyID`. Process (`MigrateMappingsAsync`) looks up system schemas by `Guid`+`Version` only — a `{ "CopyID": ... }` ref to System User (or any system schema) during that pass is a null schema and merge dies with NRE. A `{"Guid","Version"}` ref whose schema is **not** in this file’s `DataSchemas[]` also fails merge (`Cannot find bound schema`; the UI sometimes shows only NRE). Prefer a system schema this company already lists; if you need a new one, copy its `Guid`+`Version`+columns into `DataSchemas[]` in the same edit.
 
 **Sibling display `Name`s:** Process builds the mapping data-structure schema with `AddColumn(Name)` (Endpoint node, Step node, Column). Two **siblings** with the same `Name` (Bulk Endpoint = Step at root, or RowByRow Step = Column in the same schema) abort merge before insert. The same `Name` elsewhere is fine — another Task, another level (Endpoint + Column inside it, pagination). Names do not need to be globally unique. This is independent of the runtime identity-key tree (`{e:}` / `{ts:}` / `{dsc:}`).
 
@@ -517,6 +517,14 @@ System schema adds `Guid`+`Version`:
 site, not just one of them — using `CopyID` for a system schema (or vice versa) breaks
 the merge on import.
 
+**Unlike `Steps[].Connector`, schema `Guid`+`Version` is not enough by itself.** Merge
+queues only schemas from this transfer’s `DataSchemas[]`. A Step/Endpoint may not point
+at a Guid that exists only in ICR, `data/data-schemas.json`, or another company’s file
+(e.g. KOMOVIA `Advanced Rest API Text Output` `a154dd84` / `1.0.0` while this company
+already has `Rest API Output` `751c0d01` / `2.1.0`). Either add that system schema to
+`DataSchemas[]` (exact `Name`/columns from a live transfer or the catalog) or reuse one
+already listed.
+
 **`InputSchemaMapping` (primary and every entry in `AdditionalInputs`) must cover every
 column of the declared `InputSchema` with `AllowNull: false`.** Nullable columns can be
 omitted — the engine fills them as null/missing. A missing *required* column produces
@@ -530,40 +538,25 @@ missing several steps upstream of the endpoint's `GetOutputStepCopyID` — the g
 `"task <Name> bound to the GET method is not executable"` message gives no hint the cause
 is a mapping gap. This error code does not always mean the §8.4 special-schema mismatch
 (its only other documented cause) — check every step's mapping coverage first, ideally
-with the script below.
+with `scripts/check-transfer-schemas.py`.
 
-Before deploying any transfer with `InputSchema`/`AdditionalInputs` on custom or system
-schemas, a quick script check catches missing-required-column mappings for the whole file
-at once (handles both system schemas, keyed by `Guid`+`Version`, and custom ones, keyed by
-`CopyID`):
-```python
-import json
-d = json.load(open("<transfer>.json"))
-by_guid = {(s["Guid"], s["Version"]): s for s in d["DataSchemas"] if "Guid" in s}
-by_copyid = {s["CopyID"]: s for s in d["DataSchemas"]}
+Before declaring a transfer done, run `python scripts/check-transfer-schemas.py <transfer.json>`.
+**Empty stdout and exit 0 required** — that is the delivery gate. It flags:
 
-def required_cols(schema_ref):
-    if not schema_ref:
-        return None
-    s = by_guid.get((schema_ref.get("Guid"), schema_ref.get("Version"))) if "Guid" in schema_ref else by_copyid.get(schema_ref.get("CopyID"))
-    if not s:
-        return None
-    return {c["Name"] for c in s["Columns"] if not c.get("AllowNull", True)}
+- schema refs missing from this file’s `DataSchemas[]` and missing-required-column mappings
+- dangling `*CopyID` refs (`ConfigurationCopyID`, `TaskCopyID`, `PrevStepCopyID`, `AgentCopyID`,
+  Endpoint `*InputTaskCopyID`/`*OutputStepCopyID`, `EndpointCopyID`/`TaskCopyID` inside
+  Configuration JSON, …)
+- Configuration JSON that is not a string / not valid JSON / missing `required` fields
+  (when that `ConfigurationSchema` Guid+Version is in `data/configuration-schemas.json`;
+  fields with a schema `default` are omitted; `SameCompany`+`EndpointCopyID`/`TaskCopyID`
+  replace `CompanyID`/`EndpointID`/`TaskID` — [configuration-overrides.md](../entities/configuration-overrides.md))
+- `SelectedActionCode` / `configurationRefs` / agent restrictions, when that connector
+  Guid+Version is in `data/connectors.json`
 
-def check(label, schema_ref, mapping):
-    req = required_cols(schema_ref)
-    if req is None:
-        return
-    missing = req - set((mapping or {}).keys())
-    if missing:
-        print("missing required mapping:", label, "->", missing)
-
-for t in d["Tasks"]:
-    for s in t["Steps"]:
-        check(f"{t['Name']} / {s['Name']} (primary)", s.get("InputSchema"), s.get("InputSchemaMapping"))
-        for i, ai in enumerate(s.get("AdditionalInputs") or []):
-            check(f"{t['Name']} / {s['Name']} (AdditionalInputs[{i}])", ai.get("InputSchema"), ai.get("InputSchemaMapping"))
-```
+**Stderr** is not the gate: Guid+Version missing from the KB catalogs (`catalog may be stale`).
+Tell the user; still deliver if stdout is empty. Do not skip a stdout finding because the
+Guid exists in ICR, `data/data-schemas.json`, or another company.
 
 **Each mapped pair must also have the same `Type`** (codes below; for `Type: 7` the
 nested `ComplexType` / `tableRef` too). The source-side column in the mapping path may
@@ -621,20 +614,11 @@ referenced.
     `ID`+`CopyID`) is a *different* entity from the top-level `Configuration` it points at
     via `ConfigurationCopyID` (a *different* `ID`+`CopyID`) — don't reuse the target
     Configuration's `ID` for the step-level entry when adding a step later (e.g. patching
-    in a middle step after the fact). Before generating a transfer, a quick script check
-    across the whole file catches this class of bug cheaply:
-    ```python
-    import json
-    d = json.load(open("<transfer>.json"))
-    topcfg = {c["CopyID"]: c for c in d["Configurations"]}
-    for t in d["Tasks"]:
-        for s in t["Steps"]:
-            for cfg in s["Configurations"]:
-                tgt = topcfg.get(cfg["ConfigurationCopyID"])
-                if tgt and tgt["ID"] == cfg["ID"]:
-                    print("collision:", s["Name"], cfg["ID"])
-    ```
+    in a middle step after the fact). `scripts/check-transfer-schemas.py` flags
+    `step Configuration ID equals target Configuration ID` and duplicate `ID`s.
 - Reuse the same system schema **once** in `DataSchemas[]` even if used by many Steps/Tasks.
+  Every `{"Guid","Version"}` ref in the file must hit that entry — listing it only in
+  `data/data-schemas.json` does not queue it for merge.
 
 ### Common system schemas
 
@@ -1125,9 +1109,9 @@ about a company-specific detail. That tree is not KB content.
 6. **Endpoints:** set `*InputTaskCopyID`/`*OutputStepCopyID` where relevant.
 7. **Fill top-level metadata** per §3.
 8. **Validate:**
-   - Every `*CopyID` reference resolves to an entity actually present in the transfer.
-   - No system schema referenced via CopyID instead of Guid+Version (or vice versa).
-   - `Configuration` JSON strings contain every `required` field (unless `docs/entities/configuration-overrides.md` documents a known override for that schema).
+   - Every `*CopyID` reference resolves to an entity actually present in the transfer (`python scripts/check-transfer-schemas.py <file>`; empty **stdout**, exit 0).
+   - Every system-schema `{"Guid","Version"}` on a Step/Endpoint/`AdditionalInputs`/`ComplexType` resolves to an entry in **this file’s** `DataSchemas[]` (same script). A Guid that exists only in ICR or another transfer is a merge failure. No system schema referenced via CopyID instead of Guid+Version (or vice versa).
+   - `Configuration` JSON strings contain every `required` field (unless `docs/entities/configuration-overrides.md` documents a known override for that schema). Same script.
    - Top-level `Configurations[]`: field is **`Configuration`**, not `ConfigurationData` (§5).
    - Each Configuration has `IsShared` + `TaskCopyID`/`TemplateCopyID` per §5.
    - Endpoint GET with raw HTML: generally Step and Endpoint share the same special schema (§8.4 default).
@@ -1137,7 +1121,7 @@ about a company-specific detail. That tree is not KB content.
    - `Task.Type`: `2` only with a real bound Endpoint; `0` only for a genuinely intended schedule; otherwise `1`.
    - `Cron`: `null` unless `Type: 0` — never copy it from another task without checking `Type` first.
    - Exactly one `PrevStepCopyID: null` per task (see `docs/entities/data-addressing.md`) — multi-branch tasks need one shared root step, not one `null` per branch.
-   - `InputSchemaMapping`/`AdditionalInputs` cover every `AllowNull: false` column of the target `InputSchema` (§7 — run the mapping-coverage script there, don't just eyeball it), and every mapped pair has the same `Type` (and `ComplexType` for tables) as the source column (`docs/entities/data-addressing.md`) — name match is not enough. On a GET-bound task, a missed required column can surface only at publish time as `CACHE_BINDING_GET_TASK_NOT_EXECUTABLE`, not as "Incorrect Mapping" at import (§7).
+   - `InputSchemaMapping`/`AdditionalInputs` cover every `AllowNull: false` column of the target `InputSchema` (same script) and every mapped pair has the same `Type` (and `ComplexType` for tables) as the source column (`docs/entities/data-addressing.md`) — name match is not enough. Type match is **not** in the script. On a GET-bound task, a missed required column can surface only at publish time as `CACHE_BINDING_GET_TASK_NOT_EXECUTABLE`, not as "Incorrect Mapping" at import (§7).
    - Cloned Endpoints: `*OutputMapping` points at a step that exists, by name, in the new task (§8).
    - Endpoints with `AuthenticationType:1`: every primary `XxxToken` field populated (§8.2), and every `XxxSecondaryTokens` CopyID resolves to an entry actually present in `SecondaryTokens[]`.
    - No `.` in any Task/Step/Endpoint/TaskGroup/EndpointGroup `Name`, and `Name`/`Slug` lengths respect §2.1's `varchar` limits.

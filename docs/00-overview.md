@@ -22,11 +22,11 @@ Work mode (`internal/work-mode.md`, gitignored): `kb: read|read-write` (no write
 
 ## Config Transfer in one paragraph
 
-Import is **Full Sync**: match by `CopyID` (update vs insert); anything on the target company that is **absent** from the file is proposed for deletion. System connectors and system DataSchemas are referenced by `Guid`+`Version` (`data/connectors.json`, `data/data-schemas.json`). Custom schemas and all company entities use `CopyID`. Remote API: `{baseUrl}/api/Remote/{companySlug}/ConfigTransfer/…` with the company's Remote control token (`Authorization: Bearer …`).
+Import is **Full Sync**: match by `CopyID` (update vs insert); anything on the target company that is **absent** from the file is proposed for deletion. System connectors are referenced by `Guid`+`Version` (`data/connectors.json`) against the instance catalog. System DataSchemas use the same `Guid`+`Version` **reference form**, but must also appear in this file’s `DataSchemas[]` (`data/data-schemas.json` is the catalog, not the queue). Custom schemas and all company entities use `CopyID`. Remote API: `{baseUrl}/api/Remote/{companySlug}/ConfigTransfer/…` with the company's Remote control token (`Authorization: Bearer …`).
 
 ## Skills (company config)
 
-`/new-project` → `/download-config` → edit `working/` → `/backup` → `/publish` (Upload, `onlyTest`, `--publish` at `full`). `/sync-main` is git on this KB, not a company deploy.
+`/new-project` → `/download-config` → edit `working/` → `/backup` → `/publish` (Upload, `onlyTest`, `--publish` at `full`). After every edit of `working/*.json`, run `python scripts/check-transfer-schemas.py <file>` (empty **stdout**, exit 0) before treating the transfer as done. `/sync-main` is git on this KB, not a company deploy.
 
 ## Catalogs
 

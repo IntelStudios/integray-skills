@@ -188,7 +188,8 @@ projects/<name>/
 - Exactly one `PrevStepCopyID: null` per task.
 - `SelectedActionCode` must exist in `data/connectors.json`.
 - No `.` in any entity `Name`. Respect varchar length limits in config-transfer-format §2.1.
-- System schemas: reference `{"Guid","Version"}`. Custom: `{"CopyID"}`.
+- System schemas: reference `{"Guid","Version"}` **and** list that schema once in this transfer’s `DataSchemas[]`. Custom: `{"CopyID"}`. Connector `Guid`+`Version` looks up the instance catalog; schema Guid does not — ICR / `data/data-schemas.json` is not a substitute.
+- After every create/edit of `projects/<name>/working/*.json`, run `python scripts/check-transfer-schemas.py <that-file>`. Empty **stdout** and exit 0 required; do not deliver until stdout is clean. Stderr catalog lines: mention to the user, do not block ([config-transfer-format.md](docs/transfer/config-transfer-format.md) §7 / §11).
 - `InputSchemaMapping` must cover every `AllowNull: false` column; mapped columns must share `Type`.
 - After Process with `publish: true`, inspect `publishResult.messages[]`.
 - Never store the Remote control token in transfer JSON or commit it.
@@ -200,7 +201,7 @@ projects/<name>/
 - [ ] Output transfer is **complete** (Full Sync) unless greenfield
 - [ ] Existing CopyIDs preserved
 - [ ] Connector Guid+Version from `data/connectors.json` (flag if catalog may be stale)
-- [ ] Mapping coverage and type match ([config-transfer-format.md](docs/transfer/config-transfer-format.md) §7)
+- [ ] Ran `python scripts/check-transfer-schemas.py projects/<name>/working/<file>.json` — empty **stdout**, exit 0 (DataSchemas[], all `*CopyID` refs, Configuration JSON; [config-transfer-format.md](docs/transfer/config-transfer-format.md) §7 / §11). Stderr catalog lines mentioned to the user.
 - [ ] `onlyTest` succeeded before offering publish
 - [ ] Connection `permission` is `full` before Process `--publish`
 - [ ] Sensitive variables empty in portable JSON; user sets values via Variable API after import

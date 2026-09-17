@@ -71,38 +71,29 @@ fixed by hand after import into a different instance.
   Endpoint instead (build the URL from `${#SYSTEM_BaseURL}`+`${#SYSTEM_CompanySlug}`,
   `docs/transfer/config-transfer-format.md` §8.3).
 
-### Not yet confirmed — other `$ref: "DX://..."` connectors
+### `Integray Start Task Connector` — `TaskID`/`CompanyID` override
 
-**A full scan of `data/configuration-schemas.json` (2026-08-07) found exactly one other
-`$ref: "DX://..."` occurrence in the entire KB** — no third case exists as of that scan:
+**Configuration schema:** `239b10a7-ed53-4768-bb1a-a33bea808e1a` v`1.0.2` ("Integray Task Execution").
 
-- **`Integray Task Execution`** config, `guid: 239b10a7-ed53-4768-bb1a-a33bea808e1a`,
-  `version: 1.0.2` (used by the `Integray Start Task Connector`) — `$ref:
-  "DX://Company_Task"`, `required: ["CompanyID", "TaskID"]`. Structurally identical
-  pattern to the Endpoint Connector case above (`$ref: "DX://Company_Endpoint"` →
-  `CompanyID`+`EndpointID`).
+`data/configuration-schemas.json`'s `required` array lists `CompanyID`, `TaskID` via
+`$ref: "DX://Company_Task"`. Same pattern as the Endpoint Connector. **Confirmed live:**
+do not fill `CompanyID`/`TaskID`. Use:
 
-**Whether this one has an analogous hidden override (e.g. a `TaskCopyID`-style field) is
-explicitly unconfirmed — asked the user directly (2026-08-07), answer was "don't know".**
-Don't assume it does just because the Endpoint Connector turned out to, and don't assume
-it doesn't either. If a transfer needs to call this connector: ask the user again (they
-may have found out by then) or fill `CompanyID`/`TaskID` per the schema at face value and
-explicitly flag to the user that this is unconfirmed and may need a manual fix after
-import into a different instance (per the general `$ref: "DX://..."` warning in
-`docs/transfer/config-transfer-format.md` §2) — don't silently invent a `SameCompany`/`TaskCopyID` pair by
-analogy without confirming it first.
+| Field | Type | Value |
+|---|---|---|
+| `SameCompany` | boolean | `true` |
+| `TaskCopyID` | string (UUID) | the target Task's `CopyID` in this transfer's `Tasks[]` |
+| `Execution` | string | `"sync"` or `"async"` (schema property, not an override) |
 
-**If any future KB update, hand-test, or user-reported fact resolves this — update this
-entry (don't just add a new one) and remove the "unconfirmed" framing.** Same instruction
-applies if a third `$ref: "DX://..."` connector is ever added to
-`data/configuration-schemas.json` — re-scan and add it here before assuming it behaves like
-either case above.
+`TaskCopyID` here is inside the Configuration JSON string — not the top-level
+`Configurations[].TaskCopyID` (owner of the config). Import remaps it like any other
+`*CopyID`. Cross-company (`SameCompany: false`) is not yet explored.
 
 ---
 
 ## See also
 
 - `docs/transfer/config-transfer-format.md` §2 — the general `$ref: "DX://..."` warning this file overrides
-  for the Integray Endpoint Connector specifically.
+  for the Integray Endpoint Connector and the Integray Start Task Connector.
 - `data/connectors.json` / `data/configuration-schemas.json` — the general, structured schema
   files this file overrides for the specific cases listed above.

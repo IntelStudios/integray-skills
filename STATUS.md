@@ -19,14 +19,14 @@ Public Integray KB in the xeelo-skills layout. **Fáze 0 is done.** `/download-c
 
 - Ported generic KB from `SmarterMDM-IntegrayTest` `master` (docs, catalogs, generic example).
 - `AGENT.md`, `CLAUDE.md`, `.cursor/rules/`, skills `/new-project`, `/download-config`, `/backup`, `/publish`, `/sync-main`.
-- `scripts/download-config-transfer.py`, `scripts/backup-config-transfer.py`, `scripts/upload-config-transfer.py`, `scripts/process-config-transfer.py`.
+- `scripts/download-config-transfer.py`, `scripts/backup-config-transfer.py`, `scripts/upload-config-transfer.py`, `scripts/process-config-transfer.py`, `scripts/check-transfer-schemas.py`.
 - Templates for each company git (`templates/projects-repo/`) and per-company `conventions.md`.
 - Catalogs in `data/` (`connectors.json`, `configuration-schemas.json`, `data-schemas.json`).
 - Connection `permission` (`read-only` / `read-write` / `full`) on `.integray-connection.json` and in the Remote API scripts.
 
 ## What is not done (next after vacation)
 
-1. **Fáze 1 remainder** — `validate-transfer`. Extract snapshot → `env/` later.
+1. **Fáze 1 remainder** — broader `validate-transfer` (overlay merge, etc.). Schema membership + required mappings: `scripts/check-transfer-schemas.py`. Extract snapshot → `env/` later.
 2. **Overlay merge** — edit named entities, merge onto downloaded snapshot, emit a **complete** transfer. Still JSON, not YAML.
 3. **Connector track skill** `/new-connector` — later.
 4. **`make extract`** for catalogs from ICR / a live instance — catalogs are a static snapshot for now.
