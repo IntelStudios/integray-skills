@@ -1,294 +1,292 @@
-# `InputSchemaMapping` — data addressing between Steps
+# Data addressing
 
-> Companion to `docs/transfer/config-transfer-format.md` §6. Read this whenever a task has more than one
-> branch, or more than one connector chained in a row — this is the single most
-> error-prone part of building `Steps[]`.
+Companion to [config-transfer-format.md](../transfer/config-transfer-format.md) §6. Read this
+whenever a Task has more than one Step, a branch, or a task-bound Endpoint.
+
+Step output is **not** a flat bag of columns. It is a **tree**. An `InputSchemaMapping`
+value is a path in that tree (`StepOrEndpoint.Column`, maybe deeper). Segments are
+**entity names** (Endpoint, Step, Column) — never connector type, action code, or
+keywords. A Step named `Row by row` is just a name.
+
+Write and read are separate:
+
+| | Decides |
+|---|---|
+| Where this Step **stores** its output | `InputProcessType` + whether it has `InputSchema` + (if nesting) the primary mapping |
+| What this Step **reads** | Each mapping’s path, turned into a **query tree** |
 
 ---
 
-## 1. `PrevStepCopyID` vs `AdditionalInputs`
+## 1. Where a Step stores its output
 
-- **`PrevStepCopyID`** = **temporal** dependency. Execution order — "this step runs after that one."
-- **`AdditionalInputs`** = **data** dependency. The step waits on data from *other
-  branches* and consumes them as extra inputs (`inputData2`, `inputData3`, ...).
-  Typical for multi-input steps (e.g. a JS Mapper merging several sources).
-- These are independent and can diverge: a step can be temporally chained after step A
-  (`PrevStepCopyID`) while pulling data from steps B and C (`AdditionalInputs`).
+The Step becomes a table column named after itself. The only question is **under which
+node** that column is added.
 
-**`Delay` connector** (`Guid: a1865bf9-504c-43c7-89d5-b9a940432d44`, `Version: 3.0.3`) —
-a dedicated pure-timing step: one config field, `Delay` (number, seconds). Both
-`InputSchema` and `OutputSchema` are `none`/`null` — it carries **no data at all**, it
-just occupies a `PrevStepCopyID` slot for N seconds before letting execution continue.
-Concrete illustration of the split above: a step chained after a Delay step still has to
-point its `InputSchemaMapping` at whichever real data-producing step came before the
-Delay — the Delay step itself has nothing to address.
+### Rule 1 — nest (RowByRow)
 
-**`Delay: -1` is the simplest way to deliberately fail a step, not an "infinite wait."**
-The connector's own config-validation error text describes `-1` as a legitimate value
-"signifying an infinite timeout" (alongside `0` and any positive integer) — but in
-practice it makes the step fail immediately (`FailedConnector`), the same as an outright
-invalid value (e.g. `-5`). Don't read the error text literally and design a test around
-"wait forever, then eventually time out" — if the goal is just to force an immediate step
-failure (e.g. to test `ErrorBehavior` propagation to a downstream step), `Delay: -1` is
-the shortest path there.
+`InputProcessType: 2` (`RowByRowSequentially`) **or** `4` (`RowByRowInParallel`), and the
+Step has an `InputSchema` and a primary `InputSchemaMapping`.
 
-**Confirmed: a not-run `AdditionalInputs` source always yields `[]`, never `null`** —
-contradicts learn.integray.app's own Multi Input Step documentation, which claims a
-disabled/failed/not-run source step gives `null` (only an executed-but-empty-result
-source gives `[]`). Confirmed on JS Mapper 3.5.6 (ruling out the null→`[]` normalization
-bug the docs describe as fixed in 3.3.0+) across four independent mechanisms on
-rel-2025-03.017, all giving `[]`:
-1. `StopIfEmptyOutput:true` on the consuming step, chained after a `Delay` step (whose
-   output is always empty by definition).
-2. An explicit upstream connector failure (`FailedConnector`).
-3. `IsTempDeactivated:true` on the source step.
-4. **A `RowByRowSequentially` source that succeeds on some rows and throws on a later
-   one** — even though it wrote real output for the rows that succeeded before the
-   failure, the downstream `AdditionalInputs` reference still sees a clean `[]`, not the
-   partial rows. Same all-or-nothing behavior confirmed for a primary input's reference
-   (`TASK_SCHEDULING_AND_MULTI_INPUT_RULES.md` §3) — the platform discards partial
-   writes on failure for `AdditionalInputs` too, not just primary.
+Take the **longest** primary-mapping path(s). Drop the last segment (the column). What
+remains is the parent node. The Step attaches there under its own `Name`.
 
-**Gotcha:** exactly **one** step per task may have `PrevStepCopyID: null` — the task
-graph has a single root (`FirstStep`). More than one `null` first-step throws **"Task
-cannot contain more than one first step"** on open. For tasks with several parallel
-branches (e.g. a self-test task starting N independent actions), create one trivial root
-step (`PrevStepCopyID: null`, a JS Mapper returning an empty array — reuse the shared
-`Generate empty data` config, `ConfigurationCopyID: b91fdaa8-2409-4895-abbd-969e8ad54200`,
-`OutputSchema` via the system `Text` schema `Guid: b76c3662-4903-4512-97a9-72f32eaecd01`,
-`Version: 1.0.0`) and branch every parallel step off it via `PrevStepCopyID`. This is
-exactly what the `Split` step does in `Stop On Empty Output`.
+- One path `STEP1.Col` → parent `STEP1` → later reads are `STEP1.ThisStep.Col`.
+- Several paths → they must share a prefix (same branch). The parent is that common
+  prefix. If they diverge at the first segment, the parent is **root**.
+- No mapping / empty mapping → root (same as Rule 2).
+
+Connector type does not matter. Only `InputProcessType` and the presence of
+`InputSchema` / mapping do.
+
+### Rule 2 — attach at root (Bulk, or no input schema)
+
+If **either** is true, the mapping is ignored for storage and the Step is added on the
+**root** under its own `Name`:
+
+- `InputProcessType: 1` (`Bulk`)
+- `InputSchema` is `null`
+
+Reason: folding 1:N / N:1 back onto the old path would be a cartesian product.
+
+DX **forces Bulk** when you add `AdditionalInputs`. That is why a multi-input Step almost
+always lives at root. Hand-edited JSON can still be RowByRow + `AdditionalInputs`;
+storage then follows Rule 1 from the **primary** mapping only. Do not treat
+`AdditionalInputs` as its own storage switch.
+
+### Rule 3 — how a later Step reads this one’s output
+
+```
+(parent from Rule 1 or 2) . (this Step’s Name) . (column)
+```
+
+Root attachment → two segments (`Echo.Out`). Nested under an Endpoint named `Name` →
+three (`Name.Echo.Out`).
+
+### Rule 5 — task-bound Endpoint is step zero
+
+A POST/PATCH/PUT Endpoint with `*InputTaskCopyID` / `*InputSchema` / `*InputMapping`
+drops the request at **root** under the Endpoint’s own `Name`. Full mechanism:
+[config-transfer-format.md](../transfer/config-transfer-format.md) §8.5.
+
+The bound Task’s first Step must map `{"Col": "<Endpoint>.Col"}`. Endpoint
+`*InputMapping` does not replace that.
+
+- First Step is RowByRow with that mapping → it **nests under the Endpoint** (Rule 1).
+  Its output is `<Endpoint>.<Step>.<Col>`.
+- First Step is Bulk (or has no `InputSchema`) → it does **not** nest. Endpoint stays
+  one root node; the Step is a **second** root node. Mapping `{"Col": "<Endpoint>.Col"}`
+  only says what the Step **reads**, not where it **stores**.
+
+---
+
+## 2. How a Step reads (query tree)
+
+Runtime does not walk an arbitrary graph. `InputSchemaMapping` is compiled into a query
+tree that has **one** `Next` child per node — a chain, not a fork.
+
+Each mapping path is laid onto that chain in dictionary order. If the root already has
+`Next = Name`, a second path starting with `Echo` is **not** added as a sibling. The
+walker stays on `Name` and looks up the second path’s **last** segment on that wrong
+node.
+
+Consequence: primary mapping
+
+```json
+{ "FromEndpoint": "Name.Name", "FromStep": "Echo.Out" }
+```
+
+is accepted by the designer (two roots) and by import (both paths exist on the **schema**
+tree). At run time `FromEndpoint` binds and `FromStep` is `null` (column `Out` is not on
+the `Name` row). The Step is `Finished Success`. Swap the two keys and the other side
+goes `null`.
+
+### Rule 4 — second tree = `AdditionalInputs`
+
+Trees created by Rule 2 (and the Endpoint node) do not mix in one primary mapping. A
+Step that needs two of them uses `AdditionalInputs`: each entry has its **own** query
+tree and shows up as `inputData2`, `inputData3`, … in JS Mapper / Node.js.
 
 ```json
 "AdditionalInputs": [
-  { "StepCopyID": "<CopyID of the source step>", "InputDataFilter": null,
+  {
+    "StepCopyID": "<source Step CopyID>",
+    "InputDataFilter": null,
     "InputSchema": { "CopyID": "..." },
-    "InputSchemaMapping": { "<Field>": "<path — see §2>" } }
+    "InputSchemaMapping": { "<InputSchema column>": "<path>" }
+  }
 ]
 ```
-`AdditionalInputs[0]` → `inputData2` in the JS Mapper/Node.js script, `[1]` → `inputData3`, etc. Each entry has its own independent `InputSchema`/`InputSchemaMapping`.
 
-**`InputSchemaMapping` keys (primary *and* every `AdditionalInputs[]` entry) are not
-aliases you get to choose — each key must be the *exact* column name of that mapping's
-own declared `InputSchema`.** The value (the path/source side, per §2's Rule 1-5) is the
-only part that's free to reference a differently-named column elsewhere — the platform
-only checks that its *type* matches the target column, never its name (`docs/transfer/config-transfer-format.md`
-§7 codes — Integer `1`, String `2`, …). Confirmed against the platform's own UI: a step
-declaring `InputSchema` `{C1: String, C2: String}` mapped from a source step whose own
-columns were named `ColumnA`/`ColumnB` published fine as `{"C1": "<source step>.ColumnA",
-"C2": "<source step>.ColumnB"}` — names differ freely on the source side, but the keys
-`C1`/`C2` had to match the declared schema exactly, **and** `ColumnA`/`ColumnB` had to
-be String, not Integer. **Same column name is not a substitute for a type match.** A
-producer column and a consumer column that share a name (or that you mapped across two
-versions of the same system schema by name) can still differ in `Type` — e.g. `int` in
-one version, `string` in the next. Import / `"Incorrect Mapping"` / `onlyTest` do **not**
-catch that: they validate that the path exists and that `AllowNull: false` keys are
-present, not that the two sides' `Type` (or, for `Type: 7`, `ComplexType`/`tableRef`)
-agree. Confirmed live: a same-guid DataSchema bump on a producer `OutputSchema`, with
-the next Step's `InputSchemaMapping` copied by column name (and that Step's `InputSchema`
-left on the old version because the names still lined up), left one column Integer on
-one side and String on the other. Process stayed green. At run time the consuming step
-never entered the connector — `Starting step on shared agent failed` with `Unable to
-cast object of type 'System.Int32' to type 'System.String'`, then `FailedAgent` (305).
-Empty producer output hid it (`StopIfEmptyOutput` → `FinishedNoData`). When generating
-or rewriting a mapping, every pair must match on **`Type`** (and nested table schema
-for `Type: 7`), not name alone. After a same-guid schema bump, align the consumer
-`InputSchema` `{Guid,Version}` with the producer `OutputSchema`, or insert an explicit
-conversion — do not assume same-named columns kept their type.
-
-Using a key that isn't a real column of that `InputSchema` (e.g. inventing `StartTaskRunID` as a
-key when the declared schema's actual column is `TaskRunID`) fails import with
-`"Incorrect Mapping"` (primary) / `"Incorrect Additional Input Mapping"` (`AdditionalInputs`)
-— **even when the path/value half is completely correct** per §2, since the checklist in
-§3 validates the path *against* the key, and an invented key never matches any node in
-that computed tree to begin with. **If two `AdditionalInputs` entries need to expose two
-same-named source columns (e.g. two different steps that each have their own `TaskRunID`)
-without clashing in the script, do not try to rename via the mapping key** — the key stays
-the schema's real column name in both entries; disambiguate in the script itself via the
-`inputDataN` array index (`inputData2[0].TaskRunID` vs. `inputData3[0].TaskRunID` are
-already distinct, no renaming needed).
-
-**Gotcha — the `AdditionalInputs` array and the script's `Statement` text are two
-independent things that must be kept in sync by hand.** Adding an entry to
-`AdditionalInputs` only makes `inputDataN` *exist* as a variable for the script — it does
-**not** automatically pull that data into the step's output. If the `Statement` builds its
-result by explicitly naming each `inputDataN` (e.g. a hardcoded
-`return [...inputData2, ...inputData3, ..., ...inputDataN];` — a common fan-in pattern for
-a merge step collecting several parallel branches) and isn't updated to also include the
-new `inputDataN`, the new branch's data is silently dropped: no error on import, no error
-at runtime, just missing from the output. Whenever you add an `AdditionalInputs` entry to
-an *existing* step, always check whether that step's own `Statement` also needs a
-matching edit — the two are never inferred from each other.
+Designer showing two mapping roots is two trees, not a join. Put one tree on primary
+input, the other on `AdditionalInputs`.
 
 ---
 
-## 1.1 Scheduling — when a step is actually allowed to start
+## 3. Mapping JSON
 
-Two independent questions per step: **when** may it start, and **what data** does it see
-once it does (addressing, §2 below). Only the first is covered here.
+**Keys** are the consuming `InputSchema` column names, exact match. They are not aliases.
+Inventing `StartTaskRunID` when the schema column is `TaskRunID` → `"Incorrect Mapping"`
+/ `"Incorrect Additional Input Mapping"` even if the path is right.
 
-A step starts once both hold:
-- its own temporal predecessor (`PrevStepCopyID`) has finished (success or failure, if
-  the task continues past failures);
-- every `AdditionalInputs[]` source step it reads from has also finished — this list is
-  computed once at build time from the additional-input mappings and ticked off as each
-  source step completes.
+**Values** are source paths (Rule 3 / Rule 5). Source column **names** may differ. Confirmed
+in DX: `InputSchema` `{C1, C2}` mapped as `{"C1": "<step>.ColumnA", "C2": "<step>.ColumnB"}`
+publishes; the keys had to be `C1`/`C2`, the sources had to be String like the targets.
 
-**The step's own primary-input dependency never feeds into this list.** Primary input is
-checked separately, only once the step is already running and pulling its actual data: a
-binary "did the referenced step's overall run succeed?" check, not a completeness check
-— a predecessor that throws partway through still counts as failed even though it may
-have already written partial data, and the reading step gets an empty table (0 rows),
-never the partial rows or an undefined value. This check is all-or-nothing across every
-step a primary input's mapping references. It's not a race-safety mechanism either —
-convention guarantees a primary input's source is always in the step's own ancestor
-chain, which temporal order already finished by the time this step is eligible to run;
-it exists purely to catch "ran but failed" or "never ran because its branch is
-deactivated."
+**Types must match** (`docs/transfer/config-transfer-format.md` §7: Integer `1`, String
+`2`, …). Same name is not a type match. Import / `onlyTest` check that the path exists
+and that `AllowNull: false` keys are present — **not** `Type` (or `ComplexType` /
+`tableRef` for tables). A schema-version bump that changes a column from int to string
+publishes green. At run the consuming Step never enters the connector:
+`Starting step on shared agent failed` / `Unable to cast object of type 'System.Int32'
+to type 'System.String'`, then `FailedAgent` (305). Empty producer output can hide it
+(`StopIfEmptyOutput` → `FinishedNoData`). After a same-Guid schema bump, align consumer
+`{Guid,Version}` with the producer, or convert explicitly.
 
-`AdditionalInputs[]` entries, by contrast, are real scheduling gates precisely because
-they read from **sibling** branches with no such temporal guarantee — each entry's
-deactivated-branch check and its scheduling dependency must both stay tracked **per
-entry**, never collapsed to one flag for the whole step, or one entry's dependency can
-leak onto an unrelated sibling entry on the same step.
+Two `AdditionalInputs` entries that both expose `TaskRunID`: keep the key `TaskRunID` on
+both; disambiguate in the script (`inputData2[0].TaskRunID` vs `inputData3[0].TaskRunID`).
 
-**Confirmed: a step chained after a `FailStepAndContinue`/`FailTaskAndContinue` failure
-runs completely normally, on real data, if it doesn't itself read from the failed step.**
-A step has no special awareness that its temporal predecessor (`PrevStepCopyID`) failed —
-"the branch continues" does not mean the next step runs "over empty data" as a rule; it
-runs over whatever its own `InputSchemaMapping`/`AdditionalInputs` actually resolve to,
-exactly like any other step. Concretely: a `Delay` step deliberately failed
-(`docs/transfer/config-transfer-format.md` §6.1) with `FailStepAndContinue`, immediately followed
-(`PrevStepCopyID`) by a step whose `InputSchemaMapping` points at an *earlier*,
-unaffected step — not at the failed `Delay` — still produces its full, correct output.
-Only a step that actually *reads its data* from the failed step (via primary input or
-`AdditionalInputs`) sees the all-or-nothing empty-table effect described above; a step
-merely chained *after* it in time is unaffected if its real data source lies elsewhere.
-
-**Confirmed production regression trap:** a step's mapping paths exist internally in two
-forms — one identifying the concrete referenced step (for dependency computation), one
-by human-readable name (for actually navigating the result tree). If dependency
-computation runs against the mapping *after* it's already been rewritten to the by-name
-form, it silently finds zero dependencies — no error, just 0 results. For a primary
-input, that permanently (and silently) disables the "predecessor failed midway"
-protection. For `AdditionalInputs`, it removes scheduling's only real data source — every
-step with an additional input becomes eligible to run as soon as its temporal
-predecessor finishes, with no wait on the sibling branches it actually reads from. This
-is an active, silent data-loss bug, not just a missing safeguard — confirmed in
-production.
+`AdditionalInputs[]` and the Step `Statement` are independent. Adding an entry creates
+`inputDataN`; it does not merge that data into the output. A `return [...inputData2,
+...inputData3]` merge that omits the new `inputDataN` drops the branch silently.
 
 ---
 
-## 2. Tree logic of `InputSchemaMapping` addresses
+## 4. When the Step is allowed to start
 
-Step results aren't stored flat — they go into a **tree**. `"StepName.ColumnName..."` is
-a path in that tree. Segments are always entity names (Step, Column, Endpoint) — never
-action/connector-type names or keywords. A path segment like `"Row by row"` is just a
-step someone named that.
+Two questions: **when** it may start, and **what** it sees. This section is only “when”.
 
-### Rule 1 — where a step attaches itself (its "storage location")
+A Step starts when:
 
-Take the **longest path** among the step's own `InputSchemaMapping` values and **drop
-its last segment** (the column name). What's left is the tree node — the storage
-location — under which the step attaches itself, as a new node **named after itself**.
+1. its `PrevStepCopyID` predecessor has finished (success or failure, if the Task
+   continues);
+2. every `AdditionalInputs` source Step has finished (computed from those mappings at
+   build time).
 
-- Several input paths at once (must be the same branch, not diverging) → use the **deepest** one.
-- No path at all → storage location = root (see Rule 2).
+Primary mapping is **not** in that wait list. Once the Step runs, primary input is a
+binary “did every referenced Step succeed?”. Failed or not-run → empty table (0 rows),
+never partial rows. Primary sources are expected to be ancestors, so this is not
+race-safety; it catches failed / deactivated producers.
 
-### Rule 2 — exception: always lands at root, regardless of its own mapping
+`AdditionalInputs` **are** scheduling gates (sibling branches). Track each entry
+separately. Collapsing them to one flag lets one entry’s wait leak onto another.
 
-- `InputProcessType: 1` (`Bulk`),
-- the step has `AdditionalInputs` (multi-input),
-- the step has no `InputSchema`, or no `InputSchemaMapping` (`null`).
+**`PrevStepCopyID` is time. `AdditionalInputs` is data.** A Step can run after A and
+read B and C. Chaining after `FailStepAndContinue` or `FailTaskAndContinue` does not
+empty the next Step unless that Step **reads** the failed one. Confirmed: Delay failed
+with `FailStepAndContinue` ([config-transfer-format.md](../transfer/config-transfer-format.md)
+§6.1), next Step mapped at an earlier healthy Step — full correct output, not empty.
 
-Any **one** of these is enough — whatever the step's own mapping would otherwise imply
-(even a deep path) is ignored, and the step attaches directly at root under its own
-name. Reason for Bulk/multi-input: aggregating 1:N/N:1 while keeping the old path would
-imply a nonsensical cartesian product.
+Exactly **one** Step per Task may have `PrevStepCopyID: null` (the `FirstStep`). A second
+root throws `"Task cannot contain more than one first step"`. Parallel work: one dummy
+root (JS Mapper `return []`, `OutputSchema` system Text `Guid`
+`b76c3662-4903-4512-97a9-72f32eaecd01` Version `1.0.0`) and branch everyone off it.
 
-Conversely, `InputProcessType: 2` (`RowByRowSequentially`) with both `InputSchema` and
-`InputSchemaMapping` set and no `AdditionalInputs` → **normal case**, storage location
-computed per Rule 1 (nesting) — regardless of connector type (HTTP/Endpoint connectors
-included; only `InputProcessType` + presence of mapping/AdditionalInputs matter).
+### Empty primary input
 
-> `InputProcessType`: `1` = `Bulk`, `2` = `RowByRowSequentially` — confirmed from source.
+RowByRow with a defined input that is empty → the Step is skipped (`nothing to process`).
+**Bulk still runs** on `[]`. That is why empty-origin Bulk tests must actually execute.
 
-### Rule 3 — how a later step reads step X's output
+### `AdditionalInputs` that did not run
+
+A not-run source yields an **empty table `[]`** (schema present), never `null`.
+learn.integray.app’s Multi Input Step table (null if disabled/failed/not-run, `[]` only
+if executed empty) is wrong. Confirmed JS Mapper 3.5.6, rel-2025-03.017, all `[]`:
+
+1. Consumer `StopIfEmptyOutput: true` chained after Delay (Delay output is always empty).
+2. Upstream `FailedConnector`.
+3. Source `IsTempDeactivated: true`.
+4. RowByRow source that wrote some rows and then threw — partial output is discarded.
+   Same all-or-nothing as primary input.
+
+If the AdditionalInputs entry has no schema, the slot can be `null` instead of an empty
+table.
+
+### Delay
+
+Connector `a1865bf9-504c-43c7-89d5-b9a940432d44`, Version `3.0.3`. Config is seconds only.
+`InputSchema` / `OutputSchema` are null — no data, only a `PrevStepCopyID` slot. The next
+Step must map at a real producer, not at Delay.
+
+The connector’s own validation text lists `-1` as “infinite timeout” (with `0` and any
+positive integer). That text is wrong in practice: `Delay: -1` fails the Step immediately
+(`FailedConnector`), same as an invalid value such as `-5`. Do not build a test that
+waits forever and then times out. Use `-1` only to force an immediate failure.
+
+### Publish bug (active)
+
+Mapping paths exist internally in two forms: identity keys (`{e:}` / `{ts:}` / `{dsc:}`)
+for the runtime tree, and display names for humans. If **scheduling / dependency
+computation** runs against the **name** form, it silently finds zero dependencies — no
+error.
+
+- **Primary input:** the “producer failed midway → empty table” protection never arms.
+- **`AdditionalInputs`:** the Step becomes eligible as soon as its temporal predecessor
+  finishes; it does not wait on the sibling branches it actually reads. Silent data loss.
+
+Do not “fix” that in a transfer.
+
+---
+
+## 5. Examples
+
+| | Step | Process | Mapping | Stores at | Read as |
+|---|---|---|---|---|---|
+| A | `STEP1` | any | none | root | `STEP1.Col` |
+| B | `STEP2` | RowByRow | `STEP1.Col` | under `STEP1` | `STEP1.STEP2.Col` |
+| C | `STEP3` | RowByRow | `STEP1.STEP2.Col` | under `STEP1.STEP2` | `STEP1.STEP2.STEP3.Col` |
+| D | `STEP4` | Bulk | same as C | **root** | `STEP4.Col` |
+| E | POST Endpoint `Name`, then Bulk `Echo` mapping `Name.Name` | — | two root nodes `Name` and `Echo` | `Echo.Out` is **not** `Name.Echo.Out` |
+
+Chain (Start Task → Bulk Get status → RowByRow Parse → Bulk Evaluate with AdditionalInputs):
 
 ```
-(storage location of X) . (X's own name) . (column name)
+Start Task              no InputSchema → root          Start Task.TaskRunID
+Get task run status     Bulk → root                    Get task run status.StatusCode
+Parse status            RowByRow under Get …           Get task run status.Parse status.TaskRunStatus
+Evaluate result         Bulk + AdditionalInputs → root Evaluate result.TestName
 ```
 
-### Rule 4 — `AdditionalInputs`
-
-Data across different "trees" (created by a Rule 2 reset) doesn't mix. A step needing
-data from several trees at once uses `AdditionalInputs` — each entry has its own
-independent path (read per Rule 3, based on where its source step actually lives).
-
-### Rule 5 — a task-bound POST/PATCH/PUT Endpoint is an implicit "step zero"
-
-See `docs/transfer/config-transfer-format.md` §8.5 for the full mechanism. In short: an Endpoint with
-`*InputTaskCopyID`/`*InputSchema`/`*InputMapping` set deposits its mapped request data at
-the tree root under **its own `Name`**, exactly like a Step would under its own name —
-so the bound Task's first Step needs `InputSchemaMapping: {"Column": "<Endpoint
-Name>.Column"}`, same as Rule 1/3 for any other step, just with an Endpoint's name
-instead of a Step's. Once that first Step has this mapping (and isn't Bulk / has no
-`AdditionalInputs`), it stops resetting to root (Rule 2 no longer applies to it) and
-nests under the Endpoint per Rule 1 — its own output address becomes `<Endpoint
-Name>.<Step Name>.<Column>`, not just `<Step Name>.<Column>`.
-
-### Examples (generic names)
-
-- A) `STEP1` with no `InputSchemaMapping` → storage location = root → read as `STEP1.Column` (2 segments)
-- B) `STEP2` with mapping `{"X": "STEP1.Column"}`, `InputProcessType: 2`, no AdditionalInputs → storage location = `STEP1` → read as `STEP1.STEP2.Column` (3 segments)
-- C) `STEP3` with mapping `{"X": "STEP1.STEP2.Column"}`, `InputProcessType: 2` → storage location = `STEP1.STEP2` → read as `STEP1.STEP2.STEP3.Column` (4 segments)
-- D) `STEP4` with the same mapping as C but `InputProcessType: 1` (Bulk) → Rule 2 applies, mapping ignored → storage location = root → read as `STEP4.Column` (2 segments)
-
-### Worked example — a longer chain
-
-```
-Start Task           (InputSchema: null → root)
-  read as: "Start Task.TaskRunID"
-
-Get task run status  (InputProcessType: 1 = Bulk → Rule 2 → root,
-                       even though its mapping reads "Start Task.TaskRunID")
-  read as: "Get task run status.StatusCode"
-
-Parse status         (InputProcessType: 2, mapping "Get task run status.StatusCode"
-                       → storage location = "Get task run status")
-  read as: "Get task run status.Parse status.TaskRunStatus"
-
-Evaluate result      (InputProcessType: 1 = Bulk, also has AdditionalInputs
-                       → Rule 2 → root, even though its primary mapping reads deep)
-  read as: "Evaluate result.TestName"
-```
-
-### Worked example — multi-input step, two inputs
+Two inputs on a merge Step — one nested RowByRow tree, one Bulk tree at root:
 
 ```json
 "AdditionalInputs": [
-  { "StepCopyID": "<CopyID of 'Row by row'>", "InputSchema": { "CopyID": "<schema CopyID>" },
+  {
+    "StepCopyID": "<Row by row>",
+    "InputSchema": { "CopyID": "<schema>" },
     "InputSchemaMapping": {
       "TestName": "Generate Data.Row by row.TestName",
       "Success": "Generate Data.Row by row.Success",
       "ErrorMessage": "Generate Data.Row by row.ErrorMessage"
-    } },
-  { "StepCopyID": "<CopyID of 'Bulk'>", "InputSchema": { "CopyID": "<schema CopyID>" },
+    }
+  },
+  {
+    "StepCopyID": "<Bulk>",
+    "InputSchema": { "CopyID": "<schema>" },
     "InputSchemaMapping": {
-      "TestName": "Bulk.TestName", "Success": "Bulk.Success", "ErrorMessage": "Bulk.ErrorMessage"
-    } }
+      "TestName": "Bulk.TestName",
+      "Success": "Bulk.Success",
+      "ErrorMessage": "Bulk.ErrorMessage"
+    }
+  }
 ]
 ```
-`Generate Data` produced the data; the step named `Row by row` nested under it
-(Row-by-row processing → 3-segment path). The step named `Bulk` reset the tree (Bulk
-processing), so its path starts directly from its own name.
 
 ---
 
-## 3. Checklist for multi-branch/multi-connector `Steps[]`
+## 6. Checklist
 
-1. For every step, determine `InputProcessType` (`1`=Bulk, `2`=RowByRowSequentially), `InputSchema`, `AdditionalInputs` — this triple decides reset (Rule 2) vs. nest (Rule 1).
-2. Walk Steps in dependency order (`PrevStepCopyID`/`AdditionalInputs`) and record where each one attached (storage location + own name = full path to its output columns).
-3. Verify every value in `InputSchemaMapping`/`AdditionalInputs[].InputSchemaMapping` of the next step against that growing map — it must exactly match an already-computed path to an existing column. A wrong/nonexistent path = `"Incorrect Mapping"` / `"Incorrect Additional Input Mapping"` on import/open.
-4. Don't forget `AllowNull: false` columns of the target schema (`docs/transfer/config-transfer-format.md` §7) — all of them must be mapped; nullable ones can be skipped.
-5. For every mapped pair, the source column's `Type` must equal the target column's `Type` (`docs/transfer/config-transfer-format.md` §7). Name match is not enough — same-named columns can change type across schema versions, and import will not flag it. For `Type: 7` (Table), `ComplexType` / `tableRef` must match too.
+1. For each Step: `InputProcessType` (`1` Bulk, `2` sequential RowByRow, `4` parallel
+   RowByRow) and whether `InputSchema` is set → Rule 2 vs Rule 1.
+2. Walk `PrevStepCopyID` / `AdditionalInputs` order. Record each Step’s storage path
+   (parent + own name).
+3. Every mapping **value** must be a path that already exists on that map. Wrong path →
+   `"Incorrect Mapping"` / `"Incorrect Additional Input Mapping"` on import. Existing
+   sibling-root paths can still be a **runtime** `null` if they share one primary mapping
+   (§2).
+4. Map every `AllowNull: false` column of the target schema
+   ([config-transfer-format.md](../transfer/config-transfer-format.md) §7).
+5. Every mapped pair: same `Type` (and `ComplexType` for tables). Import will not save
+   you.
+6. Two root nodes needed on one Step → primary + `AdditionalInputs`, never two forks in
+   one mapping.
+7. One `PrevStepCopyID: null` per Task.

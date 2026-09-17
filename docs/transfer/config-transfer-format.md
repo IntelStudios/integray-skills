@@ -407,7 +407,7 @@ each visited step contributing (or not) to a `propagationStatuses` set:
 When recursion continues (`ErrorBehavior` is `FailStepAndContinue`/`FailTaskAndContinue`),
 the next step actually runs — not over "empty data" as a rule, over whatever its **own**
 `InputSchemaMapping`/`AdditionalInputs` actually resolve to, same as any other step
-(`docs/entities/data-addressing.md` §1.1). It has no special awareness that its temporal predecessor
+(`docs/entities/data-addressing.md` §4). It has no special awareness that its temporal predecessor
 failed; if that predecessor isn't also what it reads its *data* from, it runs completely
 normally on real data (confirmed: a `Delay` step deliberately failed with
 `FailStepAndContinue`, immediately followed by a step whose `InputSchemaMapping` points
@@ -469,7 +469,7 @@ Step's own `Timeout` expiring first) makes `Start` itself report as a failed ste
 own success/failure as a step tracks 1:1 with whether it returned "good" data, and don't
 rely on reading its primary output when testing a scenario where it's expected to fail —
 read it via `AdditionalInputs` instead (confirmed to safely yield `[]`, never throw or
-block the reading step, per `docs/entities/data-addressing.md` §1), since it's unconfirmed whether a
+block the reading step, per `docs/entities/data-addressing.md` §4), since it's unconfirmed whether a
 `Bulk`-processing step downstream even invokes its own connector at all against a
 genuinely empty *primary* input.
 
@@ -693,7 +693,7 @@ confirmed live in this KB, ask the user for the exact `Guid`+`Version`+columns, 
 them up in the target instance directly. **Never invent a system schema's column
 name** — a plausible-but-wrong one fails import with the "Cannot find column" error above
 instead of the more familiar "Incorrect Mapping" (which is what a wrong *path*, not a
-wrong *column name*, produces — see `docs/entities/data-addressing.md` §2 for that distinction).
+wrong *column name*, produces — see `docs/entities/data-addressing.md` §3 for that distinction).
 
 ---
 
@@ -1002,13 +1002,14 @@ Mapping"** error from §7. (The Endpoint's own `*InputMapping` and the Step's
 makes the second redundant, per this exact mistake.)
 
 **Knock-on consequence for that Step's own output address.** Once the Step has a real
-`InputSchema` + `InputSchemaMapping` (and isn't Bulk / doesn't have `AdditionalInputs`),
-`docs/entities/data-addressing.md` Rule 2's reset-to-root no longer applies to it — Rule 1 does, so
-the Step nests **under the Endpoint's node**: its own output is addressed as
-`<Endpoint Name>.<Step Name>.<Column>` (3 segments), not just `<Step Name>.<Column>` (2
-segments) like a Bulk/no-mapping root step would be. Any later reference to this Step's
-output — including this same Endpoint's own `*OutputMapping`, if it reads from this
-Step — must use the full 3-segment path.
+`InputSchema` + `InputSchemaMapping` and is not Bulk, `docs/entities/data-addressing.md`
+Rule 2 no longer applies — Rule 1 does, so the Step nests **under the Endpoint's node**:
+its own output is addressed as `<Endpoint Name>.<Step Name>.<Column>` (3 segments), not
+just `<Step Name>.<Column>` (2 segments) like a Bulk / no-`InputSchema` root Step.
+DX sets Bulk when you add `AdditionalInputs`, which is why a multi-input first Step
+stays at root. Any later reference to this Step's output — including this same
+Endpoint's own `*OutputMapping`, if it reads from this Step — must use the full
+3-segment path.
 
 **Response shaping (output side):** `*OutputSchema`/`*OutputMapping`/`*OutputStepCopyID`
 work the same way as `GetOutputSchema`/`GetOutputMapping`/`GetOutputStepCopyID` (§8) — map
