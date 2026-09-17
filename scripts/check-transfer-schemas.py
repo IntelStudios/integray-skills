@@ -75,6 +75,12 @@ def required_cols(schema: dict[str, Any]) -> set[str]:
     return {c["Name"] for c in schema.get("Columns") or [] if not c.get("AllowNull", True)}
 
 
+def column_types(schema: dict[str, Any] | None) -> dict[str, Any]:
+    if not schema:
+        return {}
+    return {c["Name"]: c.get("Type") for c in schema.get("Columns") or [] if c.get("Name")}
+
+
 def load_catalogs(data_dir: Path) -> dict[str, Any]:
     connectors = json.loads((data_dir / "connectors.json").read_text())
     config_schemas = json.loads((data_dir / "configuration-schemas.json").read_text())
@@ -222,6 +228,27 @@ def check_transfer(data: dict[str, Any], catalogs: dict[str, Any]) -> tuple[list
         missing = required_cols(found) - set((mapping or {}).keys())
         if missing:
             issues.append(f"missing required mapping: {label} -> {sorted(missing)}")
+
+    def check_mapping_types(label: str, target_schema: dict[str, Any] | None, mapping: dict | None, source_schemas: list) -> None:
+        if not target_schema or not mapping:
+            return
+        target_types = column_types(target_schema)
+        source_types: dict[str, set] = {}
+        for schema in source_schemas:
+            for name, typ in column_types(schema).items():
+                source_types.setdefault(name, set()).add(typ)
+        for key, path in mapping.items():
+            if key not in target_types or not isinstance(path, str) or not path:
+                continue
+            col = path.rsplit(".", 1)[-1]
+            have = source_types.get(col)
+            if not have:
+                continue
+            want = target_types[key]
+            if want not in have:
+                issues.append(
+                    f"type mismatch: {label} {key} Type {want} <- {col} Type {sorted(have)}"
+                )
 
     def resolve_copyid(field: str, value: Any, label: str) -> None:
         if not _is_uuid(value):
@@ -377,6 +404,18 @@ def check_transfer(data: dict[str, Any], catalogs: dict[str, Any]) -> tuple[list
         tname = task.get("Name") or task.get("CopyID")
         tid = _norm(task.get("CopyID"))
         check_schema(f"{tname} VariablesSchema", task.get("VariablesSchema"), mapping_required=False)
+        source_schemas: list = []
+        for step in task.get("Steps") or []:
+            source_schemas.append(resolve_schema(step.get("InputSchema")))
+            source_schemas.append(resolve_schema(step.get("OutputSchema")))
+            for extra in step.get("AdditionalInputs") or []:
+                source_schemas.append(resolve_schema(extra.get("InputSchema")))
+        for endpoint in data.get("Endpoints") or []:
+            if tid and tid in {
+                _norm(endpoint.get(f"{m}InputTaskCopyID")) for m in HTTP_METHODS
+            }:
+                for key in ENDPOINT_SCHEMA_KEYS:
+                    source_schemas.append(resolve_schema(endpoint.get(key)))
         roots = 0
         for step in task.get("Steps") or []:
             sname = step.get("Name") or step.get("CopyID")
@@ -389,12 +428,24 @@ def check_transfer(data: dict[str, Any], catalogs: dict[str, Any]) -> tuple[list
                 if prev and step_to_task.get(prev) not in (tid, None) and prev in step_to_task:
                     issues.append(f"PrevStepCopyID not in this Task: {label} -> {step.get('PrevStepCopyID')}")
             check_schema(f"{label} (InputSchema)", step.get("InputSchema"), step.get("InputSchemaMapping"))
+            check_mapping_types(
+                f"{label} (InputSchema)",
+                resolve_schema(step.get("InputSchema")),
+                step.get("InputSchemaMapping"),
+                source_schemas,
+            )
             check_schema(f"{label} (OutputSchema)", step.get("OutputSchema"), mapping_required=False)
             for i, extra in enumerate(step.get("AdditionalInputs") or []):
                 check_schema(
                     f"{label} (AdditionalInputs[{i}])",
                     extra.get("InputSchema"),
                     extra.get("InputSchemaMapping"),
+                )
+                check_mapping_types(
+                    f"{label} (AdditionalInputs[{i}])",
+                    resolve_schema(extra.get("InputSchema")),
+                    extra.get("InputSchemaMapping"),
+                    source_schemas,
                 )
                 extra_step = _norm(extra.get("StepCopyID"))
                 if extra_step and step_to_task.get(extra_step) not in (tid, None) and extra_step in step_to_task:

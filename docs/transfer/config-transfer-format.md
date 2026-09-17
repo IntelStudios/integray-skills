@@ -553,6 +553,8 @@ Before declaring a transfer done, run `python scripts/check-transfer-schemas.py 
   replace `CompanyID`/`EndpointID`/`TaskID` — [configuration-overrides.md](../entities/configuration-overrides.md))
 - `SelectedActionCode` / `configurationRefs` / agent restrictions, when that connector
   Guid+Version is in `data/connectors.json`
+- mapped column `Type` mismatch (target InputSchema column vs source column name in this
+  Task / bound Endpoint schemas)
 
 **Stderr** is not the gate: Guid+Version missing from the KB catalogs (`catalog may be stale`).
 Tell the user; still deliver if stdout is empty. Do not skip a stdout finding because the
@@ -1121,7 +1123,7 @@ about a company-specific detail. That tree is not KB content.
    - `Task.Type`: `2` only with a real bound Endpoint; `0` only for a genuinely intended schedule; otherwise `1`.
    - `Cron`: `null` unless `Type: 0` — never copy it from another task without checking `Type` first.
    - Exactly one `PrevStepCopyID: null` per task (see `docs/entities/data-addressing.md`) — multi-branch tasks need one shared root step, not one `null` per branch.
-   - `InputSchemaMapping`/`AdditionalInputs` cover every `AllowNull: false` column of the target `InputSchema` (same script) and every mapped pair has the same `Type` (and `ComplexType` for tables) as the source column (`docs/entities/data-addressing.md`) — name match is not enough. Type match is **not** in the script. On a GET-bound task, a missed required column can surface only at publish time as `CACHE_BINDING_GET_TASK_NOT_EXECUTABLE`, not as "Incorrect Mapping" at import (§7).
+   - `InputSchemaMapping`/`AdditionalInputs` cover every `AllowNull: false` column of the target `InputSchema` (same script) and every mapped pair has the same `Type` (and `ComplexType` for tables) as the source column (`docs/entities/data-addressing.md`) — name match is not enough. The script flags Type mismatch when the source column name is unique in the Task/Endpoint schemas. On a GET-bound task, a missed required column can surface only at publish time as `CACHE_BINDING_GET_TASK_NOT_EXECUTABLE`, not as "Incorrect Mapping" at import (§7).
    - Cloned Endpoints: `*OutputMapping` points at a step that exists, by name, in the new task (§8).
    - Endpoints with `AuthenticationType:1`: every primary `XxxToken` field populated (§8.2), and every `XxxSecondaryTokens` CopyID resolves to an entry actually present in `SecondaryTokens[]`.
    - No `.` in any Task/Step/Endpoint/TaskGroup/EndpointGroup `Name`, and `Name`/`Slug` lengths respect §2.1's `varchar` limits.
