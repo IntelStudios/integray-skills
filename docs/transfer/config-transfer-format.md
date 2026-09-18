@@ -716,6 +716,11 @@ wrong *column name*, produces — see `docs/entities/data-addressing.md` §3 for
 - `*OutputStepCopyID` binds to a **Step** inside that task — the source of the response.
 - `EndpointGroupCopyID` groups endpoints (like `TaskGroupCopyID` groups tasks).
 - New endpoint → generate `CopyID`, any `ID`.
+- **`WaitTime`** (seconds) is how long a **sync** method waits for the bound Task before
+  the HTTP call returns **408**. It is independent of Step `Timeout` and of Node.js
+  `Configuration.Timeout`. For `PostIsAsync: false` / equivalent GET, set `WaitTime` at
+  least as high as the longest Step `Timeout` on that Task (the palace `app/starter`
+  POST is this case). Async methods do not use it as the client wait.
 
 **Cloning an endpoint from a template.** Rewriting `*InputTaskCopyID`,
 `*OutputStepCopyID`, `ID`, `Name`, `CopyID` is not enough. **`*OutputMapping` (e.g.
