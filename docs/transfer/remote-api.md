@@ -263,6 +263,7 @@ invalid `${#Code}` references, step naming, etc.).
 | `CACHE_BINDING_GET_TASK_NOT_EXECUTABLE` in messages | Step `OutputSchema` mismatch (typical: HTML Creator) | §8.4 exception in `docs/transfer/config-transfer-format.md` |
 | `configurations … invalid variable Code` | `${#Code}` without `Variables[]` | `docs/entities/variables.md` |
 | Process OK, endpoint returns wrong/error | Config live but mapping/schema wrong | Verify with GET below |
+| Company orchestrator off after publish or after you switch it on | Runtime DB size monitor, not Remote API | See [Company orchestrator vs DB size](#company-orchestrator-vs-db-size) |
 
 **Debug workflow:** run Process with `publish: false` to validate import only → fix
 transfer JSON → Process with `publish: true` (or standalone `POST .../Publish` if the
@@ -513,6 +514,20 @@ curl -sS -X DELETE \
 ```
 
 No agent skill. Use when the user asks to list or remove server-side transfer records (e.g. after `/backup`). Do not Process a Backup `id` as the deploy — Process the id from Upload.
+
+---
+
+## Company orchestrator vs DB size
+
+If the company orchestrator (`DXCompany.IsRunnable`) turns itself off after you switch it
+on in DX, after Process `--publish`, or after `POST Orchestrator/Runnable`, it may be the
+runtime **DB size monitor**, not a Remote API bug. The job compares Postgres size to
+`DB_SIZE_LIMIT_MB` (env / user secrets / provisioning; unit MB). Over the error threshold
+it sets `IsRunnable=false` and turns it off again on the next tick if someone switches it
+on. System log key `HealthCheck=DBSize`. Orchestrator switch always logs reason
+`RemoteRequest`, including publish, so the log looks like Remote API. Check
+`IsRunnable` / `IsRunnablePrev`. If the limit is not configured, the job does not stop
+orchestrators.
 
 ---
 
