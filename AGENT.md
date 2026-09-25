@@ -65,6 +65,8 @@ When the user asks to create, edit, upload, or deploy Integray tasks / endpoints
 
 There is **no** YAML spec. Output is Config Transfer JSON.
 
+Instance product line / git branch: [docs/instance-version.md](docs/instance-version.md). Fetch with `python scripts/get-instance-version.py --connection projects/<name>/.integray-connection.json` (or `--base-url`). Some features exist only from a given `productLine`.
+
 ### B — Connector development
 
 Read [docs/connector-dev/rules.md](docs/connector-dev/rules.md). Validate metadata against [data/connector-dev.schema.json](data/connector-dev.schema.json). README template: [docs/connector-dev/readme-template.md](docs/connector-dev/readme-template.md). Work in the connector’s own repo, not in this KB’s `docs/`.

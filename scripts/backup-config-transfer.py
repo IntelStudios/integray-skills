@@ -38,6 +38,16 @@ def main() -> None:
         default=DEFAULT_TIMEOUT_SECONDS,
         help=f"HTTP timeout seconds (default {int(DEFAULT_TIMEOUT_SECONDS)})",
     )
+    parser.add_argument(
+        "--delete-older-than",
+        type=int,
+        default=None,
+        metavar="DAYS",
+        help=(
+            "Optional calendar days. Deletes ApplicationBackup_* records older than "
+            "this many calendar days (exclusive). Omit, or pass 0, to keep existing backups."
+        ),
+    )
     args = parser.parse_args()
 
     try:
@@ -48,7 +58,11 @@ def main() -> None:
 
     print(f"Creating Config Transfer backup at {config.backup_url}")
     try:
-        transfer_id = backup_config_transfer(config, timeout_seconds=args.timeout)
+        transfer_id = backup_config_transfer(
+            config,
+            timeout_seconds=args.timeout,
+            delete_older_than=args.delete_older_than,
+        )
     except RemoteError as exc:
         print(exc, file=sys.stderr)
         raise SystemExit(1) from exc

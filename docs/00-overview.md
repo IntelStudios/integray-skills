@@ -45,6 +45,7 @@ These files are a snapshot. If a transfer uses a connector version not in the ca
 |-------|------|
 | Transfer JSON, IDs, tasks, endpoints, publish errors | [transfer/config-transfer-format.md](transfer/config-transfer-format.md) |
 | Remote API (Config Transfer + Variable + other live endpoints) | [transfer/remote-api.md](transfer/remote-api.md) |
+| Instance version (`GET /api/Integray`, unauthenticated) | [instance-version.md](instance-version.md) |
 | CopyIDs on edit, unique names, `VariablesDefaults` | [best-practices.md](best-practices.md) |
 | Step-to-step addressing | [entities/data-addressing.md](entities/data-addressing.md) |
 | `InputDataFilter` | [entities/input-data-filter.md](entities/input-data-filter.md) |

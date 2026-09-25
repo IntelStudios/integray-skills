@@ -3,6 +3,9 @@
 From repo root (`.venv/bin/python` when `.venv/` exists):
 
 ```bash
+python scripts/get-instance-version.py \
+  --connection projects/<name>/.integray-connection.json
+
 python scripts/download-config-transfer.py \
   --connection projects/<name>/.integray-connection.json
 

@@ -31,10 +31,12 @@ Agent-oriented knowledge base for Integray: **Config Transfer JSON** and **.NET 
 | [docs/projects.md](docs/projects.md) | One private git per `projects/<name>/` |
 | [docs/transfer/config-transfer-format.md](docs/transfer/config-transfer-format.md) | Transfer JSON rules (IDs, Full Sync, checklist) |
 | [docs/transfer/remote-api.md](docs/transfer/remote-api.md) | Download / Upload / Process / Backup |
+| [docs/instance-version.md](docs/instance-version.md) | Unauthenticated `GET /api/Integray` — product line and build stamp |
 | [docs/entities/](docs/entities/) | Tasks, mapping, variables, endpoints, … |
 | [docs/connector-dev/](docs/connector-dev/) | Connector project rules |
 | [docs/best-practices.md](docs/best-practices.md) | CopyIDs, names, `VariablesDefaults` |
 | [data/](data/) | Connector, configuration, and data-schema catalogs |
+| [scripts/get-instance-version.py](scripts/get-instance-version.py) | Unauthenticated `GET /api/Integray` (`productLine`, `buildStamp`) |
 | [scripts/download-config-transfer.py](scripts/download-config-transfer.py) | Remote API Config Transfer download |
 | [scripts/backup-config-transfer.py](scripts/backup-config-transfer.py) | Remote API Config Transfer backup (`transferId`) |
 | [scripts/upload-config-transfer.py](scripts/upload-config-transfer.py) | Remote API Config Transfer upload (pre-check + `transferId`) |

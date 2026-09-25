@@ -80,17 +80,15 @@ class ConnectionConfig:
         data = json.loads(path.read_text(encoding="utf-8"))
         if not isinstance(data, dict):
             raise ValueError(f"{path}: connection file must be a JSON object")
-        base_url = data.get("baseUrl")
+        base_url = _base_url_from_connection_data(data, path)
         company_slug = data.get("companySlug")
         token = data.get("token")
-        if not base_url or not str(base_url).strip():
-            raise ValueError(f"{path}: missing baseUrl. {CONNECTION_HELP}")
         if not company_slug or not str(company_slug).strip():
             raise ValueError(f"{path}: missing companySlug. {CONNECTION_HELP}")
         if not token or not str(token).strip():
             raise ValueError(f"{path}: missing token. {CONNECTION_HELP}")
         return cls(
-            base_url=str(base_url).strip().rstrip("/"),
+            base_url=base_url,
             company_slug=str(company_slug).strip(),
             token=str(token).strip(),
             path=path,
@@ -157,6 +155,82 @@ def filename_from_content_disposition(header: str | None, fallback: str) -> str:
     if not name or name in {".", ".."}:
         return fallback
     return name
+
+
+def instance_info_url(base_url: str) -> str:
+    return urljoin(str(base_url).strip().rstrip("/") + "/", "api/Integray")
+
+
+def _base_url_from_connection_data(data: dict[str, Any], path: Path) -> str:
+    base_url = data.get("baseUrl")
+    if not base_url or not str(base_url).strip():
+        raise ValueError(f"{path}: missing baseUrl. {CONNECTION_HELP}")
+    return str(base_url).strip().rstrip("/")
+
+
+def read_connection_base_url(path: Path) -> str:
+    """baseUrl from .integray-connection.json without requiring slug or token."""
+    path = Path(path)
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        raise ValueError(f"{path}: connection file must be a JSON object")
+    return _base_url_from_connection_data(data, path)
+
+
+def parse_instance_version(version: str) -> tuple[str, str]:
+    """Split Version into (product line / git branch, build stamp)."""
+    text = (version or "").strip()
+    if not text:
+        raise RemoteError("Version is empty")
+    product_line, sep, rest = text.partition(" ")
+    if not product_line:
+        raise RemoteError(f"Version has no product line: {version!r}")
+    return product_line, rest.strip() if sep else ""
+
+
+def fetch_instance_version(
+    base_url: str,
+    *,
+    timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
+    client: httpx.Client | None = None,
+) -> dict[str, str]:
+    """GET /api/Integray (no auth). Returns productLine, buildStamp, versionRaw."""
+    url = instance_info_url(base_url)
+    own_client = client is None
+    http = client or httpx.Client(timeout=timeout_seconds, follow_redirects=True)
+    try:
+        try:
+            response = http.get(url, headers={"Accept": "application/json"})
+        except httpx.HTTPError as exc:
+            raise RemoteError(f"{url}: {exc}") from exc
+    finally:
+        if own_client:
+            http.close()
+
+    if response.status_code == 404:
+        raise RemoteError(
+            f"{url}: 404 Not Found. Check baseUrl (this is instance /api/Integray, "
+            "not Remote API)."
+        )
+    if response.status_code >= 400:
+        body = (response.text or "")[:500]
+        raise RemoteError(f"{url}: HTTP {response.status_code}. {body}")
+
+    try:
+        payload = response.json()
+    except json.JSONDecodeError as exc:
+        raise RemoteError(f"{url}: response is not JSON ({exc})") from exc
+    if not isinstance(payload, dict):
+        raise RemoteError(f"{url}: expected a JSON object")
+    raw = payload.get("Version", payload.get("version"))
+    if raw is None:
+        raise RemoteError(f"{url}: missing Version in {payload!r}")
+    product_line, build_stamp = parse_instance_version(str(raw))
+    return {
+        "productLine": product_line,
+        "buildStamp": build_stamp,
+        "versionRaw": str(raw).strip(),
+    }
 
 
 def _raise_http_error(
@@ -243,18 +317,25 @@ def backup_config_transfer(
     config: ConnectionConfig,
     *,
     timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
+    delete_older_than: int | None = None,
     client: httpx.Client | None = None,
 ) -> int:
     """POST Backup. Stores a transfer record on the server. Returns transferId.
 
     Do not Process this id as a deploy — Process the id from Upload of the edited file.
+    delete_older_than: calendar days; None omits the body (no cleanup). 0/negative
+    also delete nothing when sent.
     """
     headers = config.auth_headers(accept="application/json")
     own_client = client is None
     http = client or httpx.Client(timeout=timeout_seconds, follow_redirects=True)
+    json_body = None if delete_older_than is None else {"deleteOlderThan": delete_older_than}
     try:
         try:
-            response = http.post(config.backup_url, headers=headers)
+            post_kwargs = {"headers": headers}
+            if json_body is not None:
+                post_kwargs["json"] = json_body
+            response = http.post(config.backup_url, **post_kwargs)
         except httpx.HTTPError as exc:
             raise RemoteError(f"{config.backup_url}: {exc}") from exc
     finally:

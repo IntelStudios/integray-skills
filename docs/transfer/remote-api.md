@@ -7,6 +7,9 @@
 All paths are `{baseUrl}/api/Remote/{CompanySlug}/…`. Auth: `Authorization: Bearer {token}`
 (Remote control token, not a login JWT). Instance hostname and company slug are independent.
 
+Instance **product line** (git branch) is not this API. Unauthenticated `GET {baseUrl}/api/Integray`
+returns `Version`; the first token is `rel-YYYY-MM.patch` — [instance-version.md](../instance-version.md).
+
 ## Remote API map
 
 Skills wrap **Config Transfer** only. Other rows are live company operations — use them when
@@ -406,7 +409,7 @@ Alternatively, the user can set values manually in DX administration.
 | Endpoint | `GET …/ConfigTransfer/Download` | `POST …/ConfigTransfer/Backup` |
 | Skill | `/download-config` | `/backup` |
 | Result | JSON file under `projects/<name>/snapshots/` | `{ transferId }` on the Integray server |
-| Pre-check / apply | No | No |
+| Pre-check / apply | No | Same connector pre-check as Upload; does not apply |
 | Use | Local snapshot to edit | Undo point **on the instance** before Process |
 
 Process the `transferId` from **Upload** of the edited file. Processing the Backup id reapplies the live company as it was at backup time — it is not a deploy of your JSON.
@@ -448,12 +451,26 @@ curl -sS -o exported_transfer.json \
 
 ## Backup (on-instance record)
 
-Stores the current company configuration as a transfer record. Does not return the JSON
-and does not apply anything.
+Stores the current company configuration as a transfer record named
+`ApplicationBackup_{yyyyMMdd_HHmmss}.json`. Runs the same connector pre-check as Upload
+(so the warning triangle in Config transfer is cleared when connectors are installed).
+Does not return the JSON and does not apply anything.
+
+Optional JSON body:
+
+```json
+{ "deleteOlderThan": 1 }
+```
+
+| `deleteOlderThan` | Effect |
+|---|---|
+| omitted body, omitted property, `null`, or `0` | no cleanup |
+| integer `N` > 0 | hard-delete `ApplicationBackup_*` records for **this company** whose `CreatedDate` is more than **N calendar days** old (`current_date - CreatedDate::date > N`). Time of day is ignored. Other file names (uploads) are not deleted. |
 
 ```
 POST /api/Remote/{CompanySlug}/ConfigTransfer/Backup
 Authorization: Bearer {token}
+Content-Type: application/json   (only when sending a body)
 ```
 
 Response: `{ "transferId": <long> }`.
@@ -465,10 +482,26 @@ python scripts/backup-config-transfer.py \
   --connection projects/<name>/.integray-connection.json
 ```
 
+Optional cleanup of older automatic backups:
+
+```bash
+python scripts/backup-config-transfer.py \
+  --connection projects/<name>/.integray-connection.json \
+  --delete-older-than 1
+```
+
 ```bash
 curl -sS -X POST \
   "${BASE_URL}/api/Remote/${COMPANY_SLUG}/ConfigTransfer/Backup" \
   -H "Authorization: Bearer ${TOKEN}"
+```
+
+```bash
+curl -sS -X POST \
+  "${BASE_URL}/api/Remote/${COMPANY_SLUG}/ConfigTransfer/Backup" \
+  -H "Authorization: Bearer ${TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{"deleteOlderThan":1}'
 ```
 
 ---

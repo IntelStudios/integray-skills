@@ -10,7 +10,7 @@ disable-model-invocation: true
 
 # Backup Config Transfer (on-instance)
 
-`POST /api/Remote/{CompanySlug}/ConfigTransfer/Backup` stores the current company configuration as a **transfer record on the Integray server** and returns `transferId` only. No JSON file. No pre-check. Nothing is applied.
+`POST /api/Remote/{CompanySlug}/ConfigTransfer/Backup` stores the current company configuration as a **transfer record on the Integray server** and returns `transferId` only. No JSON file. Runs the same connector pre-check as Upload. Nothing is applied. Optional body `deleteOlderThan` (calendar days) hard-deletes older `ApplicationBackup_*` records for that company; omit it unless the user asked to prune.
 
 This is **not** `/download-config`. Download writes JSON under `projects/<name>/snapshots/`. Backup is the undo point on the instance (conventions **Backup before process**).
 
@@ -50,7 +50,7 @@ $PYTHON scripts/backup-config-transfer.py \
   --connection projects/<name>/.integray-connection.json
 ```
 
-Optional: `--timeout 300` (default 300).
+Optional: `--timeout 300` (default 300). `--delete-older-than N` only when the user asked to prune older `ApplicationBackup_*` records (calendar days, exclusive). Do not pass it for a normal **Backup before process**.
 
 Note `transferId=` from stdout. Keep it (e.g. in the change `notes.md`). **Do not** Process this id as the deploy.
 

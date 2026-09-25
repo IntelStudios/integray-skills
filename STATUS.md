@@ -19,7 +19,7 @@ Public Integray KB in the xeelo-skills layout. **Fáze 0 is done.** `/download-c
 
 - Ported generic KB from `SmarterMDM-IntegrayTest` `master` (docs, catalogs, generic example).
 - `AGENT.md`, `CLAUDE.md`, `.cursor/rules/`, skills `/new-project`, `/download-config`, `/backup`, `/publish`, `/sync-main`.
-- `scripts/download-config-transfer.py`, `scripts/backup-config-transfer.py`, `scripts/upload-config-transfer.py`, `scripts/process-config-transfer.py`, `scripts/check-transfer-schemas.py`.
+- `scripts/download-config-transfer.py`, `scripts/get-instance-version.py`, `scripts/backup-config-transfer.py`, `scripts/upload-config-transfer.py`, `scripts/process-config-transfer.py`, `scripts/check-transfer-schemas.py`.
 - Templates for each company git (`templates/projects-repo/`) and per-company `conventions.md`.
 - Catalogs in `data/` (`connectors.json`, `configuration-schemas.json`, `data-schemas.json`).
 - Connection `permission` (`read-only` / `read-write` / `full`) on `.integray-connection.json` and in the Remote API scripts.
