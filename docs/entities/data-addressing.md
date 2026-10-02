@@ -70,7 +70,9 @@ drops the request at **root** under the Endpoint’s own `Name`. Full mechanism:
 [config-transfer-format.md](../transfer/config-transfer-format.md) §8.5.
 
 The bound Task’s first Step must map `{"Col": "<Endpoint>.Col"}`. Endpoint
-`*InputMapping` does not replace that.
+`*InputMapping` does not replace that. The path uses the Endpoint’s **current**
+`Name`. Renaming the Endpoint does not rewrite these strings
+([config-transfer-format.md](../transfer/config-transfer-format.md) §7).
 
 - First Step is RowByRow with that mapping → it **nests under the Endpoint** (Rule 1).
   Its output is `<Endpoint>.<Step>.<Col>`.
@@ -284,7 +286,8 @@ Two inputs on a merge Step — one nested RowByRow tree, one Bulk tree at root:
 3. Every mapping **value** must be a path that already exists on that map. Wrong path →
    `"Incorrect Mapping"` / `"Incorrect Additional Input Mapping"` on import. Existing
    sibling-root paths can still be a **runtime** `null` if they share one primary mapping
-   (§2).
+   (§2). After a rename, the first segment must still be a live Step or bound Endpoint
+   `Name` — Process does not rewrite it.
 4. Map every `AllowNull: false` column of the target schema
    ([config-transfer-format.md](../transfer/config-transfer-format.md) §7).
 5. Every mapped pair: same `Type` (and `ComplexType` for tables). Import will not save

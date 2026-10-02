@@ -543,6 +543,19 @@ stay on the **old** schema. Designer chips bind by those keys and look empty eve
 the file is right. Same JSON will not heal it. Remap in the designer and save, or change
 a path so compare differs (then Process rewrites `{dsc:}`).
 
+**Changing an Endpoint or Step `Name` does not rewrite mapping *values*.** Paths in
+`InputSchemaMapping`, `AdditionalInputs[].InputSchemaMapping`, and Endpoint
+`*OutputMapping` are literal `"<Endpoint or Step Name>.<Column>"` strings (Rule 5 /
+`docs/entities/data-addressing.md`). Rename the Endpoint and the first Step still
+addresses the old display name → DX **"Incorrect Mapping"**. `onlyTest` / `--publish`
+can still return 200; the badge is on open in the designer. Remote **Download** and
+**Backup** of that published company can then HTTP **500** with an empty body until the
+path strings match current Names — Process success is not proof the export is healthy.
+Rewrite every mapping path (and quoted names in JS `ERROR_CONTEXT`) in the same edit as
+the `Name`. `*OutputMapping` is often a JSON *string*, not a dict — rewriting only
+in-object `InputSchemaMapping` misses it. The checker flags a first segment that is not
+a Step `Name` in this Task and not a bound Endpoint `Name`.
+
 **On a GET-bound task, a missing required-column mapping can surface only at publish
 time, as `CACHE_BINDING_GET_TASK_NOT_EXECUTABLE`, instead of "Incorrect Mapping" at
 import.** Import can succeed with no mapping error even though a required column is
@@ -567,6 +580,8 @@ Before declaring a transfer done, run `python scripts/check-transfer-schemas.py 
   Guid+Version is in `data/connectors.json`
 - mapped column `Type` mismatch (target InputSchema column vs source column name in this
   Task / bound Endpoint schemas)
+- mapping path first segment not a Step `Name` in this Task and not a bound Endpoint `Name`
+  (stale `"<old Endpoint>.Col"` after a rename)
 
 **Stderr** is not the gate: Guid+Version missing from the KB catalogs (`catalog may be stale`).
 Tell the user; still deliver if stdout is empty. Do not skip a stdout finding because the
@@ -1132,6 +1147,9 @@ about a company-specific detail. That tree is not KB content.
    - Exactly one `PrevStepCopyID: null` per task (see `docs/entities/data-addressing.md`) — multi-branch tasks need one shared root step, not one `null` per branch.
    - `InputSchemaMapping`/`AdditionalInputs` cover every `AllowNull: false` column of the target `InputSchema` (same script) and every mapped pair has the same `Type` (and `ComplexType` for tables) as the source column (`docs/entities/data-addressing.md`) — name match is not enough. The script flags Type mismatch when the source column name is unique in the Task/Endpoint schemas. On a GET-bound task, a missed required column can surface only at publish time as `CACHE_BINDING_GET_TASK_NOT_EXECUTABLE`, not as "Incorrect Mapping" at import (§7).
    - Cloned Endpoints: `*OutputMapping` points at a step that exists, by name, in the new task (§8).
+   - Renaming an Endpoint or Step: rewrite `InputSchemaMapping` / `AdditionalInputs` /
+     `*OutputMapping` path values in the same edit — they store display names (§7). The
+     checker flags a first segment that is not a live Step or bound Endpoint `Name`.
    - Endpoints with `AuthenticationType:1`: every primary `XxxToken` field populated (§8.2), and every `XxxSecondaryTokens` CopyID resolves to an entry actually present in `SecondaryTokens[]`.
    - No `.` in any Task/Step/Endpoint/TaskGroup/EndpointGroup `Name`, and `Name`/`Slug` lengths respect §2.1's `varchar` limits.
    - `ID`: do not rewrite existing values. New entities: `python scripts/next-transfer-id.py projects/<name>/working`. Required uniqueness is per kind (§2 / §7).

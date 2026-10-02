@@ -5,7 +5,7 @@ Stdout (exit 1 if any line): in-file refs — DataSchemas[], *CopyID, Configurat
 Configuration JSON required fields (when the schema is in data/configuration-schemas.json),
 SelectedActionCode / configurationRefs / agent restrictions (when the connector version
 is in data/connectors.json), unused Connectors[] / Configurations[] / TaskGroups[] /
-EndpointGroups[].
+EndpointGroups[], mapping path first segment not a Step or bound Endpoint Name.
 
 Stderr (does not fail): Guid+Version missing from the KB catalogs (catalog may be stale).
 Empty stdout and exit 0 = the transfer may be delivered; mention stderr catalog lines
@@ -77,6 +77,22 @@ def _gv(obj: dict[str, Any] | None) -> tuple[str, str] | None:
 
 def required_cols(schema: dict[str, Any]) -> set[str]:
     return {c["Name"] for c in schema.get("Columns") or [] if not c.get("AllowNull", True)}
+
+
+def mapping_items(mapping: Any) -> list[tuple[str, str]]:
+    """Yield (key, path) from a mapping object or JSON string. Skip non-string paths."""
+    if isinstance(mapping, str) and mapping.strip():
+        try:
+            mapping = json.loads(mapping)
+        except json.JSONDecodeError:
+            return []
+    if not isinstance(mapping, dict):
+        return []
+    out: list[tuple[str, str]] = []
+    for key, path in mapping.items():
+        if isinstance(path, str) and path:
+            out.append((str(key), path))
+    return out
 
 
 def column_types(schema: dict[str, Any] | None) -> dict[str, Any]:
@@ -257,6 +273,14 @@ def check_transfer(data: dict[str, Any], catalogs: dict[str, Any]) -> tuple[list
                     f"type mismatch: {label} {key} Type {want} <- {col} Type {sorted(have)}"
                 )
 
+    def check_mapping_roots(label: str, mapping: Any, roots: set[str]) -> None:
+        for key, path in mapping_items(mapping):
+            if "." not in path:
+                continue
+            first = path.split(".", 1)[0]
+            if first not in roots:
+                issues.append(f"mapping path root unknown: {label} {key} <- {path!r}")
+
     def resolve_copyid(field: str, value: Any, label: str) -> None:
         if not _is_uuid(value):
             return
@@ -334,8 +358,17 @@ def check_transfer(data: dict[str, Any], catalogs: dict[str, Any]) -> tuple[list
     stale_cfg: set[tuple[str, str]] = set()
 
     bound_tasks: set[str] = set()
+    task_step_names: dict[str, set[str]] = {}
+    for task in data.get("Tasks") or []:
+        tid = _norm(task.get("CopyID"))
+        if tid:
+            task_step_names[tid] = {
+                s["Name"] for s in (task.get("Steps") or []) if s.get("Name")
+            }
+    task_bound_ep_names: dict[str, set[str]] = {}
     for endpoint in data.get("Endpoints") or []:
         slug = endpoint.get("Slug") or endpoint.get("Name") or endpoint.get("CopyID")
+        ename = endpoint.get("Name")
         for key in ENDPOINT_SCHEMA_KEYS:
             check_schema(f"{slug} {key}", endpoint.get(key), mapping_required=False)
         for method in HTTP_METHODS:
@@ -343,12 +376,20 @@ def check_transfer(data: dict[str, Any], catalogs: dict[str, Any]) -> tuple[list
             step_cid = _norm(endpoint.get(f"{method}OutputStepCopyID"))
             if task_cid:
                 bound_tasks.add(task_cid)
+                if ename:
+                    task_bound_ep_names.setdefault(task_cid, set()).add(ename)
             if step_cid and task_cid:
                 owner = step_to_task.get(step_cid)
                 if owner and owner != task_cid:
                     issues.append(
                         f"{method}OutputStepCopyID not in {method}InputTaskCopyID task: {slug} -> {endpoint.get(f'{method}OutputStepCopyID')}"
                     )
+            out_map = endpoint.get(f"{method}OutputMapping")
+            if out_map and task_cid:
+                roots = set(task_step_names.get(task_cid) or set())
+                if ename:
+                    roots.add(ename)
+                check_mapping_roots(f"{slug} {method}OutputMapping", out_map, roots)
 
     top_cfg = {_norm(c.get("CopyID")): c for c in (data.get("Configurations") or []) if c.get("CopyID")}
 
@@ -447,6 +488,9 @@ def check_transfer(data: dict[str, Any], catalogs: dict[str, Any]) -> tuple[list
             }:
                 for key in ENDPOINT_SCHEMA_KEYS:
                     source_schemas.append(resolve_schema(endpoint.get(key)))
+        legal_roots = set(task_step_names.get(tid) or set()) | set(
+            task_bound_ep_names.get(tid) or set()
+        )
         roots = 0
         for step in task.get("Steps") or []:
             sname = step.get("Name") or step.get("CopyID")
@@ -465,6 +509,11 @@ def check_transfer(data: dict[str, Any], catalogs: dict[str, Any]) -> tuple[list
                 step.get("InputSchemaMapping"),
                 source_schemas,
             )
+            check_mapping_roots(
+                f"{label} (InputSchema)",
+                step.get("InputSchemaMapping"),
+                legal_roots,
+            )
             check_schema(f"{label} (OutputSchema)", step.get("OutputSchema"), mapping_required=False)
             for i, extra in enumerate(step.get("AdditionalInputs") or []):
                 check_schema(
@@ -477,6 +526,11 @@ def check_transfer(data: dict[str, Any], catalogs: dict[str, Any]) -> tuple[list
                     resolve_schema(extra.get("InputSchema")),
                     extra.get("InputSchemaMapping"),
                     source_schemas,
+                )
+                check_mapping_roots(
+                    f"{label} (AdditionalInputs[{i}])",
+                    extra.get("InputSchemaMapping"),
+                    legal_roots,
                 )
                 extra_step = _norm(extra.get("StepCopyID"))
                 if extra_step and step_to_task.get(extra_step) not in (tid, None) and extra_step in step_to_task:

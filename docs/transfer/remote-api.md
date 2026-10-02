@@ -424,6 +424,12 @@ Process the `transferId` from **Upload** of the edited file. Processing the Back
 
 Backup always runs (`/backup`), then Upload, then Process the **Upload** id. **Download after publish** means `/download-config` again.
 
+If **Download** and **Backup** both HTTP **500** with an empty body while `List` /
+Upload / Process still work, the published cache may have mapping paths whose first
+segment is a stale Endpoint/Step `Name` ([config-transfer-format.md](config-transfer-format.md) §7).
+Process can have published that state. Fix the path strings and `--publish` again;
+do not treat Backup 500 as a dead token.
+
 ---
 
 ## Download (export)

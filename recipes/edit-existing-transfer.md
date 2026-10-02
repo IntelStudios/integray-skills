@@ -21,3 +21,6 @@ Full notes: [docs/best-practices.md](../docs/best-practices.md). Identifiers: [d
 - After changing a Step `InputSchema` CopyID, remap chips on the instance (or change a
   mapping path). Same display strings do not rewrite `{dsc:}` keys
   ([config-transfer-format.md](../docs/transfer/config-transfer-format.md) §7).
+- After renaming an Endpoint or Step, rewrite `InputSchemaMapping` /
+  `AdditionalInputs` / `*OutputMapping` path values (they store display names, not
+  CopyIDs). Same section.
