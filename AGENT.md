@@ -88,7 +88,11 @@ baseUrl + companySlug + token + permission
   → /download-config again → copy that snapshot into working/
 ```
 
-Download, backup, upload, and process have Python scripts. **Deploy** (`/publish`): Upload `working/`, Process `--only-test`, then `--publish` per conventions. Details: [remote-api.md](docs/transfer/remote-api.md).
+Download, backup, upload, and process have Python scripts. **Deploy:** `python scripts/deploy-config-transfer.py --connection projects/<name>/.integray-connection.json` (schema check, Upload, onlyTest, `--publish` per conventions). `/publish` is that loop; prefer the one script. Details: [remote-api.md](docs/transfer/remote-api.md).
+
+**Statement-only** (one `Configuration.Statement`): `python scripts/config-statement.py --file working.json list|get|put`. Do not load the transfer JSON into context. Skill: [edit-statement](.agents/skills/edit-statement/SKILL.md).
+
+**What those scripts do not do.** Process still takes minutes on the instance. They do not replace AGENT.md for new tasks. `deploy-config-transfer.py` will not `/download-config` into `working/` (that would overwrite the edit). Company git is nested under a gitignored `projects/`; if `git status` in `projects/<name>/` shows the KB remote, use `python scripts/project-git.py projects/<name> …` (`GIT_DIR` from the parent repo).
 
 Download: `python scripts/download-config-transfer.py --connection projects/<name>/.integray-connection.json`. Backup: `python scripts/backup-config-transfer.py --connection projects/<name>/.integray-connection.json`. Upload: `python scripts/upload-config-transfer.py --connection projects/<name>/.integray-connection.json` (default file: the single JSON in `working/`). Process: `python scripts/process-config-transfer.py --connection … --transfer-id <upload-id> --only-test` then `--publish`.
 
@@ -166,7 +170,8 @@ Canonical location: [`.agents/skills/`](.agents/skills/). Claude CLI: [CLAUDE.md
 | `/new-project` | New empty company under `projects/<name>/` | [`.agents/skills/new-project/SKILL.md`](.agents/skills/new-project/SKILL.md) |
 | `/download-config` | Download Config Transfer JSON into `snapshots/` | [`.agents/skills/download-config/SKILL.md`](.agents/skills/download-config/SKILL.md) |
 | `/backup` | Store a transfer record on the instance (`transferId` only) | [`.agents/skills/backup/SKILL.md`](.agents/skills/backup/SKILL.md) |
-| `/publish` | Deploy `working/` (Upload → onlyTest → publish) | [`.agents/skills/publish/SKILL.md`](.agents/skills/publish/SKILL.md) |
+| `/publish` | Deploy `working/` (prefer `scripts/deploy-config-transfer.py`) | [`.agents/skills/publish/SKILL.md`](.agents/skills/publish/SKILL.md) |
+| Statement HTML | One Configuration.Statement without opening the transfer | [`.agents/skills/edit-statement/SKILL.md`](.agents/skills/edit-statement/SKILL.md) |
 | `/sync-main` | Hourly check/pull of **integray-skills `main`** | [`.agents/skills/sync-main/SKILL.md`](.agents/skills/sync-main/SKILL.md) |
 
 ## Project layout

@@ -1,18 +1,20 @@
 ---
-description: When creating Integray configuration, read AGENT.md; Full Sync; preserve CopyIDs; no YAML spec
+description: Statement-only HTML uses config-statement.py; new tasks still Full Sync + CopyIDs
 alwaysApply: true
 ---
 
 # Integray Knowledge Base
 
-Read [AGENT.md](../../AGENT.md) first when the user asks to create or modify Integray transfers, tasks, endpoints, or connectors.
+Read [AGENT.md](../../AGENT.md) when creating or restructuring Integray tasks, endpoints, or connectors.
+
+**Statement-only** (one JS Mapper / Node.js `Configuration.Statement`): do **not** read AGENT.md and do **not** open `working/*.json`. `python scripts/config-statement.py --file … list|get|put`, then `python scripts/deploy-config-transfer.py --connection projects/<name>/.integray-connection.json`. Company git: `python scripts/project-git.py projects/<name> …`. Skill: [edit-statement](../../.agents/skills/edit-statement/SKILL.md).
 
 - Config Transfer import is **Full Sync**. Do not generate a partial file that would delete entities on the target company.
 - Preserve **CopyID**s when editing a transfer that was already imported ([recipes/edit-existing-transfer.md](../../recipes/edit-existing-transfer.md)).
 - Connection: `projects/<name>/.integray-connection.json` with `baseUrl`, `companySlug`, Remote control `token`, and `permission` (`read-only` | `read-write` | `full`; missing = `read-only`). Do not infer slug from hostname. Never copy tokens between companies. Do not change `permission` unless the user asks.
 - Download live config with `/download-config` into `snapshots/` (do not edit those files). Copy into `working/` before editing. `/backup` is an on-instance undo point before Process — not a local snapshot.
 - Working format is Config Transfer **JSON**. Do not invent a YAML entity spec.
-- After creating or editing `projects/<name>/working/*.json`, run `python scripts/check-transfer-schemas.py <that-file>` **before** saying the transfer is done. Empty **stdout** and exit 0 required. If stdout prints anything, fix the transfer and re-run. Stderr `catalog may be stale` lines: tell the user; do not block delivery. Do not skip a stdout finding because the Guid exists in ICR, `data/data-schemas.json`, or another company. Canonical checks: [config-transfer-format.md](../../docs/transfer/config-transfer-format.md) §7 / §11.
+- After creating or editing `projects/<name>/working/*.json`, run `python scripts/check-transfer-schemas.py <that-file>` **before** saying the transfer is done (or `deploy-config-transfer.py`, which includes it). Empty **stdout** and exit 0 required. If stdout prints anything, fix the transfer and re-run. Stderr `catalog may be stale` lines: tell the user; do not block delivery. Do not skip a stdout finding because the Guid exists in ICR, `data/data-schemas.json`, or another company. Canonical checks: [config-transfer-format.md](../../docs/transfer/config-transfer-format.md) §7 / §11.
 - Company copies are not KB. One private git per `projects/<name>/`: [docs/projects.md](../../docs/projects.md).
 - Connector track: [docs/connector-dev/rules.md](../../docs/connector-dev/rules.md).
 - Instance product line: `python scripts/get-instance-version.py --connection projects/<name>/.integray-connection.json` (or `--base-url`). Stdout `productLine=` is the git branch / “from this version” token. Not Remote API. [instance-version.md](../../docs/instance-version.md).

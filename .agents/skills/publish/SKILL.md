@@ -9,6 +9,17 @@ disable-model-invocation: true
 
 # Publish Config Transfer (Upload + Process)
 
+**Prefer one process** (schema check, Upload, onlyTest, publish per conventions):
+
+```bash
+$PYTHON scripts/deploy-config-transfer.py \
+  --connection projects/<name>/.integray-connection.json
+```
+
+Optional `--file`, `--stamp-copy-id <Configuration CopyID>`, `--backup`. The script does **not** download into `working/` (that would overwrite local edits). Statement-only HTML: [edit-statement](../edit-statement/SKILL.md).
+
+Keep the steps below for debugging or when the combined script cannot run.
+
 Send **`working/`** to the company: Upload (pre-check) → Process `onlyTest` → Process `publish` per conventions. Read [AGENT.md](../../../AGENT.md). Protocol: [docs/transfer/remote-api.md](../../../docs/transfer/remote-api.md).
 
 Do **not** run this after download or after generating JSON unless the user asked to deploy, picked a run option, or conventions say **Publish after dry-run:** `auto` *after a successful onlyTest*.
