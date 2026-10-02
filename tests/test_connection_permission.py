@@ -18,6 +18,7 @@ from integray_remote import (  # noqa: E402
     ConnectionConfig,
     ConnectionPermissionError,
     process_config_transfer,
+    project_from_connection,
     upload_config_transfer,
 )
 
@@ -94,6 +95,21 @@ class ConnectionPermissionTests(unittest.TestCase):
             process_config_transfer(config, 1, publish=True)
         with self.assertRaisesRegex(ConnectionPermissionError, "needs full"):
             process_config_transfer(config, 1, only_test=False, publish=False)
+
+
+class ProjectFromConnectionTests(unittest.TestCase):
+    def test_explicit_project_wins(self) -> None:
+        conn = Path("/tmp/company/.integray-connection.json")
+        project = Path("/tmp/other")
+        self.assertEqual(project_from_connection(conn, project), project)
+
+    def test_connection_in_project_root(self) -> None:
+        conn = Path("/tmp/self-test/.integray-connection.json")
+        self.assertEqual(project_from_connection(conn), Path("/tmp/self-test"))
+
+    def test_connection_in_hidden_dir(self) -> None:
+        conn = Path("/tmp/self-test/.config/connection.json")
+        self.assertEqual(project_from_connection(conn), Path("/tmp/self-test"))
 
 
 if __name__ == "__main__":

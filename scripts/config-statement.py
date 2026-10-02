@@ -11,6 +11,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
+from transfer_split import (  # noqa: E402
+    find_configuration_path,
+    is_split_dir,
+    iter_collection_files,
+)
 from transfer_util import (  # noqa: E402
     find_configuration,
     load_transfer,
@@ -22,15 +27,35 @@ from transfer_util import (  # noqa: E402
 )
 
 
-def _cfg(args: argparse.Namespace) -> tuple[Path, dict, dict]:
+def _load_for_list(path: Path) -> dict:
+    if is_split_dir(path):
+        configs = [
+            json.loads(p.read_text(encoding="utf-8"))
+            for p in iter_collection_files(path, "Configurations")
+        ]
+        tasks = [
+            json.loads(p.read_text(encoding="utf-8"))
+            for p in iter_collection_files(path, "Tasks")
+        ]
+        return {"Configurations": configs, "Tasks": tasks}
+    return load_transfer(path)
+
+
+def _cfg(args: argparse.Namespace) -> tuple[Path, dict | None, dict]:
     path = args.file
+    if is_split_dir(path):
+        cfg_path = find_configuration_path(
+            path, copy_id=args.copy_id, name=args.name
+        )
+        cfg = load_transfer(cfg_path)
+        return cfg_path, None, cfg
     data = load_transfer(path)
     cfg = find_configuration(data, copy_id=args.copy_id, name=args.name)
     return path, data, cfg
 
 
 def cmd_list(args: argparse.Namespace) -> int:
-    data = load_transfer(args.file)
+    data = _load_for_list(args.file)
     labels = step_labels_by_configuration(data)
     rows = []
     for cfg in data.get("Configurations") or []:
@@ -83,7 +108,10 @@ def cmd_put(args: argparse.Namespace) -> int:
             return 1
         print(stamp)
     set_statement(cfg, text)
-    save_transfer(path, data)
+    if data is None:
+        save_transfer(path, cfg)
+    else:
+        save_transfer(path, data)
     print(f"updated {cfg.get('CopyID')} in {path}")
     return 0
 
@@ -91,15 +119,15 @@ def cmd_put(args: argparse.Namespace) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Extract or replace Configuration.Statement in a Config Transfer JSON. "
-            "Use this instead of opening the whole working/*.json."
+            "Use this instead of opening the whole transfer. "
+            "--file is a split working/ directory or one Config Transfer JSON."
         )
     )
     parser.add_argument(
         "--file",
         type=Path,
         required=True,
-        help="Config Transfer JSON (usually projects/<name>/working/*.json)",
+        help="split working/ directory or Config Transfer JSON",
     )
     sub = parser.add_subparsers(dest="cmd", required=True)
 

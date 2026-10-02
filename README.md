@@ -8,17 +8,17 @@ Agent-oriented knowledge base for Integray: **Config Transfer JSON** and **.NET 
 2. Each company is `projects/<name>/` as **its own git** (`projects/` is not a repo) — **[docs/projects.md](docs/projects.md)**
 3. Per company (`projects/<name>/` = one Integray company on one instance):
    - Write `projects/<name>/.integray-connection.json` with `baseUrl`, `companySlug`, the company's **Remote control token**, and `permission` (`read-only` | `read-write` | `full`; missing = `read-only`)
-   - **`/download-config`** — JSON into `snapshots/<stamp>/` (do not edit)
-   - Copy the newest snapshot into `working/` and edit that **complete** transfer (Full Sync)
-   - **`/publish`** when asked — backup per conventions, Upload `working/`, Process `onlyTest`, then `publish`
+   - **`/download-config`** — JSON into `snapshots/<stamp>/`, **split into `working/` immediately**, then statistics (do not edit snapshots)
+   - Edit the split entity files in `working/` (Full Sync when assembled)
+   - **`/publish`** when asked — backup per conventions, assemble `working/`, Upload, Process `onlyTest`, then `publish`
 
 ## Read vs generate
 
 | | Config Transfer |
 |---|---|
 | **integray-skills reads** | Download via Remote API → `projects/<name>/snapshots/` |
-| **integray-skills generates** | Full Config Transfer JSON in `working/` (not a delta) |
-| **Deploy** | Upload `working/` → Process (`onlyTest` then `publish`) — [remote-api.md](docs/transfer/remote-api.md) |
+| **integray-skills generates** | Split entity JSON in `working/` (assembled to a complete transfer on Upload, not a delta) |
+| **Deploy** | Assemble `working/` → Upload → Process (`onlyTest` then `publish`) — [remote-api.md](docs/transfer/remote-api.md) |
 
 ## Structure
 
@@ -27,7 +27,6 @@ Agent-oriented knowledge base for Integray: **Config Transfer JSON** and **.NET 
 | Path | Purpose |
 |------|---------|
 | [AGENT.md](AGENT.md) | Agent playbook |
-| [STATUS.md](STATUS.md) | Current milestone and what is not done yet |
 | [docs/projects.md](docs/projects.md) | One private git per `projects/<name>/` |
 | [docs/transfer/config-transfer-format.md](docs/transfer/config-transfer-format.md) | Transfer JSON rules (IDs, Full Sync, checklist) |
 | [docs/transfer/remote-api.md](docs/transfer/remote-api.md) | Download / Upload / Process / Backup |

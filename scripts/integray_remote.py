@@ -388,25 +388,18 @@ def _json_flag(payload: dict, *keys: str, default: bool = False) -> bool:
     return default
 
 
-def resolve_working_file(project: Path, file: Path | None = None) -> Path:
-    """Return the Config Transfer JSON to Upload. Default: the single *.json in working/."""
-    if file is not None:
-        path = Path(file)
-        if not path.is_file():
-            raise RemoteError(f"{path}: file not found")
-        return path
-    working = Path(project) / "working"
-    jsons = sorted(p for p in working.glob("*.json") if p.is_file())
-    if len(jsons) == 1:
-        return jsons[0]
-    if not jsons:
-        raise RemoteError(
-            f"{working}: no *.json. Copy the newest snapshot into working/ first."
-        )
-    names = ", ".join(p.name for p in jsons)
-    raise RemoteError(
-        f"{working}: multiple JSON files ({names}). Pass --file path."
-    )
+def project_from_connection(connection: Path, project: Path | None = None) -> Path:
+    """Project directory: ``--project``, else the folder that holds the connection file.
+
+    If that folder name starts with ``.`` (connection nested under a hidden dir),
+    use its parent.
+    """
+    if project is not None:
+        return Path(project)
+    parent = Path(connection).parent
+    if parent.name.startswith("."):
+        return parent.parent
+    return parent
 
 
 def _require_config_transfer_file(path: Path) -> None:

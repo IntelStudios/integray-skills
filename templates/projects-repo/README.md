@@ -15,7 +15,7 @@ conventions.md              # company rules; agent reads before transfer work
 .integray-connection.json   # gitignored — baseUrl + companySlug + token + permission
 secrets.json                # gitignored
 snapshots/<stamp>/*.json    # /download-config — do not edit
-working/*.json              # copy of newest snapshot; edit and Upload this
+working/                    # split entity JSON; edit here; /publish assembles
 ```
 
 Do not add this tree to the public integray-skills repository. Pull KB updates in the integray-skills root; pull this company here.

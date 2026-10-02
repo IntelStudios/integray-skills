@@ -13,9 +13,6 @@ GENERATED_RE = re.compile(r"generated \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}")
 PRAGUE = ZoneInfo("Europe/Prague")
 
 CONVENTION_KEYS = {
-    "backup": re.compile(
-        r"Backup before process:\**\s*(ask|auto)", re.IGNORECASE
-    ),
     "publish": re.compile(
         r"Publish after dry-run:\**\s*(ask|auto)", re.IGNORECASE
     ),
@@ -169,8 +166,11 @@ def step_labels_by_configuration(data: dict[str, Any]) -> dict[str, list[str]]:
 
 
 def parse_conventions(path: Path | None) -> dict[str, str]:
-    """ask | auto for backup, publish, download. Missing file or key → ask."""
-    out = {"backup": "ask", "publish": "ask", "download": "ask"}
+    """ask | auto for publish and download. Missing file or key → ask.
+
+    Backup before Process is always; it is not a convention.
+    """
+    out = {"publish": "ask", "download": "ask"}
     if path is None or not path.is_file():
         return out
     text = path.read_text(encoding="utf-8")

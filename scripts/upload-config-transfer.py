@@ -15,18 +15,10 @@ from integray_remote import (  # noqa: E402
     DEFAULT_TIMEOUT_SECONDS,
     ConnectionConfig,
     RemoteError,
-    resolve_working_file,
+    project_from_connection,
     upload_config_transfer,
 )
-
-
-def _project_from_connection(connection: Path, project: Path | None) -> Path:
-    if project is not None:
-        return project
-    parent = connection.parent
-    if parent.name.startswith("."):
-        return parent.parent
-    return parent
+from transfer_split import WorkingBundle  # noqa: E402
 
 
 def main() -> None:
@@ -46,7 +38,7 @@ def main() -> None:
         "--file",
         type=Path,
         default=None,
-        help="Config Transfer JSON (default: the single *.json in working/)",
+        help="assembled JSON (default: assemble split working/, else the single *.json)",
     )
     parser.add_argument(
         "--project",
@@ -64,12 +56,13 @@ def main() -> None:
 
     try:
         config = ConnectionConfig.load(args.connection)
-        project = _project_from_connection(args.connection, args.project)
-        path = resolve_working_file(project, args.file)
+        project = project_from_connection(args.connection, args.project)
+        bundle = WorkingBundle(project, args.file)
     except (OSError, ValueError, json.JSONDecodeError, RemoteError) as exc:
         print(exc, file=sys.stderr)
         raise SystemExit(1) from exc
 
+    path = bundle.path
     print(f"Uploading {path} to {config.config_transfer_url('Upload')}")
     try:
         result = upload_config_transfer(
@@ -78,6 +71,8 @@ def main() -> None:
     except RemoteError as exc:
         print(exc, file=sys.stderr)
         raise SystemExit(1) from exc
+    finally:
+        bundle.close()
 
     print(f"transferId={result.transfer_id}")
     print(f"succeeded={str(result.succeeded).lower()}")

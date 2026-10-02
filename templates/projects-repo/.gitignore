@@ -7,3 +7,6 @@ secrets.json
 
 # Optional: large snapshot downloads (uncomment if you re-fetch instead of versioning)
 # snapshots/**/*.json
+
+# Split staging (download/split writes here briefly)
+.split-staging/

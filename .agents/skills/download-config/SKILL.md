@@ -2,15 +2,15 @@
 name: download-config
 description: >-
   Download the latest Integray Config Transfer JSON via Remote API into
-  projects/<name>/snapshots/. Use when the user asks to download, refresh, or
-  pull a config transfer or snapshot, sync from the company, or invokes
-  /download-config.
+  projects/<name>/snapshots/, split it into working/ immediately, then report
+  statistics. Use when the user asks to download, refresh, or pull a config
+  transfer or snapshot, sync from the company, or invokes /download-config.
 disable-model-invocation: true
 ---
 
 # Download Config Transfer
 
-Download the full company Config Transfer (`GET /api/Remote/{CompanySlug}/ConfigTransfer/Download`) into `projects/<name>/snapshots/<stamp>/`. Read [AGENT.md](../../../AGENT.md) for the development loop. Protocol: [docs/transfer/remote-api.md](../../../docs/transfer/remote-api.md).
+Download the full company Config Transfer (`GET /api/Remote/{CompanySlug}/ConfigTransfer/Download`) into `projects/<name>/snapshots/<stamp>/`, **then split it into `working/` immediately**, then report statistics. Read [AGENT.md](../../../AGENT.md) for the development loop. On-disk layout: [docs/transfer/working-split.md](../../../docs/transfer/working-split.md). Protocol: [docs/transfer/remote-api.md](../../../docs/transfer/remote-api.md).
 
 This skill does **not** extract `env/` and does **not** publish. There is no `/download-db` — Integray has no Xeelo DB transfer. This is **not** `/backup` (that stores a transfer record on the server, no JSON file).
 
@@ -49,7 +49,7 @@ python -m venv .venv
 
 Use `PYTHON=python` only when system Python already has requirements installed.
 
-## Download
+## Download (split is part of this command)
 
 ```bash
 $PYTHON scripts/download-config-transfer.py \
@@ -61,23 +61,43 @@ Optional flags:
 - `--project projects/<name>` — override project directory (default: parent of connection file)
 - `--timeout 300` — HTTP timeout seconds (default 300)
 
-Note the JSON path from stdout (`Wrote projects/<name>/snapshots/<stamp>/<file>.json`).
+Do **not** pass `--no-split`.
 
-Keep the snapshot; do not delete it and **do not edit it**. Import is Full Sync — do not generate a partial transfer from this download.
+### Existing `working/` (ask before replacing)
 
-## Output
+If `projects/<name>/working/` already has a split (`_transfer.json` + `_meta.json`) or other entity JSON, **stop and ask**. Download **deletes** those files and replaces them with a fresh split of the live export. Unpublished edits in `working/` would be lost (`snapshots/` stay). Do not run the script until they confirm.
 
-Report:
+Empty `working/` (or only `.gitkeep`): run without `--replace-working`.
 
-- **Snapshot JSON** — path and byte size
-- **Transfer `Name`** (and task/endpoint counts if cheap to read from the file)
-- **Sensitive variables** — `IsSensitive: true` entries have empty `Value` (platform export). Do not treat the file as a secret dump.
+After they confirm:
+
+```bash
+$PYTHON scripts/download-config-transfer.py \
+  --connection projects/<name>/.integray-connection.json \
+  --replace-working
+```
+
+**Download after publish:** `auto` — they already opted in; pass `--replace-working` and say that conventions replace `working/` with the new live split.
+
+The script writes `snapshots/<stamp>/`, **immediately** splits into `working/`, then prints statistics. Without `--replace-working` on an occupied `working/` it exits 2 and does **not** download.
+
+Keep the snapshot; do not delete it and **do not edit it**. Do not copy the snapshot JSON into `working/` as a single file. Import is Full Sync — do not generate a partial transfer from this download. Do not open the snapshot JSON in chat.
+
+## Output (report stdout, in this order)
+
+The script already printed these. Repeat them to the user. Do not re-read the snapshot to compute them.
+
+- **Snapshot JSON** — `Wrote` path and byte size
+- **Split** — `working/` path and file count
+- **Transfer `Name`**
+- **Counts** — `tasks`, `endpoints`, `dataSchemas`, `configurations`, and the other `key=n` lines
+- **Sensitive variables** — `sensitiveVariables=` names (`IsSensitive: true`; `Value` empty on export). Do not treat the file as a secret dump.
 
 Remove `snapshots/.gitkeep` if real content was written.
 
 ## On success — suggest next step
 
-Editing starts from a **copy** of this snapshot in `working/` (preserve CopyIDs). Overwrite `working/` when starting from this download. Do not offer `/publish` from download alone.
+Editing is the split tree in `working/` (preserve CopyIDs). `/publish` assembles to a temp file, Uploads, deletes the temp. `/assemble` writes a JSON and leaves it. Do not offer `/publish` from download alone.
 
 ## Errors
 

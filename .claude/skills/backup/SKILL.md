@@ -2,8 +2,8 @@
 name: backup
 description: >-
   Store a Config Transfer backup record on the Integray company via Remote API
-  (POST ConfigTransfer/Backup). Use when conventions say Backup before process,
-  the user asks to backup live config on the instance, or invokes /backup.
+  (POST ConfigTransfer/Backup). Use before /publish (always), when the user asks
+  to backup live config on the instance, or invokes /backup.
   Not a local snapshot — that is /download-config.
 disable-model-invocation: true
 ---
@@ -12,7 +12,7 @@ disable-model-invocation: true
 
 `POST /api/Remote/{CompanySlug}/ConfigTransfer/Backup` stores the current company configuration as a **transfer record on the Integray server** and returns `transferId` only. No JSON file. Runs the same connector pre-check as Upload. Nothing is applied. Optional body `deleteOlderThan` (calendar days) hard-deletes older `ApplicationBackup_*` records for that company; omit it unless the user asked to prune.
 
-This is **not** `/download-config`. Download writes JSON under `projects/<name>/snapshots/`. Backup is the undo point on the instance (conventions **Backup before process**).
+This is **not** `/download-config`. Download writes JSON under `projects/<name>/snapshots/`. Backup is the undo point on the instance. `/publish` **always** takes a backup first (do not ask).
 
 Read [AGENT.md](../../../AGENT.md). Protocol: [docs/transfer/remote-api.md](../../../docs/transfer/remote-api.md).
 
@@ -50,7 +50,7 @@ $PYTHON scripts/backup-config-transfer.py \
   --connection projects/<name>/.integray-connection.json
 ```
 
-Optional: `--timeout 300` (default 300). `--delete-older-than N` only when the user asked to prune older `ApplicationBackup_*` records (calendar days, exclusive). Do not pass it for a normal **Backup before process**.
+Optional: `--timeout 300` (default 300). `--delete-older-than N` only when the user asked to prune older `ApplicationBackup_*` records (calendar days, exclusive). Do not pass it for a normal backup before Process.
 
 Note `transferId=` from stdout. Keep it (e.g. in the change `notes.md`). **Do not** Process this id as the deploy.
 

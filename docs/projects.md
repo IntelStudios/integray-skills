@@ -13,7 +13,7 @@ Company working copies (snapshots, transfers, Remote API connection, secrets) mu
 
 Copy [templates/projects-repo/](../templates/projects-repo/) (`.gitignore` + `README.md`) into **each** `projects/<name>/`. The parent integray-skills `.gitignore` does **not** apply inside `projects/<name>/.git` — without that ignore, `.integray-connection.json` would be committed.
 
-Version `working/`, convention files, and snapshot stamps you want to keep. **Do not edit** files under `snapshots/` — copy the newest stamp into `working/` and edit that. Never commit `token` or `secrets.json`.
+Version `working/`, convention files, and snapshot stamps you want to keep. **Do not edit** files under `snapshots/` — `/download-config` splits the newest stamp into `working/` immediately. Never commit `token` or `secrets.json`.
 
 ## Instance vs company
 
@@ -81,17 +81,19 @@ Before creating a company folder, downloading a transfer, or otherwise using `pr
 | Path | Role |
 |------|------|
 | `snapshots/<stamp>/*.json` | Output of `/download-config`. Immutable. New download = new stamp. |
-| `working/*.json` | Copy of the newest snapshot. Edit here. Upload this file. |
+| `working/` | Split entity JSON from that snapshot. Edit here. `/publish` assembles, Uploads, deletes the temp file. |
 
-Start work: copy the newest snapshot into `working/` (overwrite if you are starting from a fresh download). Two parallel edits = a git branch, not a second working folder. There is no `changes/<slug>/` loop.
+Start work: `/download-config`. If `working/` already has a split, the agent **asks** before replacing it. Two parallel edits = a git branch, not a second working folder. There is no `changes/<slug>/` loop.
 
-After a successful Process with `publish: true`, `/download-config` again, then copy that snapshot into `working/`. Deploy is `/publish` (Upload `working/` → Process `--only-test` → `--publish` per conventions).
+After a successful Process with `publish: true`, `/download-config` again (split + statistics). Deploy is `/publish` (assemble `working/` → Upload → Process `--only-test` → `--publish` per conventions). See [working-split.md](transfer/working-split.md).
 
 ## Company conventions
 
-`projects/<name>/conventions.md` holds **company-specific** rules. The agent reads it at the start of company work. Template defaults: **Agent loop** `ask` for publish after dry-run, download after publish, and backup before process. Edit per company; do not put these rules into the public KB.
+`projects/<name>/conventions.md` holds **company-specific** rules. The agent reads it at the start of company work. Template defaults: **Agent loop** `ask` for publish after dry-run and download after publish. Edit per company; do not put these rules into the public KB.
 
-**Agent loop** keys (`ask` | `auto`; missing = `ask`): **Backup before process**, **Publish after dry-run**, **Download after publish**. After a successful `onlyTest` the agent offers Process with `publish: true` including “remember for this company”. Remember writes `auto` into that file. See [AGENT.md](../AGENT.md).
+Whether the agent **starts** `/publish` after finishing `working/` edits is **`publish:`** in `internal/work-mode.md` (`never` | `ask` | `always`; missing = ask the user and write the choice). That is this machine, not the company repo.
+
+**Agent loop** keys (`ask` | `auto`; missing = `ask`): **Publish after dry-run**, **Download after publish**. Backup before Process is always (not a convention). After a successful `onlyTest` the agent offers Process with `publish: true` including “remember for this company”. Remember writes `auto` into that file. See [AGENT.md](../AGENT.md).
 
 ## Self-test
 

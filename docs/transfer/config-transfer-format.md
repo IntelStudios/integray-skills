@@ -15,8 +15,13 @@
 > `docs/transfer/remote-api.md` (upload and process a transfer via the Integray Remote API),
 > `examples/generic_worked_example.json`
 > (generic worked example, §10). Company working copies live under `projects/<name>/working/`
-> (not KB). Read that project's `conventions.md` and live transfer when implementing
+> as **split entity JSON** ([working-split.md](working-split.md)) — not KB.
+> The file you Upload is still one complete Config Transfer JSON (assembled).
+> Read that project's `conventions.md` and live transfer when implementing
 > for a specific company — they may extend or override generic rules.
+>
+> **Do not read this file end-to-end.** Use the table below and open only that
+> section. Always-on Full Sync / CopyID / checker rules live in `AGENT.md`.
 
 | Need | Section |
 |------|---------|
@@ -58,7 +63,7 @@ The single most important concept in this format.
 
 | Identifier | Scope | Use |
 |---|---|---|
-| **`ID`** | Local DB auto-increment, per-instance. **Not portable.** | Placeholder value when generating from scratch (e.g. `0`) — import remaps it. Array order never matters. |
+| **`ID`** | Local DB auto-increment, per-instance. **Not portable.** Unique **within that entity kind** (required). Unique across the whole transfer is nicer for **new** entities. | **Do not change** an existing entity’s `ID`. New entity: `python scripts/next-transfer-id.py projects/<name>/working` (max existing + 1, unique across the transfer). Greenfield placeholders may be `0` (import remaps) except TaskGroups/EndpointGroups. |
 | **`CopyID`** (UUID) | Stable, globally unique, cross-instance. | **Import matching key** (insert vs. update). New entity → generate a fresh UUIDv4. Cross-references inside the transfer go through `*CopyID` fields (`TaskGroupCopyID`, `AgentCopyID`, `PrevStepCopyID`, `TaskCopyID`, ...) or a nested `{"CopyID": "..."}` object (custom `InputSchema`/`OutputSchema`). |
 | **`Guid` + `Version`** | Platform-global (not per-company) — connectors and **system** DataSchemas. | `Steps[].Connector` is always `{"Guid": ..., "Version": "X.Y.Z"}` and looks up the **instance catalog** — do not copy a connector into `Connectors[]` just to reference it. System DataSchemas are different: `{"Guid":...,"Version":...}` is only the **reference form**. The schema must still appear in this file’s `DataSchemas[]` (once). `data/data-schemas.json` / another company’s transfer is a catalog, not a substitute. Custom DataSchemas have no `Guid`/`Version` — reference via `{"CopyID":...}`. |
 
@@ -146,7 +151,7 @@ until proven otherwise, not just Step.
 ```
 
 - `Guid` is the global connector-type identifier, stable across instances; `Version` is `"Major.Minor.Patch"`.
-- List each connector **once** in `Connectors[]` even if used by many Steps.
+- List each connector **once** in `Connectors[]` even if used by many Steps. List **only** Guid+Version a Step uses. Do not copy `data/connectors.json` into the transfer — that file is the ICR dump, not company config.
 - Use the **newest known version** unless the user requests otherwise.
 - `Steps[].Connector` references the same way: `{"Guid": "...", "Version": "..."}`.
 
@@ -612,19 +617,10 @@ referenced.
 ```
 
 - New custom schema → generate a `CopyID`, no `Guid`/`Version`.
-- **`ID` must be unique across every entity in the whole transfer** (DataSchemas, their
-  Columns, top-level Configurations, Tasks, Steps, Step-level Configuration entries,
-  Variables — one shared sequence). Collisions throw `"An item with the same key has
-  already been added"`. Order of assignment doesn't matter, only uniqueness. `ID: 0` as a
-  placeholder on individual DataSchema Columns (import remaps it) is the one long-standing
-  exception seen in practice — don't extend that same leniency to Steps/Configurations/
-  Tasks/Variables, keep those genuinely unique.
+- **`ID`:** never rewrite an existing entity’s `ID`. Required uniqueness is **within the same entity kind** (two Tasks cannot share an `ID`; a Task and a DataSchema may). Live exports reuse numbers across kinds; the checker flags duplicates **within** a kind only. When **creating** a new entity, allocate with `python scripts/next-transfer-id.py projects/<name>/working` (`--count N` for several) — that value is unused in the whole transfer. Greenfield `ID: 0` is still fine except TaskGroups/EndpointGroups (those need a real non-zero `ID`). Columns may keep `ID: 0` (import remaps).
   - A Step's own `Configurations[]` entry (the join/reference object, its own
     `ID`+`CopyID`) is a *different* entity from the top-level `Configuration` it points at
-    via `ConfigurationCopyID` (a *different* `ID`+`CopyID`) — don't reuse the target
-    Configuration's `ID` for the step-level entry when adding a step later (e.g. patching
-    in a middle step after the fact). `scripts/check-transfer-schemas.py` flags
-    `step Configuration ID equals target Configuration ID` and duplicate `ID`s.
+    via `ConfigurationCopyID`. Sharing the same numeric `ID` between those two kinds is allowed on an existing export; a **new** join row should still take `next-transfer-id.py`.
 - Reuse the same system schema **once** in `DataSchemas[]` even if used by many Steps/Tasks.
   Every `{"Guid","Version"}` ref in the file must hit that entry — listing it only in
   `data/data-schemas.json` does not queue it for merge.
@@ -1138,5 +1134,5 @@ about a company-specific detail. That tree is not KB content.
    - Cloned Endpoints: `*OutputMapping` points at a step that exists, by name, in the new task (§8).
    - Endpoints with `AuthenticationType:1`: every primary `XxxToken` field populated (§8.2), and every `XxxSecondaryTokens` CopyID resolves to an entry actually present in `SecondaryTokens[]`.
    - No `.` in any Task/Step/Endpoint/TaskGroup/EndpointGroup `Name`, and `Name`/`Slug` lengths respect §2.1's `varchar` limits.
-   - `ID` genuinely unique across DataSchemas/Configurations/Tasks/Steps/Step-level Configuration entries/Variables (§2) — in particular, no Step-level Configuration entry sharing its `ID` with the top-level Configuration it points at.
+   - `ID`: do not rewrite existing values. New entities: `python scripts/next-transfer-id.py projects/<name>/working`. Required uniqueness is per kind (§2 / §7).
 9. **Flag to the user** if the transfer uses a connector whose latest version isn't confidently covered by `data/connectors.json` — recommend verifying against the target instance.

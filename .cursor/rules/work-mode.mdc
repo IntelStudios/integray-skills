@@ -7,16 +7,17 @@ alwaysApply: true
 
 **Read** `internal/work-mode.md` before project work (and at the start of a chat when the task is a project). This file is an exception: other `internal/` content is read only when the KB is incomplete. Do not present the file as KB.
 
-Parse two keys:
+Parse three keys:
 
 - **`kb:`** `read` | `read-write`. There is no write-only mode. Missing `internal/`, missing file, missing key, empty, or any other value → **`read`**. Legacy `kb: write` → **`read-write`**.
 - **`project:`** folder name under `projects/`. This is **not** the Integray `companySlug` (that lives in `.integray-connection.json`). Empty or missing → no project. If set, `projects/<name>/` must already exist (clone or `/new-project`); do not silently scaffold.
+- **`publish:`** `never` | `ask` | `always`. After finishing edits to `projects/<name>/working/`: **`never`** = do not `/publish` and do not ask; **`ask`** = ask; **`always`** = run `/publish` immediately (schema check must already be green). Missing, empty, or any other value → **stop and ask once**: explain the three options, write their choice into `internal/work-mode.md`, then continue. An explicit `/publish` from the user **always** runs. This is not company `conventions.md` **Publish after dry-run** (that key is only inside an already-started deploy).
 
 Old single key `mode: project` / `mode: project-kb` (if still present and `kb:` is absent): treat `project-kb` as `kb: read-write` and `project` as `kb: read`. Do not rewrite the file to migrate unless the user asks.
 
-Do **not** rewrite `internal/work-mode.md` unless the user asks to switch `kb` or `project`.
+Do **not** rewrite `internal/work-mode.md` unless the user asks to switch `kb`, `project`, or `publish` — except to write `publish:` after they answered the missing-key prompt.
 
-Announce once at the start of project work (`KB: read` or `KB: read-write`, plus `projekt: <name>` or `bez projektu`, plus `Oprávnění:` from `.integray-connection.json` when it exists), not on every reply. If `projects/<name>/conventions.md` exists, **read it** before editing transfers.
+Announce once at the start of project work (`KB: read` or `KB: read-write`, plus `projekt: <name>` or `bez projektu`, plus `publish: never|ask|always`, plus `Oprávnění:` from `.integray-connection.json` when it exists), not on every reply. If `projects/<name>/conventions.md` exists, **read it** before editing transfers.
 
 ## kb: read (default)
 

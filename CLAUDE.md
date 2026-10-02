@@ -6,23 +6,24 @@
 
 When the user asks to create or modify Integray transfers, tasks, endpoints, or connectors:
 
-1. **Statement-only** (HTML page, one JS Mapper body): skip this list. Use `scripts/config-statement.py` and `scripts/deploy-config-transfer.py` ([`.agents/skills/edit-statement/SKILL.md`](.agents/skills/edit-statement/SKILL.md)). Do not load `working/*.json` into context.
+1. **Statement-only** (HTML page, one JS Mapper body): skip this list. Use `scripts/config-statement.py` ([`.agents/skills/edit-statement/SKILL.md`](.agents/skills/edit-statement/SKILL.md)), then follow work-mode `publish:`. Do not load a whole transfer JSON into context.
 2. Otherwise read [AGENT.md](AGENT.md) first
 3. Config Transfer is **Full Sync** — do not generate a partial file that would delete company entities
-4. Preserve **CopyID**s when editing a transfer that was already imported
+4. Preserve **CopyID**s and numeric **`ID`s** when editing a transfer that was already imported. New entity: `python scripts/next-transfer-id.py projects/<name>/working --copy-id`
 5. Connection: `projects/<name>/.integray-connection.json` (`baseUrl`, `companySlug`, Remote control `token`, `permission` `read-only` | `read-write` | `full`; missing = `read-only`) — never copy tokens between companies; never infer slug from hostname; do not change `permission` unless the user asks
-6. There is no YAML spec. Working format is Config Transfer JSON
-7. After creating or editing `projects/<name>/working/*.json`, run `python scripts/check-transfer-schemas.py <that-file>` before declaring the transfer done. Empty **stdout** and exit 0 required; if stdout prints anything, fix and re-run. Stderr catalog lines: tell the user, do not block. Do not skip a stdout finding because the Guid exists in ICR, `data/data-schemas.json`, or another company ([config-transfer-format.md](docs/transfer/config-transfer-format.md) §7 / §11). `deploy-config-transfer.py` already runs this.
+6. There is no YAML spec. `working/` is split entity JSON; Upload is one assembled Config Transfer JSON ([docs/transfer/working-split.md](docs/transfer/working-split.md))
+7. After creating or editing `projects/<name>/working/`, run `python scripts/check-transfer-schemas.py projects/<name>/working` before declaring the transfer done. Empty **stdout** and exit 0 required; if stdout prints anything, fix and re-run. Stderr catalog lines: tell the user, do not block. Do not skip a stdout finding because the Guid exists in ICR, `data/data-schemas.json`, or another company ([config-transfer-format.md](docs/transfer/config-transfer-format.md) §7 / §11). `deploy-config-transfer.py` already runs this. Then follow work-mode **`publish:`** (`never` / `ask` / `always`). If `publish:` is missing, ask once, write the choice, then follow it. Explicit `/publish` always runs.
 8. Connector work: [docs/connector-dev/rules.md](docs/connector-dev/rules.md)
 9. Instance product line: `python scripts/get-instance-version.py --connection projects/<name>/.integray-connection.json` (or `--base-url`). See [docs/instance-version.md](docs/instance-version.md)
 
-**Skills** live in [`.agents/skills/`](.agents/skills/). When the user invokes `/new-project`, `/download-config`, `/backup`, `/publish`, or `/sync-main`, **read** the matching `SKILL.md` first. Statement-only HTML: [`.agents/skills/edit-statement/SKILL.md`](.agents/skills/edit-statement/SKILL.md) — do not read AGENT.md for that.
+**Skills** live in [`.agents/skills/`](.agents/skills/). When the user invokes `/new-project`, `/download-config`, `/assemble`, `/backup`, `/publish`, or `/sync-main`, **read** the matching `SKILL.md` first. Statement-only HTML: [`.agents/skills/edit-statement/SKILL.md`](.agents/skills/edit-statement/SKILL.md) — do not read AGENT.md for that.
 
 - [`.agents/skills/new-project/SKILL.md`](.agents/skills/new-project/SKILL.md)
 - [`.agents/skills/download-config/SKILL.md`](.agents/skills/download-config/SKILL.md)
+- [`.agents/skills/assemble/SKILL.md`](.agents/skills/assemble/SKILL.md)
 - [`.agents/skills/backup/SKILL.md`](.agents/skills/backup/SKILL.md)
 - [`.agents/skills/publish/SKILL.md`](.agents/skills/publish/SKILL.md)
 - [`.agents/skills/edit-statement/SKILL.md`](.agents/skills/edit-statement/SKILL.md)
 - [`.agents/skills/sync-main/SKILL.md`](.agents/skills/sync-main/SKILL.md)
 
-Claude Code CLI does not scan `.agents/skills/`; this file points it at those paths. Copies also exist under `.claude/skills/`.
+Claude Code CLI does not scan `.agents/skills/`; this file points it at those paths. Edit **only** `.agents/skills/`. Then `python scripts/sync-claude-skills.py` (copies into `.claude/skills/`). `python scripts/sync-claude-skills.py --check` must stay empty + exit 0.

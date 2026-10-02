@@ -4,7 +4,8 @@
 Stdout (exit 1 if any line): in-file refs — DataSchemas[], *CopyID, ConfigurationCopyID,
 Configuration JSON required fields (when the schema is in data/configuration-schemas.json),
 SelectedActionCode / configurationRefs / agent restrictions (when the connector version
-is in data/connectors.json).
+is in data/connectors.json), unused Connectors[] / Configurations[] / TaskGroups[] /
+EndpointGroups[].
 
 Stderr (does not fail): Guid+Version missing from the KB catalogs (catalog may be stale).
 Empty stdout and exit 0 = the transfer may be delivered; mention stderr catalog lines
@@ -23,7 +24,10 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "scripts"))
 DATA = ROOT / "data"
+
+from transfer_split import load_transfer_document  # noqa: E402
 
 SHARED_AGENT = "11111111-1111-1111-1111-111111111111"
 HTTP_METHODS = ("Get", "Post", "Put", "Patch", "Delete")
@@ -192,6 +196,9 @@ def config_required_fields(guid: str, version: str, parsed: dict[str, Any], cata
 def check_transfer(data: dict[str, Any], catalogs: dict[str, Any]) -> tuple[list[str], list[str]]:
     issues: list[str] = []
     catalog_notes: list[str] = []
+    used_configurations: set[str] = set()
+    used_task_groups: set[str] = set()
+    used_endpoint_groups: set[str] = set()
     collections, defined, step_to_task = index_copyids(data)
 
     for cid, labels in sorted(defined.items()):
@@ -254,6 +261,12 @@ def check_transfer(data: dict[str, Any], catalogs: dict[str, Any]) -> tuple[list
         if not _is_uuid(value):
             return
         cid = _norm(value)
+        if field == "ConfigurationCopyID" and cid:
+            used_configurations.add(cid)
+        elif field == "TaskGroupCopyID" and cid:
+            used_task_groups.add(cid)
+        elif field == "EndpointGroupCopyID" and cid:
+            used_endpoint_groups.add(cid)
         if field == "AgentCopyID" and cid == SHARED_AGENT:
             return
         collection = COPYID_COLLECTION.get(field, None)
@@ -310,6 +323,7 @@ def check_transfer(data: dict[str, Any], catalogs: dict[str, Any]) -> tuple[list
     listed_connectors = {
         (_norm(c.get("Guid")), str(c.get("Version") or "")) for c in (data.get("Connectors") or []) if c.get("Guid")
     }
+    used_connectors: set[tuple[str | None, str]] = set()
     conn_cat = catalogs["connectors"]
     conn_vers = catalogs["connector_versions"]
     cfg_cat = catalogs["config_schemas"]
@@ -372,9 +386,15 @@ def check_transfer(data: dict[str, Any], catalogs: dict[str, Any]) -> tuple[list
                     issues.append(f"missing required Configuration field: {label} -> {missing}")
             walk_copyids(parsed, label)
 
-    seen_ids: dict[int, str] = {}
+    id_scopes: dict[str, dict[int, str]] = {}
 
-    def check_id(entity: dict[str, Any], label: str, *, allow_zero: bool = False) -> None:
+    def check_id(
+        entity: dict[str, Any],
+        label: str,
+        scope: str,
+        *,
+        allow_zero: bool = False,
+    ) -> None:
         if "ID" not in entity:
             return
         eid = entity.get("ID")
@@ -382,23 +402,34 @@ def check_transfer(data: dict[str, Any], catalogs: dict[str, Any]) -> tuple[list
             return
         if not isinstance(eid, int):
             return
-        prev = seen_ids.get(eid)
+        seen = id_scopes.setdefault(scope, {})
+        prev = seen.get(eid)
         if prev:
-            issues.append(f"duplicate ID {eid}: {prev} and {label}")
+            issues.append(f"duplicate ID {eid} in {scope}: {prev} and {label}")
         else:
-            seen_ids[eid] = label
+            seen[eid] = label
 
     for collection in ("DataSchemas", "Configurations", "Tasks", "Variables"):
         for entity in data.get(collection) or []:
-            check_id(entity, f"{collection} {entity.get('Name') or entity.get('CopyID')}")
+            check_id(
+                entity,
+                f"{collection} {entity.get('Name') or entity.get('CopyID')}",
+                collection,
+            )
     for collection in ("TaskGroups", "EndpointGroups"):
         for entity in data.get(collection) or []:
             if not entity.get("ID"):
                 issues.append(f"{collection} ID is 0/missing (silently skipped on import): {entity.get('Name')}")
+            else:
+                check_id(
+                    entity,
+                    f"{collection} {entity.get('Name') or entity.get('CopyID')}",
+                    collection,
+                )
 
     for schema in data.get("DataSchemas") or []:
         for col in schema.get("Columns") or []:
-            check_id(col, f"Column {schema.get('Name')}.{col.get('Name')}", allow_zero=True)
+            check_id(col, f"Column {schema.get('Name')}.{col.get('Name')}", f"Columns[{schema.get('Name')}]", allow_zero=True)
 
     for task in data.get("Tasks") or []:
         tname = task.get("Name") or task.get("CopyID")
@@ -420,7 +451,7 @@ def check_transfer(data: dict[str, Any], catalogs: dict[str, Any]) -> tuple[list
         for step in task.get("Steps") or []:
             sname = step.get("Name") or step.get("CopyID")
             label = f"{tname} / {sname}"
-            check_id(step, f"Step {label}")
+            check_id(step, f"Step {label}", "Steps")
             if step.get("PrevStepCopyID") is None:
                 roots += 1
             else:
@@ -457,6 +488,7 @@ def check_transfer(data: dict[str, Any], catalogs: dict[str, Any]) -> tuple[list
                 issues.append(f"step Connector missing Guid+Version: {label}")
                 catalog_conn = None
             else:
+                used_connectors.add(gv)
                 if gv not in listed_connectors:
                     issues.append(f"connector not in Connectors[]: {label} -> {connector}")
                 catalog_conn = conn_cat.get(gv)
@@ -490,7 +522,7 @@ def check_transfer(data: dict[str, Any], catalogs: dict[str, Any]) -> tuple[list
             if action is not None and refs and not wraps:
                 issues.append(f"step missing Configuration for configurationRefs[]: {label}")
             for wrap in wraps:
-                check_id(wrap, f"StepConfiguration {label} {wrap.get('CopyID')}")
+                check_id(wrap, f"StepConfiguration {label} {wrap.get('CopyID')}", "StepConfigurations")
                 ccid = _norm(wrap.get("ConfigurationCopyID"))
                 tgt = top_cfg.get(ccid) if ccid else None
                 if ccid and tgt is None:
@@ -512,8 +544,6 @@ def check_transfer(data: dict[str, Any], catalogs: dict[str, Any]) -> tuple[list
                     else:
                         issues.append(f"configurationSchema not in action configurationRefs[]: {label} -> {wrap.get('ConfigurationSchema')}")
                 if tgt is not None:
-                    if wrap.get("ID") is not None and wrap.get("ID") == tgt.get("ID"):
-                        issues.append(f"step Configuration ID equals target Configuration ID: {label} ID {wrap.get('ID')}")
                     tgt_gv = _gv(tgt.get("ConfigurationSchema") if isinstance(tgt.get("ConfigurationSchema"), dict) else None)
                     if wrap_gv and tgt_gv and wrap_gv != tgt_gv:
                         issues.append(f"ConfigurationSchema mismatch vs Configurations[]: {label}")
@@ -523,7 +553,39 @@ def check_transfer(data: dict[str, Any], catalogs: dict[str, Any]) -> tuple[list
         if task.get("Type") == 2 and tid and tid not in bound_tasks:
             issues.append(f"Task.Type Endpoint but no Endpoint *InputTaskCopyID: {tname}")
 
+    conn_by_gv = {
+        (_norm(c.get("Guid")), str(c.get("Version") or "")): c
+        for c in (data.get("Connectors") or [])
+        if c.get("Guid")
+    }
+    for unused in sorted(listed_connectors - used_connectors):
+        row = conn_by_gv.get(unused) or {}
+        name = row.get("Name") or ""
+        guid, version = unused
+        label = " ".join(p for p in (name, guid, version) if p)
+        issues.append(f"unused connector in Connectors[]: {label}")
+
     walk_copyids(data, "transfer")
+
+    for cfg in data.get("Configurations") or []:
+        cid = _norm(cfg.get("CopyID"))
+        if cid and cid not in used_configurations:
+            name = cfg.get("Name") or ""
+            guid = cfg.get("CopyID") or ""
+            label = " ".join(p for p in (name, guid) if p)
+            issues.append(f"unused configuration in Configurations[]: {label}")
+
+    for collection, used, kind in (
+        ("TaskGroups", used_task_groups, "task group"),
+        ("EndpointGroups", used_endpoint_groups, "endpoint group"),
+    ):
+        for grp in data.get(collection) or []:
+            cid = _norm(grp.get("CopyID"))
+            if cid and cid not in used:
+                name = grp.get("Name") or grp.get("Slug") or ""
+                guid = grp.get("CopyID") or ""
+                label = " ".join(p for p in (name, guid) if p)
+                issues.append(f"unused {kind} in {collection}[]: {label}")
 
     # de-dupe while preserving order
     seen: set[str] = set()
@@ -543,14 +605,22 @@ def check_transfer(data: dict[str, Any], catalogs: dict[str, Any]) -> tuple[list
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("file", type=Path, help="Config Transfer JSON (usually projects/<name>/working/*.json)")
+    parser.add_argument(
+        "file",
+        type=Path,
+        help="Config Transfer JSON, or a split working/ directory",
+    )
     parser.add_argument("--data-dir", type=Path, default=DATA, help="KB catalog directory (default: data/)")
     args = parser.parse_args()
     path: Path = args.file
-    if not path.is_file():
+    if not path.exists():
         print(f"file not found: {path}", file=sys.stderr)
         return 2
-    data = json.loads(path.read_text())
+    try:
+        data = load_transfer_document(path)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(exc, file=sys.stderr)
+        return 2
     catalogs = load_catalogs(args.data_dir)
     issues, catalog_notes = check_transfer(data, catalogs)
     for line in catalog_notes:

@@ -17,7 +17,9 @@ from integray_remote import (  # noqa: E402
     ConnectionConfig,
     DownloadError,
     download_config_transfer,
+    project_from_connection,
 )
+from transfer_split import WorkingOccupiedError, split_transfer, working_is_occupied  # noqa: E402
 
 
 def main() -> None:
@@ -42,6 +44,16 @@ def main() -> None:
         default=DEFAULT_TIMEOUT_SECONDS,
         help=f"HTTP timeout seconds (default {int(DEFAULT_TIMEOUT_SECONDS)})",
     )
+    parser.add_argument(
+        "--no-split",
+        action="store_true",
+        help="Write the snapshot only (do not decompose into working/). Agents must not pass this.",
+    )
+    parser.add_argument(
+        "--replace-working",
+        action="store_true",
+        help="Overwrite an existing split in working/. Required when working/ is occupied. Agents must ask first.",
+    )
     args = parser.parse_args()
 
     try:
@@ -50,9 +62,20 @@ def main() -> None:
         print(exc, file=sys.stderr)
         raise SystemExit(1) from exc
 
-    project = args.project or args.connection.parent
-    if project.name.startswith("."):
-        project = project.parent
+    project = project_from_connection(args.connection, args.project)
+
+    working = project / "working"
+    if (
+        not args.no_split
+        and working_is_occupied(working)
+        and not args.replace_working
+    ):
+        print(
+            f"{working}: already has a split tree (or entity JSON). "
+            "Ask the user, then re-run with --replace-working.",
+            file=sys.stderr,
+        )
+        raise SystemExit(2)
 
     stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     out_dir = project / "snapshots" / stamp
@@ -66,6 +89,20 @@ def main() -> None:
         raise SystemExit(1) from exc
 
     print(f"Wrote {out_path} ({out_path.stat().st_size} bytes)")
+    if args.no_split:
+        return
+    try:
+        stats = split_transfer(
+            out_path, working, replace=args.replace_working
+        )
+    except WorkingOccupiedError as exc:
+        print(exc, file=sys.stderr)
+        raise SystemExit(2) from exc
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(exc, file=sys.stderr)
+        raise SystemExit(1) from exc
+    for line in stats.format_lines():
+        print(line)
 
 
 if __name__ == "__main__":

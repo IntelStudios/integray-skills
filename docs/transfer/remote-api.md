@@ -107,7 +107,7 @@ Do not put `onlyTest` / `transferId` into the transfer file, and do not send `Tr
    `read-write` | `full`; missing = `read-only`). `read-only` may `/backup` but must not
    Upload or Process. `read-write` may Upload and Process `--only-test`. Process
    `--publish` / `--apply` needs **`full`**. Do not change `permission` unless the user asks.
-3. If conventions say **Backup before process**, run **`/backup`** first. Keep that
+3. **Always** run **`/backup`** first (do not ask). Keep that
    `transferId`; do **not** Process it as the deploy.
 4. **Upload** the transfer file → review the pre-transfer check response. Process uses
    **this** `transferId`.
@@ -147,12 +147,13 @@ file: <binary JSON>
 | `transferId` | Required for Process. Use the id from **this Upload**, not from `/backup`. |
 | `succeeded` | `true` when every required connector is installed (`Status` ≠ `Missing`). |
 | `connectors[]` | Per-connector check: `guid`, `version`, `name`, `status` (`Installed` / `Missing`). |
-| `hasUnresolvedReferences` | `true` when the transfer references entities missing in the target company. |
+| `hasUnresolvedReferences` | `true` when the pre-check thinks the transfer references entities missing on the target. Same-company roundtrip of a complete export can still be `true` — see below. |
 | `hasSensitiveVariables` | `true` when the transfer contains sensitive variables. |
 | `sensitiveVariables[]` | Names of sensitive variables detected (may be empty). |
 
-**Do not call Process** when `succeeded === false` or unresolved references block a safe
-import — report findings to the user first.
+**Do not call Process** when `succeeded === false`. A lone
+`hasUnresolvedReferences=true` on a complete same-company roundtrip does **not** block
+Process — tell the user, then continue if `succeeded` is true.
 
 ### Upload troubleshooting
 
@@ -174,7 +175,7 @@ python scripts/upload-config-transfer.py \
   --connection projects/<name>/.integray-connection.json
 ```
 
-Default file: the single `*.json` under `working/`. Override with `--file`.
+Default: assemble the split tree in `working/` to a temp file. Override with `--file` (already-assembled JSON).
 
 ### curl example
 
@@ -371,6 +372,13 @@ target company. Review which entities are referenced and whether the transfer is
 for this company. Some references may resolve after a prior partial import; others indicate
 a wrong target or an incomplete transfer.
 
+**Same-company roundtrip:** Upload of a complete export of *this* company can still return
+`hasUnresolvedReferences=true` while `succeeded=true` and Process/`onlyTest` succeed. The
+pre-check treats missing numeric `CompanyID` / `EndpointID` / `TaskID` as unresolved and
+does not accept portable `SameCompany` + `EndpointCopyID` / `TaskCopyID` (see
+[configuration-overrides.md](../entities/configuration-overrides.md)). Do not treat that
+flag alone as a failed Upload.
+
 ### Sensitive variables (`hasSensitiveVariables === true`)
 
 The transfer declares `IsSensitive: true` variables (see `docs/entities/variables.md`). Download
@@ -414,7 +422,7 @@ Alternatively, the user can set values manually in DX administration.
 
 Process the `transferId` from **Upload** of the edited file. Processing the Backup id reapplies the live company as it was at backup time — it is not a deploy of your JSON.
 
-Conventions **Backup before process** means `/backup`, then Upload, then Process the **Upload** id. **Download after publish** means `/download-config` again.
+Backup always runs (`/backup`), then Upload, then Process the **Upload** id. **Download after publish** means `/download-config` again.
 
 ---
 

@@ -11,13 +11,13 @@ This repository is the **generic** knowledge base. It must stay usable without k
 3. The entity/transfer file for the thing you are changing
 4. That project’s `conventions.md` before editing `working/`
 
-Work mode (`internal/work-mode.md`, gitignored): `kb: read|read-write` (no write-only) and `project:` = folder under `projects/` (not Integray `companySlug`). Connection `permission` (`read-only` | `read-write` | `full`) gates live Remote API writes — [AGENT.md § Project permission](../AGENT.md#project-permission).
+Work mode (`internal/work-mode.md`, gitignored): `kb: read|read-write` (no write-only), `project:` = folder under `projects/` (not Integray `companySlug`), `publish: never|ask|always` (after `working/` edits; missing = ask the user and write the choice; explicit `/publish` always runs). Connection `permission` (`read-only` | `read-write` | `full`) gates live Remote API writes — [AGENT.md § Project permission](../AGENT.md#project-permission).
 
 ## Two work tracks
 
 | Track | Start here |
 |-------|------------|
-| Generate or edit a Config Transfer, deploy via Remote API | [AGENT.md](../AGENT.md), [config-transfer-format.md](transfer/config-transfer-format.md), [remote-api.md](transfer/remote-api.md) |
+| Generate or edit a Config Transfer, deploy via Remote API | [AGENT.md](../AGENT.md), the matching **section** of [config-transfer-format.md](transfer/config-transfer-format.md) (not the whole file), [remote-api.md](transfer/remote-api.md) |
 | Develop a .NET connector | [connector-dev/rules.md](connector-dev/rules.md) |
 
 ## Config Transfer in one paragraph
@@ -26,7 +26,7 @@ Import is **Full Sync**: match by `CopyID` (update vs insert); anything on the t
 
 ## Skills (company config)
 
-`/new-project` → `/download-config` → edit `working/` → `/backup` → `/publish` (Upload, `onlyTest`, `--publish` at `full`). After every edit of `working/*.json`, run `python scripts/check-transfer-schemas.py <file>` (empty **stdout**, exit 0) before treating the transfer as done. `/sync-main` is git on this KB, not a company deploy.
+`/new-project` → `/download-config` (snapshot, **immediate split**, statistics) → edit `working/` → `/backup` → `/publish` (assemble, Upload, `onlyTest`, `--publish` at `full`). After every edit of `working/`, run `python scripts/check-transfer-schemas.py projects/<name>/working` (empty **stdout**, exit 0) before treating the transfer as done. `/sync-main` is git on this KB, not a company deploy. Split layout: [working-split.md](transfer/working-split.md).
 
 ## Catalogs
 
@@ -37,13 +37,14 @@ Import is **Full Sync**: match by `CopyID` (update vs insert); anything on the t
 | [data/data-schemas.json](../data/data-schemas.json) | System DataSchemas and nested table refs |
 | [data/connector-restrictions.json](../data/connector-restrictions.json) | Which agent kinds a connector Guid may run on |
 
-These files are a snapshot. If a transfer uses a connector version not in the catalog, say so and verify against the target instance.
+These files are a snapshot of the **platform catalog** (ICR). Company `working/` is not a copy of them — only entities that company uses. If a transfer uses a connector version not in the dump, say so (stderr `catalog may be stale`) and verify against the target instance. Dump freshness is separate from the split.
 
 ## Entity docs
 
 | Topic | File |
 |-------|------|
-| Transfer JSON, IDs, tasks, endpoints, publish errors | [transfer/config-transfer-format.md](transfer/config-transfer-format.md) |
+| Transfer JSON, IDs, tasks, endpoints, publish errors | [transfer/config-transfer-format.md](transfer/config-transfer-format.md) (one section, not the whole file) |
+| Split `working/` (download → decompose → stats) | [transfer/working-split.md](transfer/working-split.md) |
 | Remote API (Config Transfer + Variable + other live endpoints) | [transfer/remote-api.md](transfer/remote-api.md) |
 | Instance version (`GET /api/Integray`, unauthenticated) | [instance-version.md](instance-version.md) |
 | CopyIDs on edit, unique names, `VariablesDefaults` | [best-practices.md](best-practices.md) |

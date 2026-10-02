@@ -8,11 +8,11 @@ Full notes: [docs/best-practices.md](../docs/best-practices.md). Identifiers: [d
 
 `CopyID` is the import matching key (update vs insert). Replacing it with a fresh UUID turns a clean update into delete+insert on the next Full Sync, even when the entity did not conceptually change.
 
-1. Copy the latest downloaded snapshot from `projects/<name>/snapshots/<stamp>/` into `projects/<name>/working/`. Edit **`working/`** only — never the snapshot.
-2. Keep every existing entity’s `CopyID` unchanged unless the user explicitly wants a **new** entity.
-3. New entities only: generate a new UUIDv4 (or a deterministic `uuid5` from a stable key if the same generator will run more than once).
+1. `/download-config` writes an immutable snapshot and **immediately splits** it into `projects/<name>/working/`. Edit **`working/`** only — never the snapshot. Layout: [docs/transfer/working-split.md](../docs/transfer/working-split.md).
+2. Keep every existing entity’s `CopyID` **and `ID`** unchanged unless the user explicitly wants a **new** entity.
+3. New entities only: `python scripts/next-transfer-id.py projects/<name>/working --copy-id` (`--count N` if you add several) — numeric `ID` then a new UUIDv4 `CopyID`. Use `uuid5` instead of that CopyID only if the same generator will run more than once. Add a new file in the matching `working/` folder.
 4. If preserving CopyIDs is impractical and a full regeneration looks easier, **ask first** — do not silently reassign IDs.
-5. Do not invent a YAML spec or explode the file into per-entity YAML. Edit the JSON in `working/`.
+5. Do not invent a YAML spec. Edit the entity JSON files (one Task including its Steps; one `DataSchemas[]` row per file). `/publish` assembles the whole tree.
 
 ## Also
 
