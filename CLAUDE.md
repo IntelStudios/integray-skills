@@ -16,13 +16,14 @@ When the user asks to create or modify Integray transfers, tasks, endpoints, or 
 8. Connector work: [docs/connector-dev/rules.md](docs/connector-dev/rules.md)
 9. Instance product line: `python scripts/get-instance-version.py --connection projects/<name>/.integray-connection.json` (or `--base-url`). See [docs/instance-version.md](docs/instance-version.md)
 
-**Skills** live in [`.agents/skills/`](.agents/skills/). When the user invokes `/new-project`, `/download-config`, `/assemble`, `/backup`, `/publish`, or `/sync-main`, **read** the matching `SKILL.md` first. Statement-only HTML: [`.agents/skills/edit-statement/SKILL.md`](.agents/skills/edit-statement/SKILL.md) — do not read AGENT.md for that.
+**Skills** live in [`.agents/skills/`](.agents/skills/). When the user invokes `/new-project`, `/download-config`, `/assemble`, `/backup`, `/publish`, `/debug-task-run`, or `/sync-main`, **read** the matching `SKILL.md` first. Debugging a live Task (start, step snapshot): [`.agents/skills/debug-task-run/SKILL.md`](.agents/skills/debug-task-run/SKILL.md) — snapshot GET is version-gated ([docs/instance-version.md](docs/instance-version.md) Feature availability). Statement-only HTML: [`.agents/skills/edit-statement/SKILL.md`](.agents/skills/edit-statement/SKILL.md) — do not read AGENT.md for that.
 
 - [`.agents/skills/new-project/SKILL.md`](.agents/skills/new-project/SKILL.md)
 - [`.agents/skills/download-config/SKILL.md`](.agents/skills/download-config/SKILL.md)
 - [`.agents/skills/assemble/SKILL.md`](.agents/skills/assemble/SKILL.md)
 - [`.agents/skills/backup/SKILL.md`](.agents/skills/backup/SKILL.md)
 - [`.agents/skills/publish/SKILL.md`](.agents/skills/publish/SKILL.md)
+- [`.agents/skills/debug-task-run/SKILL.md`](.agents/skills/debug-task-run/SKILL.md)
 - [`.agents/skills/edit-statement/SKILL.md`](.agents/skills/edit-statement/SKILL.md)
 - [`.agents/skills/sync-main/SKILL.md`](.agents/skills/sync-main/SKILL.md)
 

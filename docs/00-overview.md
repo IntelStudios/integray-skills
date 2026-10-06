@@ -26,7 +26,7 @@ Import is **Full Sync**: match by `CopyID` (update vs insert); anything on the t
 
 ## Skills (company config)
 
-`/new-project` → `/download-config` (snapshot, **immediate split**, statistics) → edit `working/` → `/backup` → `/publish` (assemble, Upload, `onlyTest`, `--publish` at `full`). After every edit of `working/`, run `python scripts/check-transfer-schemas.py projects/<name>/working` (empty **stdout**, exit 0) before treating the transfer as done. `/sync-main` is git on this KB, not a company deploy. Split layout: [working-split.md](transfer/working-split.md).
+`/new-project` → `/download-config` (snapshot, **immediate split**, statistics) → edit `working/` → `/backup` → `/publish` (assemble, Upload, `onlyTest`, `--publish` at `full`). After every edit of `working/`, run `python scripts/check-transfer-schemas.py projects/<name>/working` (empty **stdout**, exit 0) before treating the transfer as done. `/debug-task-run` starts a live Task and can read a step data snapshot when the instance `productLine` allows it ([instance-version.md](instance-version.md) Feature availability). `/sync-main` is git on this KB, not a company deploy. Split layout: [working-split.md](transfer/working-split.md).
 
 ## Catalogs
 
@@ -46,7 +46,7 @@ These files are a snapshot of the **platform catalog** (ICR). Company `working/`
 | Transfer JSON, IDs, tasks, endpoints, publish errors | [transfer/config-transfer-format.md](transfer/config-transfer-format.md) (one section, not the whole file) |
 | Split `working/` (download → decompose → stats) | [transfer/working-split.md](transfer/working-split.md) |
 | Remote API (Config Transfer + Variable + other live endpoints) | [transfer/remote-api.md](transfer/remote-api.md) |
-| Instance version (`GET /api/Integray`, unauthenticated) | [instance-version.md](instance-version.md) |
+| Instance version and **feature availability by `productLine`** | [instance-version.md](instance-version.md) |
 | CopyIDs on edit, unique names, `VariablesDefaults` | [best-practices.md](best-practices.md) |
 | Step-to-step addressing | [entities/data-addressing.md](entities/data-addressing.md) |
 | `InputDataFilter` | [entities/input-data-filter.md](entities/input-data-filter.md) |

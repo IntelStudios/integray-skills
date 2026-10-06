@@ -219,9 +219,10 @@ waits forever and then times out. Use `-1` only to force an immediate failure.
 ### Publish bug (active)
 
 Mapping paths exist internally in two forms: identity keys (`{e:}` / `{ts:}` / `{dsc:}`)
-for the runtime tree, and display names for humans. If **scheduling / dependency
-computation** runs against the **name** form, it silently finds zero dependencies — no
-error.
+for the runtime tree, and display names for humans. The Task-run snapshot JSON
+([remote-api.md](../transfer/remote-api.md) Task run snapshot) is the **identity-key**
+tree. If **scheduling / dependency computation** runs against the **name** form, it
+silently finds zero dependencies — no error.
 
 - **Primary input:** the “producer failed midway → empty table” protection never arms.
 - **`AdditionalInputs`:** the Step becomes eligible as soon as its temporal predecessor

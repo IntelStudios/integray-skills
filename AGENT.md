@@ -65,7 +65,7 @@ When the user asks to create, edit, upload, or deploy Integray tasks / endpoints
 
 There is **no** YAML spec. On disk, `working/` is **split** entity JSON. Upload is still one complete Config Transfer JSON (assembled).
 
-Instance product line / git branch: [docs/instance-version.md](docs/instance-version.md). Fetch with `python scripts/get-instance-version.py --connection projects/<name>/.integray-connection.json` (or `--base-url`). Some features exist only from a given `productLine`.
+Instance product line / git branch: [docs/instance-version.md](docs/instance-version.md) (**Feature availability** table). Fetch with `python scripts/get-instance-version.py --connection projects/<name>/.integray-connection.json` (or `--base-url`). Do not call a gated path until that table says the instance `productLine` has it.
 
 ### B — Connector development
 
@@ -177,6 +177,7 @@ Canonical location: [`.agents/skills/`](.agents/skills/). Claude CLI: [CLAUDE.md
 | `/assemble` | Assemble split `working/` to a JSON file and leave it | [`.agents/skills/assemble/SKILL.md`](.agents/skills/assemble/SKILL.md) |
 | `/backup` | Store a transfer record on the instance (`transferId` only) | [`.agents/skills/backup/SKILL.md`](.agents/skills/backup/SKILL.md) |
 | `/publish` | Deploy `working/` (prefer `scripts/deploy-config-transfer.py`) | [`.agents/skills/publish/SKILL.md`](.agents/skills/publish/SKILL.md) |
+| `/debug-task-run` | Start a Task, poll the run, fetch a step data snapshot (gated — [instance-version.md](docs/instance-version.md) Feature availability) | [`.agents/skills/debug-task-run/SKILL.md`](.agents/skills/debug-task-run/SKILL.md) |
 | Statement HTML | One Configuration.Statement without opening the transfer | [`.agents/skills/edit-statement/SKILL.md`](.agents/skills/edit-statement/SKILL.md) |
 | `/sync-main` | Hourly check/pull of **integray-skills `main`** | [`.agents/skills/sync-main/SKILL.md`](.agents/skills/sync-main/SKILL.md) |
 

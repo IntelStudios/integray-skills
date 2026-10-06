@@ -58,6 +58,10 @@ python scripts/config-statement.py \
 python scripts/deploy-config-transfer.py \
   --connection projects/<name>/.integray-connection.json
 
+python scripts/task-run.py \
+  --connection projects/<name>/.integray-connection.json \
+  snapshot --task-run-id <id> --step-id <id> --out /tmp/step-snapshot.json
+
 python scripts/project-git.py projects/<name> status
 
 python scripts/sync-claude-skills.py
@@ -77,5 +81,13 @@ Download writes JSON under `snapshots/` (do not edit), **immediately splits** in
 `next-transfer-id.py` prints unused numeric `ID`s (max existing + 1, unique across the transfer). `--copy-id` prints a new UUIDv4 after each ID. Use only for **new** entities; never rewrite IDs on a downloaded export.
 
 `check-transfer-schemas.py` is local. Pass the split `working/` directory or an assembled JSON. **Stdout** empty + exit 0 = pass (DataSchemas[] membership, `*CopyID` refs, Configuration JSON required fields, connector action/restrictions when the catalog has that version, unused Connectors/Configurations/TaskGroups/EndpointGroups). **Stderr** `catalog may be stale` does not fail the gate — tell the user. Run after every edit of `working/` before declaring the transfer done. Deploy already runs it.
+
+`task-run.py` is live Remote API: `start` (needs `read-write` or `full`), `status`, `snapshot`.
+`snapshot` is version-gated — [docs/instance-version.md](../docs/instance-version.md) Feature
+availability; the subcommand checks `GET /api/Integray` and exits if the product line is
+older. 200 JSON is the identity-key tree (`{ts:}` Step CopyID, `{dsc:}` column CopyID,
+`{e:}` Endpoint CopyID) — protocol in [remote-api.md](../docs/transfer/remote-api.md)
+(Task run snapshot). Stdout resolves those keys against `working/` beside the connection
+(unless `--no-working`). Skill: [`.agents/skills/debug-task-run/SKILL.md`](../.agents/skills/debug-task-run/SKILL.md).
 
 Connection `permission`: download and backup at every level; Upload and `--only-test` need `read-write` or `full`; `--publish` / `--apply` need `full`. Missing `permission` defaults to `read-only`.

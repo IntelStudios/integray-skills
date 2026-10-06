@@ -127,10 +127,13 @@ class ConnectionConfig:
                 'Set "permission": "full" in .integray-connection.json.'
             )
 
-    def config_transfer_url(self, suffix: str) -> str:
+    def remote_url(self, suffix: str) -> str:
         slug = self.company_slug.strip("/")
-        rel = f"api/Remote/{slug}/ConfigTransfer/{suffix.lstrip('/')}"
+        rel = f"api/Remote/{slug}/{suffix.lstrip('/')}"
         return urljoin(self.base_url + "/", rel)
+
+    def config_transfer_url(self, suffix: str) -> str:
+        return self.remote_url(f"ConfigTransfer/{suffix.lstrip('/')}")
 
     @property
     def download_url(self) -> str:
@@ -186,6 +189,50 @@ def parse_instance_version(version: str) -> tuple[str, str]:
     if not product_line:
         raise RemoteError(f"Version has no product line: {version!r}")
     return product_line, rest.strip() if sep else ""
+
+
+_PRODUCT_LINE_RE = re.compile(r"^rel-(\d{4})-(\d{2})\.(\d+)$")
+
+# GET TaskRun/{id}/Step/{stepId}/Snapshot — must match Feature availability in
+# docs/instance-version.md
+SNAPSHOT_PRODUCT_LINE = "rel-2025-03.018"
+
+
+def product_line_tuple(token: str) -> tuple[int, int, int] | None:
+    """Parse `rel-YYYY-MM.patch` into a comparable tuple. None if not that form."""
+    match = _PRODUCT_LINE_RE.fullmatch((token or "").strip())
+    if not match:
+        return None
+    return int(match.group(1)), int(match.group(2)), int(match.group(3))
+
+
+def product_line_at_least(have: str, need: str) -> bool:
+    """True when both tokens are `rel-YYYY-MM.patch` and have >= need."""
+    left = product_line_tuple(have)
+    right = product_line_tuple(need)
+    if left is None or right is None:
+        return False
+    return left >= right
+
+
+def require_product_line(
+    base_url: str,
+    need: str,
+    *,
+    timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
+    client: httpx.Client | None = None,
+) -> str:
+    """Fetch productLine and raise if it is older than `need` (or unparseable)."""
+    info = fetch_instance_version(
+        base_url, timeout_seconds=timeout_seconds, client=client
+    )
+    have = info["productLine"]
+    if product_line_at_least(have, need):
+        return have
+    raise RemoteError(
+        f"productLine={have} does not include this API (needs {need} or later). "
+        "See docs/instance-version.md."
+    )
 
 
 def fetch_instance_version(
@@ -557,3 +604,130 @@ def process_config_transfer(
         publish_result=publish_result,
         raw=raw,
     )
+
+
+def start_task(
+    config: ConnectionConfig,
+    task_id: int,
+    *,
+    timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
+    client: httpx.Client | None = None,
+) -> int:
+    """POST Task/{id}/Start. Returns taskRunID. Needs read-write or full."""
+    config.require_write()
+    url = config.remote_url(f"Task/{int(task_id)}/Start")
+    headers = config.auth_headers(accept="application/json")
+    own_client = client is None
+    http = client or httpx.Client(timeout=timeout_seconds, follow_redirects=True)
+    try:
+        try:
+            response = http.post(url, headers=headers)
+        except httpx.HTTPError as exc:
+            raise RemoteError(f"{url}: {exc}") from exc
+    finally:
+        if own_client:
+            http.close()
+    _raise_http_error(url, response)
+    try:
+        payload = response.json()
+    except json.JSONDecodeError as exc:
+        raise RemoteError(f"{url}: response is not JSON ({exc})") from exc
+    if not isinstance(payload, dict):
+        raise RemoteError(f"{url}: expected a JSON object")
+    run_id = payload.get("taskRunID", payload.get("TaskRunID"))
+    if run_id is None:
+        raise RemoteError(f"{url}: missing taskRunID in {payload!r}")
+    try:
+        return int(run_id)
+    except (TypeError, ValueError) as exc:
+        raise RemoteError(f"{url}: taskRunID is not an int: {run_id!r}") from exc
+
+
+def get_task_run(
+    config: ConnectionConfig,
+    task_run_id: int,
+    *,
+    timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
+    client: httpx.Client | None = None,
+) -> dict[str, Any]:
+    """GET TaskRun/{taskRunId}."""
+    url = config.remote_url(f"TaskRun/{int(task_run_id)}")
+    headers = config.auth_headers(accept="application/json")
+    own_client = client is None
+    http = client or httpx.Client(timeout=timeout_seconds, follow_redirects=True)
+    try:
+        try:
+            response = http.get(url, headers=headers)
+        except httpx.HTTPError as exc:
+            raise RemoteError(f"{url}: {exc}") from exc
+    finally:
+        if own_client:
+            http.close()
+    _raise_http_error(url, response)
+    try:
+        payload = response.json()
+    except json.JSONDecodeError as exc:
+        raise RemoteError(f"{url}: response is not JSON ({exc})") from exc
+    if not isinstance(payload, dict):
+        raise RemoteError(f"{url}: expected a JSON object")
+    return payload
+
+
+def get_task_step_snapshot(
+    config: ConnectionConfig,
+    task_run_id: int,
+    step_id: int,
+    *,
+    timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
+    client: httpx.Client | None = None,
+    check_version: bool = True,
+) -> tuple[int, dict[str, Any] | None]:
+    """GET TaskRun/{taskRunId}/Step/{stepId}/Snapshot.
+
+    From productLine rel-2025-03.018. Returns (http_status, body).
+    200 → JSON; 204 → (204, None) snapshot not stored.
+    """
+    if check_version:
+        require_product_line(
+            config.base_url,
+            SNAPSHOT_PRODUCT_LINE,
+            timeout_seconds=timeout_seconds,
+            client=client,
+        )
+    url = config.remote_url(
+        f"TaskRun/{int(task_run_id)}/Step/{int(step_id)}/Snapshot"
+    )
+    headers = config.auth_headers(accept="application/json")
+    own_client = client is None
+    http = client or httpx.Client(timeout=timeout_seconds, follow_redirects=True)
+    try:
+        try:
+            response = http.get(url, headers=headers)
+        except httpx.HTTPError as exc:
+            raise RemoteError(f"{url}: {exc}") from exc
+    finally:
+        if own_client:
+            http.close()
+
+    if response.status_code == 204:
+        return 204, None
+    if response.status_code == 401:
+        raise RemoteError(
+            f"{url}: 401 Unauthorized. Check the Remote control token "
+            "(Company Detail → Remote control). Not a login JWT."
+        )
+    if response.status_code == 404:
+        raise RemoteError(
+            f"{url}: 404 Not Found. Task run missing, wrong company, or this step "
+            "did not run in that run (Unknown/Scheduled/WaitingForAgent/NotRun/Parked)."
+        )
+    if response.status_code >= 400:
+        body = (response.text or "")[:500]
+        raise RemoteError(f"{url}: HTTP {response.status_code}. {body}")
+    try:
+        payload = response.json()
+    except json.JSONDecodeError as exc:
+        raise RemoteError(f"{url}: response is not JSON ({exc})") from exc
+    if not isinstance(payload, dict):
+        raise RemoteError(f"{url}: expected a JSON object")
+    return response.status_code, payload

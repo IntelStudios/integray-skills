@@ -12,20 +12,23 @@ returns `Version`; the first token is `rel-YYYY-MM.patch` — [instance-version.
 
 ## Remote API map
 
-Skills wrap **Config Transfer** only. Other rows are live company operations — use them when
-the user asks (start a task, set a secret). Do not invent extra paths.
+Skills wrap **Config Transfer** plus **Task Run snapshot** (`/debug-task-run`). Other rows
+are live company operations — use them when the user asks (set a secret). Do not invent
+extra paths.
 
 | Area | Paths (relative) | Skill | `permission` |
 |------|------------------|-------|----------------|
 | Config Transfer | `GET ConfigTransfer/Download`; `POST ConfigTransfer/Backup`; `POST ConfigTransfer/Upload`; `POST ConfigTransfer/{id}/Process`; `GET ConfigTransfer/List`; `DELETE ConfigTransfer/{id}` | `/download-config`, `/backup`, `/publish` | download + backup: every level; Upload + `--only-test`: `read-write` or `full`; `--publish` / `--apply`: `full`. List/Delete: treat like backup (`read-only` OK — they do not apply config) |
 | Variable | `GET Variable/{id}`; `GET Variable/Code/{code}`; `PUT` same | none (curl in this file) | GET: `read-only`; PUT: `read-write` or `full` |
 | Cache publish | `POST Publish` | none — prefer Process `--publish` | `full` |
-| Task | `GET Task`; `POST Task/{id}/Start`; `/Kill`; `/Clean`; `/Runnable` | none | GET: `read-only`; Start/Kill/Clean/Runnable: `read-write` or `full` |
-| Task run | `GET TaskRun/…`; logs; restart | none | GET: `read-only`; restart: `read-write` or `full` |
+| Task | `GET Task`; `POST Task/{id}/Start`; `/Kill`; `/Clean`; `/Runnable` | `/debug-task-run` (`Start`) | GET: `read-only`; Start/Kill/Clean/Runnable: `read-write` or `full` |
+| Task run | `GET TaskRun/…`; logs; restart | `/debug-task-run` (`status`) | GET: `read-only`; restart: `read-write` or `full` |
+| Task run snapshot | `GET TaskRun/{taskRunId}/Step/{stepId}/Snapshot` | `/debug-task-run` | `read-only`. Floor: [instance-version.md](../instance-version.md) Feature availability |
 | Agent | `GET Agent/List` | none | `read-only` |
 | Orchestrator | `GET Orchestrator`; `POST Orchestrator/Runnable` | none | GET: `read-only`; set runnable: `read-write` or `full` |
 
-Scripts enforce the Config Transfer rows. For the rest, the agent must still honour `permission`
+Scripts enforce the Config Transfer rows and the Task Run snapshot path
+(`scripts/task-run.py`). For the rest, the agent must still honour `permission`
 (do not PUT a variable or start a task in `read-only`).
 
 ---
@@ -578,11 +581,169 @@ orchestrators.
 
 ---
 
+## Task run snapshot
+
+**Not** Config Transfer Download (`snapshots/` on disk). This is the **data snapshot of
+one Step in one Task Run**, for debugging a live process.
+
+**Version floor:** [instance-version.md](../instance-version.md) **Feature availability**
+(row “Step data snapshot”). Check `productLine` before calling; the CLI refuses an older
+line. Protocol below is the contract **when the instance has that row**.
+Skill: [`.agents/skills/debug-task-run/SKILL.md`](../../.agents/skills/debug-task-run/SKILL.md).
+CLI: `python scripts/task-run.py --connection … snapshot --task-run-id … --step-id …`.
+With `projects/<name>/working/` beside the connection file, stdout is an identity map
+(`{ts:}` / `{dsc:}` / `{e:}` → `Name`) plus a compact tree; `--out` keeps the raw JSON.
+
+```
+GET /api/Remote/{CompanySlug}/TaskRun/{taskRunId}/Step/{stepId}/Snapshot
+Authorization: Bearer {token}
+```
+
+- `{taskRunId}` — numeric task run id (`taskRunID` from `POST Task/{id}/Start`, or from
+  `GET TaskRun/{id}`).
+- `{stepId}` — numeric **`Step.ID`** on the Task definition (`taskStepID` in the log).
+  **Not** Step `CopyID`, **not** a task-step-run id. The caller must already know it
+  (from `working/tasks/*.json` or the log).
+- Permission: GET → `read-only` is enough. Starting the task first needs `read-write`
+  or `full`.
+
+Response is one JSON object (`application/json`): the **data-structure tree** of that
+Task Run as it looked after the named Step (same tree mappings walk —
+[data-addressing.md](../entities/data-addressing.md)). Shape:
+
+| Field | Meaning |
+|-------|---------|
+| `Schema` | Type tree. Root `Name` is `""`. Each column has `Name`, `AllowNull`, `DataType`, and when `DataType` is **7** (Table) a nested `Schema`. |
+| `Rows` | Array of row objects. Keys match `Schema.Columns[].Name`. A Table cell is an **array** of nested row objects (or `null`). |
+| `HasDefinedRows` | The table carries a row collection (`true` on a normal 200 with data). |
+
+**Identity keys**, not DX display names (working JSON uses names; the runtime tree uses
+these):
+
+| Token | Guid is | Resolve in `working/` |
+|-------|---------|------------------------|
+| `{ts:<guid>}` | Step `CopyID` | `tasks/*.json` → `Steps[].CopyID` → `Name` |
+| `{dsc:<guid>}` | DataSchema **column** `CopyID` | `data-schemas/*.json` → `Columns[].CopyID` → `Name` |
+| `{e:<guid>}` | Endpoint `CopyID` | `endpoints/*.json` |
+
+A nested schema with **`Guid` + `Version`** is a catalog / system DataSchema (e.g. Text
+`b76c3662-4903-4512-97a9-72f32eaecd01` / `1.0.0`); its columns often appear as **display
+names** (`Text`). A nested schema with only `Name` (e.g. `"User"`) is an inline table
+shape; its columns stay `{dsc:…}`. `DataType` is the same enum as elsewhere: `1` Int,
+`2` String, `3` Bool, `4` Base64, `5` DateTime, `6` Double, **`7` Table**, `8` JSON,
+`9` Decimal.
+
+A `{ts:…}` column at **root** is a Step stored at root (Bulk / no `InputSchema`). A
+`{ts:…}` column **inside** another `{ts:…}` / `{e:…}` row is a RowByRow Step nested
+under that parent. Do not treat `{ts:…}` as “this GET’s Step only” — the snapshot is the
+**whole assembled tree**, with every Step/Endpoint node that existed when it was stored.
+
+A cell stored as `{"$dataRef":"<guid>"}` is replaced with the file contents as a
+**string**. There is no separate multipart part. When `$dataRefSource` is set (endpoint
+data), the file is taken from there. If the file is missing on disk, that cell is `null`.
+
+Example (200) — two root Steps; the second has a nested RowByRow Step. The long `Text`
+cell is already expanded from `$dataRef`:
+
+```http
+GET /api/Remote/acme/TaskRun/1520/Step/88/Snapshot
+Authorization: Bearer {token}
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+```
+
+```json
+{
+  "Schema": {
+    "Name": "",
+    "Columns": [
+      {
+        "Name": "{ts:6ce65480-6e47-43bd-a788-aaf6e0bc5e53}",
+        "AllowNull": true,
+        "DataType": 7,
+        "Schema": {
+          "Name": "Text",
+          "Guid": "b76c3662-4903-4512-97a9-72f32eaecd01",
+          "Version": "1.0.0",
+          "Columns": [
+            { "Name": "Text", "AllowNull": false, "DataType": 2 }
+          ]
+        }
+      },
+      {
+        "Name": "{ts:5214ad46-bc75-4369-aa30-c4731e561851}",
+        "AllowNull": true,
+        "DataType": 7,
+        "Schema": {
+          "Name": "User",
+          "Columns": [
+            { "Name": "{dsc:fc302299-f3fc-41c1-aaa5-b583cf99dd55}", "AllowNull": true, "DataType": 1 },
+            { "Name": "{dsc:58af2346-c9da-4044-b4ca-033de61cd1dc}", "AllowNull": true, "DataType": 2 },
+            {
+              "Name": "{ts:7bb2ea54-be03-47f5-a563-3cf63205b43f}",
+              "AllowNull": true,
+              "DataType": 7,
+              "Schema": {
+                "Name": "User",
+                "Columns": [
+                  { "Name": "{dsc:fc302299-f3fc-41c1-aaa5-b583cf99dd55}", "AllowNull": true, "DataType": 1 },
+                  { "Name": "{dsc:58af2346-c9da-4044-b4ca-033de61cd1dc}", "AllowNull": true, "DataType": 2 }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "Rows": [
+    {
+      "{ts:6ce65480-6e47-43bd-a788-aaf6e0bc5e53}": [
+        { "Text": "Text 1" },
+        { "Text": "Text 2 - this text should be a data ref in stored in a shared location" }
+      ],
+      "{ts:5214ad46-bc75-4369-aa30-c4731e561851}": [
+        {
+          "{dsc:fc302299-f3fc-41c1-aaa5-b583cf99dd55}": 1,
+          "{dsc:58af2346-c9da-4044-b4ca-033de61cd1dc}": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, to",
+          "{ts:7bb2ea54-be03-47f5-a563-3cf63205b43f}": [
+            {
+              "{dsc:fc302299-f3fc-41c1-aaa5-b583cf99dd55}": 1,
+              "{dsc:58af2346-c9da-4044-b4ca-033de61cd1dc}": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, to"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "HasDefinedRows": true
+}
+```
+
+| HTTP | When |
+|------|------|
+| **200** | The step ran or is running in that task run, **and** a snapshot is stored. |
+| **204** | The step ran or is running (`InProgress` 100, success 200–203, failure 300–307) but **no** snapshot was stored. Empty body. Often `DataSnapshotCondition: 0` (Never), or `1` (On error) on a successful step. |
+| **404** | Task run missing, wrong company, or the step **did not run** in that run (`Unknown` 0, `Scheduled` 1, `WaitingForAgent` 101, `NotRun` 401, `Parked` 999). |
+| **401** | Token missing, wrong, or company has no Remote control token. |
+
+`DataSnapshotCondition` on the Step (`0` Never, `1` On error, `2` Everytime) is in
+[config-transfer-format.md](config-transfer-format.md) §6. 204 is a valid debug result,
+not a failed Start.
+
+To **create** a run: `POST /api/Remote/{CompanySlug}/Task/{id}/Start` → `{ "taskRunID": … }`
+(`scripts/task-run.py start --task-id`). Poll `GET …/TaskRun/{taskRunId}` (`status`) until
+the family is no longer waiting/running, then `snapshot`.
+
+---
+
 ## Cross-links
 
 | Topic | File |
 |---|---|
 | Transfer JSON structure, Full Sync, publish failures | `docs/transfer/config-transfer-format.md` (§8.4, §8.6) |
+| Instance `productLine` and gated features | `docs/instance-version.md` (Feature availability) |
 | Top-level `Variables[]`, `${#Code}`, `${#SYSTEM_...}` | `docs/entities/variables.md` |
 | Connector GUIDs and versions | `data/connectors.json` |
 | In-platform scripts building Remote API URLs | Use `${#SYSTEM_BaseURL}` (instance) and `${#SYSTEM_CompanySlug}` (company within that instance) separately — `docs/entities/variables.md` |

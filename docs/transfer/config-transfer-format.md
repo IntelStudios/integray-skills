@@ -335,7 +335,9 @@ read or quote it as documentation.
 ```
 
 - **`InputProcessType`: `1` = `Bulk`, `2` = `RowByRowSequentially`** (confirmed from source enum) — e.g. a step named `"Bulk"` processing all rows in one call has `InputProcessType: 1`; a step named `"Row by row"` invoking the connector once per row has `InputProcessType: 2`.
-- **`DataSnapshotCondition`**: `0` Never, `1` On error, `2` Everytime.
+- **`DataSnapshotCondition`**: `0` Never, `1` On error, `2` Everytime. Remote GET of that
+  stored snapshot: [remote-api.md](remote-api.md) Task run snapshot (floor in
+  [instance-version.md](../instance-version.md) Feature availability).
 - **`StopIfEmptyOutput: true`** halts the task (status `FinishedNoData`) whenever a step produces zero output rows — including steps that *by design* never return rows, e.g. a plain SQL `DELETE`/`UPDATE` with no `RETURNING`. Set `false` on any step whose empty output is normal, not an error condition, or downstream steps silently never run.
 - **`ErrorBehavior`** — see §6.1.
 - **`PrevStepCopyID`/`AdditionalInputs`/`InputSchemaMapping`** — see `docs/entities/data-addressing.md`.
