@@ -8,9 +8,10 @@ Agent-oriented knowledge base for Integray: **Config Transfer JSON** and **.NET 
 2. Each company is `projects/<name>/` as **its own git** (`projects/` is not a repo) — **[docs/projects.md](docs/projects.md)**
 3. Per company (`projects/<name>/` = one Integray company on one instance):
    - Write `projects/<name>/.integray-connection.json` with `baseUrl`, `companySlug`, the company's **Remote control token**, and `permission` (`read-only` | `read-write` | `full`; missing = `read-only`)
-   - **`/download-config`** — JSON into `snapshots/<stamp>/`, **split into `working/` immediately**, then statistics (do not edit snapshots)
+   - **`/download-config`** — JSON into `snapshots/<stamp>/`, **clear `working/`**, split immediately, then statistics (do not edit snapshots; do not ask before replace)
    - Edit the split entity files in `working/` (Full Sync when assembled)
-   - **`/publish`** when asked — backup per conventions, assemble `working/`, Upload, Process `onlyTest`, then `publish`
+   - **`/publish`** when asked — backup always, assemble `working/`, Upload, Process `onlyTest`, then `publish`
+   - **`/debug-task-run`** — start a live Task / step snapshot when `productLine` allows it ([instance-version.md](docs/instance-version.md) Feature availability)
 
 ## Read vs generate
 
@@ -29,15 +30,16 @@ Agent-oriented knowledge base for Integray: **Config Transfer JSON** and **.NET 
 | [AGENT.md](AGENT.md) | Agent playbook |
 | [docs/projects.md](docs/projects.md) | One private git per `projects/<name>/` |
 | [docs/transfer/config-transfer-format.md](docs/transfer/config-transfer-format.md) | Transfer JSON rules (IDs, Full Sync, checklist) |
-| [docs/transfer/remote-api.md](docs/transfer/remote-api.md) | Download / Upload / Process / Backup |
-| [docs/instance-version.md](docs/instance-version.md) | Unauthenticated `GET /api/Integray` — product line and build stamp |
+| [docs/transfer/remote-api.md](docs/transfer/remote-api.md) | Download / Upload / Process / Backup / Task-run snapshot |
+| [docs/instance-version.md](docs/instance-version.md) | `GET /api/Integray` and **Feature availability** by `productLine` |
 | [docs/entities/](docs/entities/) | Tasks, mapping, variables, endpoints, … |
 | [docs/connector-dev/](docs/connector-dev/) | Connector project rules |
 | [docs/best-practices.md](docs/best-practices.md) | CopyIDs, names, `VariablesDefaults` |
-| [data/](data/) | Connector, configuration, and data-schema catalogs |
+| [data/](data/) | ICR catalogs (connectors, configuration schemas, data schemas, agent restrictions) |
 | [scripts/get-instance-version.py](scripts/get-instance-version.py) | Unauthenticated `GET /api/Integray` (`productLine`, `buildStamp`) |
 | [scripts/task-run.py](scripts/task-run.py) | Start task / task-run status / step snapshot (version-gated — [instance-version.md](docs/instance-version.md)) |
-| [scripts/download-config-transfer.py](scripts/download-config-transfer.py) | Remote API Config Transfer download |
+| [scripts/download-config-transfer.py](scripts/download-config-transfer.py) | Remote API Config Transfer download (always replaces `working/`) |
+| [scripts/check-connector-versions.py](scripts/check-connector-versions.py) | Advisory: outdated / mixed connector Guid versions vs catalog |
 | [scripts/backup-config-transfer.py](scripts/backup-config-transfer.py) | Remote API Config Transfer backup (`transferId`) |
 | [scripts/upload-config-transfer.py](scripts/upload-config-transfer.py) | Remote API Config Transfer upload (pre-check + `transferId`) |
 | [scripts/process-config-transfer.py](scripts/process-config-transfer.py) | Remote API Process (`--only-test` / `--publish`) |
@@ -48,4 +50,4 @@ Agent-oriented knowledge base for Integray: **Config Transfer JSON** and **.NET 
 - **Company config** — generate or edit Config Transfer JSON, deploy via Remote API
 - **Connector development** — .NET connector projects; see [docs/connector-dev/rules.md](docs/connector-dev/rules.md)
 
-There is **no** YAML spec language in this version. Working copy is Config Transfer JSON (full file). Do not split entities into YAML.
+There is **no** YAML spec. `working/` is **split entity JSON**; Upload is one assembled Config Transfer JSON. Layout: [working-split.md](docs/transfer/working-split.md).
