@@ -157,8 +157,8 @@ until proven otherwise, not just Step.
 
 ### Looking up connector/configuration/schema data — three cross-referenced files
 
-**`data/connectors.json`** (257 connectors), **`data/configuration-schemas.json`** (181
-Configuration schemas), **`data/data-schemas.json`** (642 system DataSchemas) — a raw,
+**`data/connectors.json`** (269 connectors), **`data/configuration-schemas.json`** (185
+Configuration schemas), **`data/data-schemas.json`** (652 system DataSchemas) — a raw,
 authoritative platform export, each a flat list of entities (`{$schema, kind, guid,
 version, name, metadata, ...}`, the type-specific fields — `actions`/`schema`/`columns`
 — alongside). Entities cross-reference the *other* two files by `{guid, version}`, never
@@ -218,6 +218,17 @@ at ~100s anyway because the connector's own internal default was the actual bott
 the whole time, invisible from the Step `Timeout` field in the UI. **Always set an
 explicit `"Timeout"` (seconds) in the Configuration JSON, at least matching the Step's
 own `Timeout`, on every `Node.js processor` step that calls `fetch()`.**
+
+Newest catalog versions: **Node.js processor `3.4.4`**,
+**Python processor `3.3.1`**. Both are `ConnectorApi/2.0` and add the `datarefs` feature
+(changelog: SDK migrate + dataRefs). Configuration schema Guid+Version is unchanged
+(`b0b15d2d-…` / `1.0.0` for Node, `49e63f7b-…` / `1.0.0` for Python). Prefer these unless
+the user pins an older Version. **GraphQL `1.2.1`** (`e0136e1e-…`) applies the **Step**
+`Timeout` to its HTTP client (query/mutation) — the opposite of Node’s independent
+default. Unified **Datové schránky (ISDS)** `e9985d75-…` **`4.0.11`** replaces five older
+single-purpose ISDS connectors via actions `readIncoming` / `sendMessage` / `markAsRead` /
+`readOutgoing` / `readOutgoingChanges` (system schemas `4.0.0`). The older ISDS connectors
+remain in the catalog; do not invent a new Guid.
 
 ---
 
@@ -682,7 +693,7 @@ Workaround: set the producing step's `OutputFormat: 2` (Text) instead of `3` (JS
 call `JSON.parse()` on it yourself inside the script.
 
 This table only covers schemas seen in the worked example / this KB's own self-test
-project — for anything else, **check `data/data-schemas.json` first** (642 entries, each
+project — for anything else, **check `data/data-schemas.json` first** (652 entries, each
 `{guid, version, name, columns[], ...}`) before asking the user or guessing. **Match on
 `{guid, version}`
 together, not `guid` alone** — the same `guid` can have multiple version entries in that

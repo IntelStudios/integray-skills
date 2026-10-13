@@ -17029,5 +17029,833 @@
         ]
       }
     ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/connector.json",
+    "kind": "Integray/ConnectorSchema/1.0",
+    "guid": "e14ea2c1-42d4-4224-b308-8ed55168e0c8",
+    "version": "3.3.1",
+    "name": "Python processor",
+    "changeLog": "Migrated to Integray Connector SDK (ConnectorApi/2.0). Added dataRefs support.",
+    "executable": "4df55380-4525-43cf-8cfc-11b74510a328#Integray.Connector.Python.dll",
+    "targetPlatform": "ConnectorApi/2.0",
+    "metadata": {
+      "icon": "58218554-b108-4330-bce0-5a4c2f7acc62",
+      "description": "66bac846-cb93-46cc-83c7-372e3edba237",
+      "helpLink": "/connectoracademy/connectors/Python/3.3",
+      "actions": {
+        "defaultAction": "defaultAction"
+      }
+    },
+    "actions": [
+      {
+        "name": "Default",
+        "code": "defaultAction",
+        "metadata": {
+          "defaultProcessType": "rowByRow",
+          "description": "66bac846-cb93-46cc-83c7-372e3edba237"
+        },
+        "features": [
+          "checkpoint",
+          "multiinput",
+          "debugscript",
+          "datarefs"
+        ],
+        "inputProcessing": [
+          "rowByRow",
+          "bulk"
+        ],
+        "inputSchema": {
+          "mode": "optional"
+        },
+        "outputSchema": {
+          "mode": "mandatory"
+        },
+        "configurationRefs": [
+          {
+            "guid": "49e63f7b-4d8d-4891-9a0e-e2f9305bff30",
+            "version": "1.0.0"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/connector.json",
+    "kind": "Integray/ConnectorSchema/1.0",
+    "guid": "5a70dfd2-9803-4bcf-b090-652b156f7236",
+    "version": "3.4.4",
+    "name": "Node.js processor",
+    "changeLog": "Migrated to Integray Connector SDK (ConnectorApi/2.0). Added dataRefs support.",
+    "executable": "393118ad-c96e-4e68-8007-a6f453f85a3c#Integray.Connector.NodeJS.dll",
+    "targetPlatform": "ConnectorApi/2.0",
+    "metadata": {
+      "icon": "f876897e-b02f-4784-828a-0c0ac5e15279",
+      "description": "28bc42d7-9d03-425a-9eed-3e4be0b39547",
+      "actions": {
+        "defaultAction": "defaultAction"
+      }
+    },
+    "actions": [
+      {
+        "name": "Default",
+        "code": "defaultAction",
+        "metadata": {
+          "defaultProcessType": "rowByRow",
+          "description": "28bc42d7-9d03-425a-9eed-3e4be0b39547"
+        },
+        "features": [
+          "checkpoint",
+          "multiinput",
+          "debugscript",
+          "datarefs"
+        ],
+        "inputProcessing": [
+          "rowByRow",
+          "bulk"
+        ],
+        "inputSchema": {
+          "mode": "optional"
+        },
+        "outputSchema": {
+          "mode": "mandatory"
+        },
+        "configurationRefs": [
+          {
+            "guid": "b0b15d2d-cc48-4dcf-9714-0e11eb98b3e5",
+            "version": "1.0.0"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/connector.json",
+    "kind": "Integray/ConnectorSchema/1.0",
+    "guid": "07efca41-32cf-41d0-8b01-9174b076d9aa",
+    "version": "3.0.4",
+    "name": "Gmail IMAP Reader Connector",
+    "changeLog": "Plugin binaries update as a result of included connector change.",
+    "executable": "ead47713-1505-47e6-9847-791c17bd5044#DataExchange.Plugin.IS.Mail.dll",
+    "targetPlatform": "ConnectorApi/1.0",
+    "metadata": {
+      "icon": "077f51f3-0e03-440a-9b6f-03ed6675e734",
+      "description": "a4bde44c-b56f-46f1-94e0-5e02a62ce26d",
+      "helpLink": "/connectoracademy/connectors/GmailIMAPReader/3.0"
+    },
+    "actions": [
+      {
+        "name": "Default action",
+        "code": "defaultAction",
+        "metadata": {
+          "defaultProcessType": "rowByRow",
+          "helpLink": "/connectoracademy/connectors/GmailIMAPReader/3.0",
+          "description": "a4bde44c-b56f-46f1-94e0-5e02a62ce26d"
+        },
+        "features": [
+          "checkpoint"
+        ],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "optional"
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "75f22468-fa12-4f7d-bd75-da6824f66485",
+            "version": "1.4.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "8bd1d833-a989-41fe-ac1b-9e6f369d2adc",
+            "version": "1.0.0"
+          },
+          {
+            "guid": "ab6dc560-0745-48c9-b0fb-0a8462fc32e4",
+            "version": "1.0.0"
+          },
+          {
+            "guid": "30f55aa7-6df2-4d94-a800-058506c2b412",
+            "version": "1.0.0"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/connector.json",
+    "kind": "Integray/ConnectorSchema/1.0",
+    "guid": "45f5c2f7-c09e-475b-bf08-5f8790cf9576",
+    "version": "3.0.4",
+    "name": "Seznam IMAP Reader Connector",
+    "changeLog": "Plugin binaries update as a result of included connector change.",
+    "executable": "c12424e4-938f-48cc-9139-6a349a64ef7a#DataExchange.Plugin.IS.Mail.dll",
+    "targetPlatform": "ConnectorApi/1.0",
+    "metadata": {
+      "icon": "a6035d38-cb87-4d78-8d59-5104fccc8383",
+      "description": "b868336f-0d8c-4d09-aefc-1adbe1a36b78",
+      "helpLink": "/connectoracademy/connectors/SeznamIMAPReader/3.0"
+    },
+    "actions": [
+      {
+        "name": "Default action",
+        "code": "defaultAction",
+        "metadata": {
+          "defaultProcessType": "rowByRow",
+          "helpLink": "/connectoracademy/connectors/SeznamIMAPReader/3.0",
+          "description": "b868336f-0d8c-4d09-aefc-1adbe1a36b78"
+        },
+        "features": [
+          "checkpoint"
+        ],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "optional"
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "75f22468-fa12-4f7d-bd75-da6824f66485",
+            "version": "1.4.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "8bd1d833-a989-41fe-ac1b-9e6f369d2adc",
+            "version": "1.0.0"
+          },
+          {
+            "guid": "ab6dc560-0745-48c9-b0fb-0a8462fc32e4",
+            "version": "1.0.0"
+          },
+          {
+            "guid": "30f55aa7-6df2-4d94-a800-058506c2b412",
+            "version": "1.0.0"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/connector.json",
+    "kind": "Integray/ConnectorSchema/1.0",
+    "guid": "d7d7ce40-b04c-4d32-9124-219c403fd35a",
+    "version": "3.3.1",
+    "name": "IMAP Reader Connector",
+    "changeLog": "Detect embedded MIME parts without Content-Disposition (calendar invites, vCard, etc.).",
+    "executable": "c1211522-5569-4ca4-8cdf-6b20cb7673a8#DataExchange.Plugin.IS.Mail.dll",
+    "targetPlatform": "ConnectorApi/1.0",
+    "metadata": {
+      "icon": "9c6a3403-355e-49ac-a0e2-f6a9142d86e1",
+      "description": "f51fdef4-c5bf-4503-9f66-081a6c0736c6",
+      "helpLink": "/connectoracademy/connectors/ImapReaderConnector/3.3"
+    },
+    "actions": [
+      {
+        "name": "Default action",
+        "code": "defaultAction",
+        "metadata": {
+          "defaultProcessType": "rowByRow",
+          "helpLink": "/connectoracademy/connectors/ImapReaderConnector/3.3",
+          "description": "f51fdef4-c5bf-4503-9f66-081a6c0736c6"
+        },
+        "features": [
+          "checkpoint"
+        ],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "optional"
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "75f22468-fa12-4f7d-bd75-da6824f66485",
+            "version": "1.4.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "7f26633f-74e6-4ab7-85df-26a8c922dcef",
+            "version": "1.0.1"
+          },
+          {
+            "guid": "ce8ea903-d98f-4d7f-a80a-6a9e7d5f854e",
+            "version": "1.0.0"
+          },
+          {
+            "guid": "30f55aa7-6df2-4d94-a800-058506c2b412",
+            "version": "1.0.0"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/connector.json",
+    "kind": "Integray/ConnectorSchema/1.0",
+    "guid": "e0136e1e-ba09-421e-a0d7-aae75996e985",
+    "version": "1.2.1",
+    "name": "GraphQL",
+    "changeLog": "Apply the step timeout to the HTTP client used for queries and mutations.",
+    "executable": "a7b371e5-3e1d-436a-ade6-6d73b4bfe96f#Integray.Connector.GraphQL.dll",
+    "targetPlatform": "ConnectorApi/2.0",
+    "metadata": {
+      "icon": "614de5ed-4f2c-4534-8717-c3f477eeebf3",
+      "description": "93cdb811-42e3-4dce-9e22-404d9439770a",
+      "actions": {
+        "description": "bb17aea0-a12c-49a7-92fb-0e75de63041f"
+      }
+    },
+    "actions": [
+      {
+        "name": "Query",
+        "code": "query",
+        "metadata": {
+          "defaultProcessType": "rowByRow",
+          "icon": "effa5e64-d5c6-4c13-97fb-df1440a41b38",
+          "description": "ddedb3de-b87d-45d3-9f1c-fb6c38b8c597"
+        },
+        "features": [],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "optional"
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "5bdd29fb-b543-4d0a-acf6-c249ffe40e62",
+            "version": "1.0.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "954fbeec-18a4-48ca-8794-a8dc8f5dd516",
+            "version": "1.0.2"
+          },
+          {
+            "guid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+            "version": "1.0.0"
+          }
+        ]
+      },
+      {
+        "name": "Mutation",
+        "code": "mutation",
+        "metadata": {
+          "defaultProcessType": "rowByRow",
+          "icon": "f83ef6f3-4bfb-4b0f-8091-b9bc54346964",
+          "description": "fec8e43f-f3fa-49ce-8e1d-3c6dc3b3f1aa"
+        },
+        "features": [],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "optional"
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "5bdd29fb-b543-4d0a-acf6-c249ffe40e62",
+            "version": "1.0.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "954fbeec-18a4-48ca-8794-a8dc8f5dd516",
+            "version": "1.0.2"
+          },
+          {
+            "guid": "fb510c8f-1e37-45a7-9f0d-70a5fb3ebc92",
+            "version": "1.0.0"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/connector.json",
+    "kind": "Integray/ConnectorSchema/1.0",
+    "guid": "e9985d75-cd84-43f6-9c14-c4903ebb02a4",
+    "version": "4.0.11",
+    "name": "Datové schánky (ISDS)",
+    "changeLog": "Initial release of the unified ISDS connector that replaces five older single-purpose connectors via actions: Read incoming, Send message, Mark as read, Read outgoing, and Read outgoing changes.",
+    "executable": "84bad8c2-b880-474d-ab1c-fa2f56fe9bef#Integray.Connector.ISDS.dll",
+    "targetPlatform": "ConnectorApi/2.0",
+    "metadata": {
+      "icon": "2d9b28a8-a4d9-4173-b8c9-c9d7d352df58",
+      "description": "2ab73730-a73d-475c-8ef5-2057dfaf84d6",
+      "actions": {
+        "defaultAction": "readIncoming"
+      }
+    },
+    "actions": [
+      {
+        "name": "Read incoming",
+        "code": "readIncoming",
+        "metadata": {
+          "icon": "4a019dac-e7c6-49ba-b448-b5e14e4ead41",
+          "defaultProcessType": "rowByRow",
+          "description": "e3544031-e261-4213-9a4f-4d8036878477"
+        },
+        "features": [
+          "checkpoint"
+        ],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "optional"
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "f8b391b1-71f5-4ddf-bad4-e20925eb439e",
+            "version": "4.0.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "b42b82de-7600-4754-844f-88fcb4c1ce03",
+            "version": "4.0.0"
+          },
+          {
+            "guid": "830efa11-ed23-4e9f-b8d0-5fd59886f9e0",
+            "version": "4.0.0"
+          }
+        ]
+      },
+      {
+        "name": "Mark as read",
+        "code": "markAsRead",
+        "metadata": {
+          "icon": "e0b01147-ccfe-4a17-988e-fbeb1c7b0c16",
+          "defaultProcessType": "rowByRow",
+          "description": "e4058914-9790-4823-8be2-c7fdc47e568d"
+        },
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "6fcf4853-c5ef-4139-b78d-29f78cc185dc",
+            "version": "4.0.0"
+          }
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "3355a3cd-f7ea-400b-8b1f-2237ff8bcff8",
+            "version": "4.0.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "b42b82de-7600-4754-844f-88fcb4c1ce03",
+            "version": "4.0.0"
+          }
+        ]
+      },
+      {
+        "name": "Send message",
+        "code": "sendMessage",
+        "metadata": {
+          "icon": "bbe1cbab-3547-43d6-add4-575854db8f49",
+          "defaultProcessType": "rowByRow",
+          "description": "bb585a53-5ae8-400c-96b1-54a10a044562"
+        },
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "23af0a55-0e49-4cd9-b2fa-7063b06c7f5f",
+            "version": "4.0.0"
+          }
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "e0f122e5-c0b8-408f-ba77-193a0b798175",
+            "version": "4.0.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "b42b82de-7600-4754-844f-88fcb4c1ce03",
+            "version": "4.0.0"
+          }
+        ]
+      },
+      {
+        "name": "Read outgoing",
+        "code": "readOutgoing",
+        "metadata": {
+          "icon": "c08bdd4c-4e71-48b2-a2ed-02ee2af6d2c6",
+          "defaultProcessType": "rowByRow",
+          "description": "83c028ad-4c3e-4972-a81e-b4d814c25f25"
+        },
+        "features": [
+          "checkpoint"
+        ],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "optional"
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "3e569643-8439-4eb7-8b15-0d40379d4b2e",
+            "version": "4.0.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "b42b82de-7600-4754-844f-88fcb4c1ce03",
+            "version": "4.0.0"
+          },
+          {
+            "guid": "830efa11-ed23-4e9f-b8d0-5fd59886f9e0",
+            "version": "4.0.0"
+          }
+        ]
+      },
+      {
+        "name": "Read outgoing changes",
+        "code": "readOutgoingChanges",
+        "metadata": {
+          "icon": "7103cd26-fe6c-448d-af97-42f0aa38d331",
+          "defaultProcessType": "rowByRow",
+          "description": "3250c2f1-45b2-477e-951c-2e57b850abd6"
+        },
+        "features": [
+          "checkpoint"
+        ],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "optional"
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "61940f07-ad26-45b1-80a3-90a846d2e842",
+            "version": "4.0.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "b42b82de-7600-4754-844f-88fcb4c1ce03",
+            "version": "4.0.0"
+          },
+          {
+            "guid": "4004fe69-55c7-4fa3-b911-ff950f4a5fa9",
+            "version": "4.0.0"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/connector.json",
+    "kind": "Integray/ConnectorSchema/1.0",
+    "guid": "256a15dc-49c9-4315-beb5-90e1bb5ba8cf",
+    "version": "3.3.0",
+    "name": "ISDS - Outgoing Reader",
+    "changeLog": "Configurable ISDS address (datovka.gov.cz), removed Testing checkbox",
+    "executable": "5fb4186c-150a-43b5-bbd9-a261feaa0ebc#DataExchange.Plugin.IS.ISDS.OutgoingReader.dll",
+    "targetPlatform": "ConnectorApi/1.0",
+    "metadata": {
+      "icon": "a6b3a96e-b7b8-402c-9331-acc61ad9f271",
+      "description": "373bea04-d5c9-41a0-80b5-54ccb990444e",
+      "helpLink": "/connectoracademy/connectors/ISDSOutgoingReader/3.3"
+    },
+    "actions": [
+      {
+        "name": "Default action",
+        "code": "defaultAction",
+        "metadata": {
+          "defaultProcessType": "rowByRow",
+          "helpLink": "/connectoracademy/connectors/ISDSOutgoingReader/3.3",
+          "description": "373bea04-d5c9-41a0-80b5-54ccb990444e"
+        },
+        "features": [
+          "checkpoint"
+        ],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "optional"
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "3e569643-8439-4eb7-8b15-0d40379d4b2e",
+            "version": "1.2.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "b42b82de-7600-4754-844f-88fcb4c1ce03",
+            "version": "3.0.0"
+          },
+          {
+            "guid": "eb72a33d-a479-41ca-be45-35cef112ca62",
+            "version": "3.0.0"
+          },
+          {
+            "guid": "64c50eee-4bf1-4102-b25b-5413b6d7a4d9",
+            "version": "3.1.0"
+          },
+          {
+            "guid": "74311778-10a8-425e-a2c1-2dc2aa986a32",
+            "version": "2.0.0"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/connector.json",
+    "kind": "Integray/ConnectorSchema/1.0",
+    "guid": "ada51174-4d37-4543-b3e2-221b72da424b",
+    "version": "3.2.0",
+    "name": "ISDS - Outgoing Changes Reader",
+    "changeLog": "Configurable ISDS address (datovka.gov.cz), removed Testing checkbox",
+    "executable": "4b725524-04f9-4121-a3d7-fe2dac577657#DataExchange.Plugin.IS.ISDS.OutgoingChangesReader.dll",
+    "targetPlatform": "ConnectorApi/1.0",
+    "metadata": {
+      "icon": "a6b3a96e-b7b8-402c-9331-acc61ad9f271",
+      "description": "109c66dd-7fc1-4413-9e8c-4195a660aaa9",
+      "helpLink": "/connectoracademy/connectors/ISDSOutgoingChangesReader/3.2"
+    },
+    "actions": [
+      {
+        "name": "Default action",
+        "code": "defaultAction",
+        "metadata": {
+          "defaultProcessType": "rowByRow",
+          "helpLink": "/connectoracademy/connectors/ISDSOutgoingChangesReader/3.2",
+          "description": "109c66dd-7fc1-4413-9e8c-4195a660aaa9"
+        },
+        "features": [
+          "checkpoint"
+        ],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "optional"
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "61940f07-ad26-45b1-80a3-90a846d2e842",
+            "version": "1.2.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "b42b82de-7600-4754-844f-88fcb4c1ce03",
+            "version": "3.0.0"
+          },
+          {
+            "guid": "eb72a33d-a479-41ca-be45-35cef112ca62",
+            "version": "3.0.0"
+          },
+          {
+            "guid": "64c50eee-4bf1-4102-b25b-5413b6d7a4d9",
+            "version": "3.1.0"
+          },
+          {
+            "guid": "4004fe69-55c7-4fa3-b911-ff950f4a5fa9",
+            "version": "2.0.0"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/connector.json",
+    "kind": "Integray/ConnectorSchema/1.0",
+    "guid": "aaf95185-1108-493e-a1f2-c1eec59c8968",
+    "version": "3.3.0",
+    "name": "ISDS - Incoming Reader",
+    "changeLog": "Configurable ISDS address (datovka.gov.cz), removed Testing checkbox",
+    "executable": "851be9f2-5cf8-4f95-894a-64aad6bfbf4c#DataExchange.Plugin.IS.ISDS.IncomingReader.dll",
+    "targetPlatform": "ConnectorApi/1.0",
+    "metadata": {
+      "icon": "a6b3a96e-b7b8-402c-9331-acc61ad9f271",
+      "description": "50793481-b403-4ec9-819f-163aba81c1ea",
+      "helpLink": "/connectoracademy/connectors/ISDSIncomingReader/3.3"
+    },
+    "actions": [
+      {
+        "name": "Default action",
+        "code": "defaultAction",
+        "metadata": {
+          "defaultProcessType": "rowByRow",
+          "helpLink": "/connectoracademy/connectors/ISDSIncomingReader/3.3",
+          "description": "50793481-b403-4ec9-819f-163aba81c1ea"
+        },
+        "features": [
+          "checkpoint"
+        ],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "optional"
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "f8b391b1-71f5-4ddf-bad4-e20925eb439e",
+            "version": "1.4.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "b42b82de-7600-4754-844f-88fcb4c1ce03",
+            "version": "3.0.0"
+          },
+          {
+            "guid": "eb72a33d-a479-41ca-be45-35cef112ca62",
+            "version": "3.0.0"
+          },
+          {
+            "guid": "64c50eee-4bf1-4102-b25b-5413b6d7a4d9",
+            "version": "3.1.0"
+          },
+          {
+            "guid": "830efa11-ed23-4e9f-b8d0-5fd59886f9e0",
+            "version": "2.0.0"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/connector.json",
+    "kind": "Integray/ConnectorSchema/1.0",
+    "guid": "e60c804f-77b2-42a3-ba9e-af546d2f0a5d",
+    "version": "3.2.0",
+    "name": "ISDS - Sender",
+    "changeLog": "Configurable ISDS address (datovka.gov.cz), removed Testing checkbox",
+    "executable": "49678d44-8b73-4b5f-8476-007ba75c8501#DataExchange.Plugin.IS.ISDS.Sender.dll",
+    "targetPlatform": "ConnectorApi/1.0",
+    "metadata": {
+      "icon": "a6b3a96e-b7b8-402c-9331-acc61ad9f271",
+      "description": "08e77c03-47b0-48d8-bd6e-b49cd31399bd",
+      "helpLink": "/connectoracademy/connectors/ISDSSender/3.2"
+    },
+    "actions": [
+      {
+        "name": "Default action",
+        "code": "defaultAction",
+        "metadata": {
+          "defaultProcessType": "rowByRow",
+          "helpLink": "/connectoracademy/connectors/ISDSSender/3.2",
+          "description": "08e77c03-47b0-48d8-bd6e-b49cd31399bd"
+        },
+        "features": [],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "23af0a55-0e49-4cd9-b2fa-7063b06c7f5f",
+            "version": "1.2.0"
+          }
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "e0f122e5-c0b8-408f-ba77-193a0b798175",
+            "version": "1.1.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "b42b82de-7600-4754-844f-88fcb4c1ce03",
+            "version": "3.0.0"
+          },
+          {
+            "guid": "64c50eee-4bf1-4102-b25b-5413b6d7a4d9",
+            "version": "3.1.0"
+          },
+          {
+            "guid": "608a650a-2977-4d54-a41b-7a59c2ec10e6",
+            "version": "2.0.0"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/connector.json",
+    "kind": "Integray/ConnectorSchema/1.0",
+    "guid": "49dcd03e-e1ac-4231-91b0-b87ce893e3c8",
+    "version": "3.2.0",
+    "name": "ISDS - Mark As Read",
+    "changeLog": "Configurable ISDS address (datovka.gov.cz), removed Testing checkbox",
+    "executable": "64f30934-c168-4c52-b0c6-c3d6cf06548b#DataExchange.Plugin.IS.ISDS.MarkAsRead.dll",
+    "targetPlatform": "ConnectorApi/1.0",
+    "metadata": {
+      "icon": "a6b3a96e-b7b8-402c-9331-acc61ad9f271",
+      "description": "c1a74e00-31c3-4cb6-8549-e2f8c1cb325a",
+      "helpLink": "/connectoracademy/connectors/ISDSMarkAsRead/3.2"
+    },
+    "actions": [
+      {
+        "name": "Default action",
+        "code": "defaultAction",
+        "metadata": {
+          "defaultProcessType": "rowByRow",
+          "helpLink": "/connectoracademy/connectors/ISDSMarkAsRead/3.2",
+          "description": "c1a74e00-31c3-4cb6-8549-e2f8c1cb325a"
+        },
+        "features": [],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "6fcf4853-c5ef-4139-b78d-29f78cc185dc",
+            "version": "1.1.0"
+          }
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "3355a3cd-f7ea-400b-8b1f-2237ff8bcff8",
+            "version": "1.1.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "64c50eee-4bf1-4102-b25b-5413b6d7a4d9",
+            "version": "3.1.0"
+          }
+        ]
+      }
+    ]
   }
 ]

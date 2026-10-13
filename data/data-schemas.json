@@ -39310,5 +39310,627 @@
         }
       }
     ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "23af0a55-0e49-4cd9-b2fa-7063b06c7f5f",
+    "version": "4.0.0",
+    "name": "ISDS Sender Input",
+    "metadata": {},
+    "columns": [
+      {
+        "name": "Annotation",
+        "type": "string"
+      },
+      {
+        "name": "Type",
+        "type": "string"
+      },
+      {
+        "name": "SenderOrgUnit",
+        "type": "string"
+      },
+      {
+        "name": "SenderOrgUnitNum",
+        "type": "int"
+      },
+      {
+        "name": "SenderRefNumber",
+        "type": "string"
+      },
+      {
+        "name": "SenderIdent",
+        "type": "string"
+      },
+      {
+        "name": "RecipientRefNumber",
+        "type": "string"
+      },
+      {
+        "name": "RecipientIdent",
+        "type": "string"
+      },
+      {
+        "name": "LegalTitleLaw",
+        "type": "int"
+      },
+      {
+        "name": "LegalTitleYear",
+        "type": "int"
+      },
+      {
+        "name": "LegalTitleSect",
+        "type": "string"
+      },
+      {
+        "name": "LegalTitlePar",
+        "type": "string"
+      },
+      {
+        "name": "LegalTitlePoint",
+        "type": "string"
+      },
+      {
+        "name": "PersonalDelivery",
+        "type": "bool"
+      },
+      {
+        "name": "AllowSubstDelivery",
+        "type": "bool"
+      },
+      {
+        "name": "OVM",
+        "type": "bool"
+      },
+      {
+        "name": "OVMSpecified",
+        "type": "bool",
+        "constraints": {
+          "allowNull": false
+        }
+      },
+      {
+        "name": "PublishOwnID",
+        "type": "bool"
+      },
+      {
+        "name": "PublishOwnIDSpecified",
+        "type": "bool",
+        "constraints": {
+          "allowNull": false
+        }
+      },
+      {
+        "name": "Username",
+        "type": "string"
+      },
+      {
+        "name": "Password",
+        "type": "string"
+      },
+      {
+        "name": "Files",
+        "type": "table",
+        "constraints": {
+          "allowNull": false
+        },
+        "tableRef": {
+          "guid": "b0b407e6-3f9c-4bd9-a1c6-17d649b9b97f",
+          "version": "4.0.0"
+        }
+      },
+      {
+        "name": "Recipients",
+        "type": "table",
+        "constraints": {
+          "allowNull": false
+        },
+        "tableRef": {
+          "guid": "18be9ca9-0c47-42d7-a540-08a1419b1769",
+          "version": "4.0.0"
+        }
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "b0b407e6-3f9c-4bd9-a1c6-17d649b9b97f",
+    "version": "4.0.0",
+    "name": "ISDS File",
+    "metadata": {},
+    "columns": [
+      {
+        "name": "Name",
+        "type": "string"
+      },
+      {
+        "name": "MimeType",
+        "type": "string"
+      },
+      {
+        "name": "MetaType",
+        "type": "string"
+      },
+      {
+        "name": "Data",
+        "type": "base64"
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "f8b391b1-71f5-4ddf-bad4-e20925eb439e",
+    "version": "4.0.0",
+    "name": "ISDS Incoming Message",
+    "metadata": {},
+    "columns": [
+      {
+        "name": "ID",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      },
+      {
+        "name": "IDSender",
+        "type": "string"
+      },
+      {
+        "name": "Sender",
+        "type": "string"
+      },
+      {
+        "name": "SenderAddress",
+        "type": "string"
+      },
+      {
+        "name": "SenderType",
+        "type": "int"
+      },
+      {
+        "name": "SenderOrgUnit",
+        "type": "string"
+      },
+      {
+        "name": "SenderOrgUnitNum",
+        "type": "int"
+      },
+      {
+        "name": "SenderRefNumber",
+        "type": "string"
+      },
+      {
+        "name": "SenderIdent",
+        "type": "string"
+      },
+      {
+        "name": "IDRecipient",
+        "type": "string"
+      },
+      {
+        "name": "Recipient",
+        "type": "string"
+      },
+      {
+        "name": "RecipientAddress",
+        "type": "string"
+      },
+      {
+        "name": "RecipientOrgUnit",
+        "type": "string"
+      },
+      {
+        "name": "RecipientOrgUnitNum",
+        "type": "int"
+      },
+      {
+        "name": "RecipientRefNumber",
+        "type": "string"
+      },
+      {
+        "name": "RecipientIdent",
+        "type": "string"
+      },
+      {
+        "name": "ToHands",
+        "type": "string"
+      },
+      {
+        "name": "Annotation",
+        "type": "string"
+      },
+      {
+        "name": "LegalTitleLaw",
+        "type": "int"
+      },
+      {
+        "name": "LegalTitleYear",
+        "type": "int"
+      },
+      {
+        "name": "LegalTitleSect",
+        "type": "string"
+      },
+      {
+        "name": "LegalTitlePar",
+        "type": "string"
+      },
+      {
+        "name": "LegalTitlePoint",
+        "type": "string"
+      },
+      {
+        "name": "PersonalDelivery",
+        "type": "bool"
+      },
+      {
+        "name": "AllowSubstDelivery",
+        "type": "bool"
+      },
+      {
+        "name": "DeliveryTime",
+        "type": "datetime"
+      },
+      {
+        "name": "AcceptanceTime",
+        "type": "datetime"
+      },
+      {
+        "name": "MessageStatus",
+        "type": "int"
+      },
+      {
+        "name": "MessageStatusName",
+        "type": "string"
+      },
+      {
+        "name": "AttachmentSize",
+        "type": "int"
+      },
+      {
+        "name": "SignedFileName",
+        "type": "string"
+      },
+      {
+        "name": "SignedFileContent",
+        "type": "base64"
+      },
+      {
+        "name": "Files",
+        "type": "table",
+        "constraints": {
+          "allowNull": true
+        },
+        "tableRef": {
+          "guid": "b0b407e6-3f9c-4bd9-a1c6-17d649b9b97f",
+          "version": "4.0.0"
+        }
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "be360a8f-2d39-47c6-bc72-35a8b857a849",
+    "version": "4.0.0",
+    "name": "ISDS Delivery Event",
+    "metadata": {},
+    "columns": [
+      {
+        "name": "Time",
+        "type": "datetime"
+      },
+      {
+        "name": "Description",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "6fcf4853-c5ef-4139-b78d-29f78cc185dc",
+    "version": "4.0.0",
+    "name": "ISDS Mark as Read Input",
+    "metadata": {},
+    "columns": [
+      {
+        "name": "ID",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      },
+      {
+        "name": "UserName",
+        "type": "string"
+      },
+      {
+        "name": "Password",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "18be9ca9-0c47-42d7-a540-08a1419b1769",
+    "version": "4.0.0",
+    "name": "ISDS Sender Recipient",
+    "metadata": {},
+    "columns": [
+      {
+        "name": "IDRecipient",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      },
+      {
+        "name": "ToHands",
+        "type": "string"
+      },
+      {
+        "name": "RecipientOrgUnit",
+        "type": "string"
+      },
+      {
+        "name": "RecipientOrgUnitNum",
+        "type": "int"
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "3e569643-8439-4eb7-8b15-0d40379d4b2e",
+    "version": "4.0.0",
+    "name": "ISDS Outgoing Message",
+    "metadata": {},
+    "columns": [
+      {
+        "name": "ID",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      },
+      {
+        "name": "IDSender",
+        "type": "string"
+      },
+      {
+        "name": "Sender",
+        "type": "string"
+      },
+      {
+        "name": "SenderAddress",
+        "type": "string"
+      },
+      {
+        "name": "SenderType",
+        "type": "int"
+      },
+      {
+        "name": "SenderOrgUnit",
+        "type": "string"
+      },
+      {
+        "name": "SenderOrgUnitNum",
+        "type": "int"
+      },
+      {
+        "name": "SenderRefNumber",
+        "type": "string"
+      },
+      {
+        "name": "SenderIdent",
+        "type": "string"
+      },
+      {
+        "name": "IDRecipient",
+        "type": "string"
+      },
+      {
+        "name": "Recipient",
+        "type": "string"
+      },
+      {
+        "name": "RecipientAddress",
+        "type": "string"
+      },
+      {
+        "name": "RecipientOrgUnit",
+        "type": "string"
+      },
+      {
+        "name": "RecipientOrgUnitNum",
+        "type": "int"
+      },
+      {
+        "name": "RecipientRefNumber",
+        "type": "string"
+      },
+      {
+        "name": "RecipientIdent",
+        "type": "string"
+      },
+      {
+        "name": "ToHands",
+        "type": "string"
+      },
+      {
+        "name": "Annotation",
+        "type": "string"
+      },
+      {
+        "name": "LegalTitleLaw",
+        "type": "int"
+      },
+      {
+        "name": "LegalTitleYear",
+        "type": "int"
+      },
+      {
+        "name": "LegalTitleSect",
+        "type": "string"
+      },
+      {
+        "name": "LegalTitlePar",
+        "type": "string"
+      },
+      {
+        "name": "LegalTitlePoint",
+        "type": "string"
+      },
+      {
+        "name": "PersonalDelivery",
+        "type": "bool"
+      },
+      {
+        "name": "AllowSubstDelivery",
+        "type": "bool"
+      },
+      {
+        "name": "DeliveryTime",
+        "type": "datetime"
+      },
+      {
+        "name": "AcceptanceTime",
+        "type": "datetime"
+      },
+      {
+        "name": "MessageStatus",
+        "type": "int"
+      },
+      {
+        "name": "MessageStatusName",
+        "type": "string"
+      },
+      {
+        "name": "AttachmentSize",
+        "type": "int"
+      },
+      {
+        "name": "SignedFileName",
+        "type": "string"
+      },
+      {
+        "name": "SignedFileContent",
+        "type": "base64"
+      },
+      {
+        "name": "Files",
+        "type": "table",
+        "tableRef": {
+          "guid": "b0b407e6-3f9c-4bd9-a1c6-17d649b9b97f",
+          "version": "4.0.0"
+        },
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "DeliverySignedFileName",
+        "type": "string"
+      },
+      {
+        "name": "DeliverySignedFileContent",
+        "type": "base64"
+      },
+      {
+        "name": "DeliveryEvents",
+        "type": "table",
+        "tableRef": {
+          "guid": "be360a8f-2d39-47c6-bc72-35a8b857a849",
+          "version": "4.0.0"
+        },
+        "constraints": {
+          "allowNull": true
+        }
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "61940f07-ad26-45b1-80a3-90a846d2e842",
+    "version": "4.0.0",
+    "name": "ISDS Outgoing Changed Message",
+    "metadata": {},
+    "columns": [
+      {
+        "name": "ID",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      },
+      {
+        "name": "MessageStatus",
+        "type": "int"
+      },
+      {
+        "name": "MessageStatusName",
+        "type": "string"
+      },
+      {
+        "name": "DeliverySignedFileName",
+        "type": "string"
+      },
+      {
+        "name": "DeliverySignedFileContent",
+        "type": "base64"
+      },
+      {
+        "name": "DeliveryEvents",
+        "type": "table",
+        "tableRef": {
+          "guid": "be360a8f-2d39-47c6-bc72-35a8b857a849",
+          "version": "4.0.0"
+        }
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "3355a3cd-f7ea-400b-8b1f-2237ff8bcff8",
+    "version": "4.0.0",
+    "name": "ISDS Mark as Read Output",
+    "metadata": {},
+    "columns": [
+      {
+        "name": "Status",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      },
+      {
+        "name": "StatusName",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "e0f122e5-c0b8-408f-ba77-193a0b798175",
+    "version": "4.0.0",
+    "name": "ISDS Sender Output",
+    "metadata": {},
+    "columns": [
+      {
+        "name": "ID",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      }
+    ]
   }
 ]

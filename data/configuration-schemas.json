@@ -16505,5 +16505,261 @@
         "ApiKey"
       ]
     }
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/configuration.json",
+    "kind": "Integray/ConfigurationSchema/1.0",
+    "guid": "4004fe69-55c7-4fa3-b911-ff950f4a5fa9",
+    "version": "4.0.0",
+    "name": "ISDS Read Outgoing Changes",
+    "metadata": {
+      "defaultSaveType": "public"
+    },
+    "schema": {
+      "properties": {
+        "FromDateTime": {
+          "type": "string",
+          "title": "Date from",
+          "widget": "date-time",
+          "description": "Date with time from which take the message state changes. (format: 2022-02-07T15:30:24.914Z for UTC or 2022-02-07T15:30:24.914 for local)"
+        },
+        "ToDateTime": {
+          "type": "string",
+          "title": "Date to",
+          "widget": "date-time",
+          "description": "Date with time to which take the message state changes. (format: 2022-02-07T15:30:24.914Z for UTC or 2022-02-07T15:30:24.914 for local)"
+        },
+        "RecipientID": {
+          "type": "string",
+          "title": "RecipientID",
+          "description": "<p>ID of message box.</p><p>Input data can be referred by using placeholders, ie. <strong>${input.RecipientID}</strong> will be replaced by value in <b>RecipientID</b> property.</p>",
+          "widgetConfig": {
+            "completions": [
+              {
+                "name": "input",
+                "detail": "Input column",
+                "documentation": "Replaced by a value from an input data column (${input.ColumnName}).",
+                "schema": "input"
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "RecipientID"
+      ]
+    }
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/configuration.json",
+    "kind": "Integray/ConfigurationSchema/1.0",
+    "guid": "b42b82de-7600-4754-844f-88fcb4c1ce03",
+    "version": "4.0.0",
+    "name": "ISDS Connection",
+    "metadata": {
+      "defaultSaveType": "public"
+    },
+    "schema": {
+      "properties": {
+        "Address": {
+          "type": "string",
+          "title": "ISDS address",
+          "description": "Hostname of the ISDS environment without scheme or ws1/ws2 prefix (e.g. datovka.gov.cz for production, datovka-test.gov.cz for testing). Do not enter a full URL with https://.",
+          "default": "datovka.gov.cz"
+        },
+        "UserName": {
+          "type": "string",
+          "title": "Username",
+          "description": "<p>Username for logging into the message box.</p><p>Input data can be referred by using placeholders, ie. <strong>${input.UserName}</strong> will be replaced by value in <b>UserName</b> property.</p>",
+          "widgetConfig": {
+            "completions": [
+              {
+                "name": "input",
+                "detail": "Input column",
+                "documentation": "Replaced by a value from an input data column (${input.ColumnName}).",
+                "schema": "input"
+              }
+            ]
+          }
+        },
+        "Password": {
+          "type": "string",
+          "title": "Password",
+          "masked": true,
+          "description": "<p>Password for logging into the message box.</p><p>Input data can be referred by using placeholders, ie. <strong>${input.Password}</strong> will be replaced by value in <b>Password</b> property.</p>",
+          "widgetConfig": {
+            "completions": [
+              {
+                "name": "input",
+                "detail": "Input column",
+                "documentation": "Replaced by a value from an input data column (${input.ColumnName}).",
+                "schema": "input"
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "Address",
+        "UserName",
+        "Password"
+      ]
+    }
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/configuration.json",
+    "kind": "Integray/ConfigurationSchema/1.0",
+    "guid": "830efa11-ed23-4e9f-b8d0-5fd59886f9e0",
+    "version": "4.0.0",
+    "name": "ISDS Read Messages",
+    "metadata": {
+      "defaultSaveType": "public"
+    },
+    "schema": {
+      "properties": {
+        "FromDateTime": {
+          "type": "string",
+          "title": "Date from",
+          "widget": "date-time",
+          "description": "Date with time from which take the messages. (format: 2022-02-07T15:30:24.914Z for UTC or 2022-02-07T15:30:24.914 for local)"
+        },
+        "ToDateTime": {
+          "type": "string",
+          "title": "Date to",
+          "widget": "date-time",
+          "description": "Date with time to which take the messages. (format: 2022-02-07T15:30:24.914Z for UTC or 2022-02-07T15:30:24.914 for local)"
+        },
+        "StatusFilter": {
+          "type": "number",
+          "title": "Status",
+          "description": "Filter message statuses.",
+          "widget": "select",
+          "oneOf": [
+            {
+              "enum": [
+                -1
+              ],
+              "description": "All statuses"
+            },
+            {
+              "enum": [
+                1
+              ],
+              "description": "Message passed"
+            },
+            {
+              "enum": [
+                2
+              ],
+              "description": "Message signed"
+            },
+            {
+              "enum": [
+                3
+              ],
+              "description": "Message not validated by antivirus"
+            },
+            {
+              "enum": [
+                4
+              ],
+              "description": "Message sent to recipient"
+            },
+            {
+              "enum": [
+                5
+              ],
+              "description": "Elapse 10 days from delivery"
+            },
+            {
+              "enum": [
+                6
+              ],
+              "description": "Message delivered by signing-in"
+            },
+            {
+              "enum": [
+                7
+              ],
+              "description": "Message read"
+            },
+            {
+              "enum": [
+                8
+              ],
+              "description": "Message marked as undeliverable"
+            },
+            {
+              "enum": [
+                9
+              ],
+              "description": "Message content deleted"
+            },
+            {
+              "enum": [
+                10
+              ],
+              "description": "Message moved to safe"
+            }
+          ],
+          "default": -1
+        },
+        "BatchSize": {
+          "type": "number",
+          "title": "Number of messages to process",
+          "description": "Maximum number of messages which will be processed in one task run. When empty, all messages are processed."
+        },
+        "IncludeZFO": {
+          "type": "boolean",
+          "title": "Include signed message (ZFO)",
+          "description": "When enabled, includes the signed message as {id}.zfo in SignedFileName / SignedFileContent. For outgoing messages, attachments are extracted from this ZFO. Delivery receipt ZFO (doručenka) is always returned separately.",
+          "default": false
+        },
+        "RecipientID": {
+          "type": "string",
+          "title": "RecipientID",
+          "description": "<p>ID of message box.</p><p>Input data can be referred by using placeholders, ie. <strong>${input.RecipientID}</strong> will be replaced by value in <b>RecipientID</b> property.</p>",
+          "widgetConfig": {
+            "completions": [
+              {
+                "name": "input",
+                "detail": "Input column",
+                "documentation": "Replaced by a value from an input data column (${input.ColumnName}).",
+                "schema": "input"
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "StatusFilter",
+        "IncludeZFO",
+        "RecipientID"
+      ]
+    }
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/configuration.json",
+    "kind": "Integray/ConfigurationSchema/1.0",
+    "guid": "64c50eee-4bf1-4102-b25b-5413b6d7a4d9",
+    "version": "3.1.0",
+    "name": "ISDS Environment",
+    "metadata": {
+      "defaultSaveType": "private",
+      "helpLink": "/connectoracademy/configurations/ISDSEnvironment/3.1"
+    },
+    "schema": {
+      "properties": {
+        "Address": {
+          "type": "string",
+          "title": "ISDS address",
+          "description": "Hostname of the ISDS environment without scheme or ws1/ws2 prefix (e.g. datovka.gov.cz for production, datovka-test.gov.cz for testing). Do not enter a full URL with https://.",
+          "default": "datovka.gov.cz"
+        }
+      },
+      "required": [
+        "Address"
+      ]
+    }
   }
 ]
