@@ -13,6 +13,21 @@ Agent-oriented knowledge base for Integray: **Config Transfer JSON** and **.NET 
    - **`/publish`** when asked — backup always, assemble `working/`, Upload, Process `onlyTest`, then `publish`
    - **`/debug-task-run`** — start a live Task / step snapshot when `productLine` allows it ([instance-version.md](docs/instance-version.md) Feature availability)
 
+## Skills
+
+Canonical files: [`.agents/skills/`](.agents/skills/). Claude CLI copies them to `.claude/skills/` (`python scripts/sync-claude-skills.py`). Same table: [AGENT.md](AGENT.md) § Skills.
+
+| Skill | When | File |
+|-------|------|------|
+| `/new-project` | New empty company under `projects/<name>/` | [new-project](.agents/skills/new-project/SKILL.md) |
+| `/download-config` | Download snapshot, clear `working/`, split immediately, print statistics | [download-config](.agents/skills/download-config/SKILL.md) |
+| `/assemble` | Assemble split `working/` to a JSON file and leave it | [assemble](.agents/skills/assemble/SKILL.md) |
+| `/backup` | Store a transfer record on the instance (`transferId` only) | [backup](.agents/skills/backup/SKILL.md) |
+| `/publish` | Deploy `working/` (backup, assemble, Upload, Process) | [publish](.agents/skills/publish/SKILL.md) |
+| `/debug-task-run` | Start a Task, poll the run, fetch a step snapshot (Remote API from `017`, snapshot from `018`) | [debug-task-run](.agents/skills/debug-task-run/SKILL.md) |
+| `/edit-statement` | One JS Mapper / Node.js `Configuration.Statement` without opening the transfer | [edit-statement](.agents/skills/edit-statement/SKILL.md) |
+| `/sync-main` | Hourly check/pull of **integray-skills `main`** | [sync-main](.agents/skills/sync-main/SKILL.md) |
+
 ## Read vs generate
 
 | | Config Transfer |
