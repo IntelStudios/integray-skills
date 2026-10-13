@@ -19,7 +19,6 @@ from transfer_split import (  # noqa: E402
     is_split_dir,
     split_data,
     split_transfer,
-    working_is_occupied,
 )
 
 EXAMPLE = ROOT / "examples" / "generic_worked_example.json"
@@ -74,11 +73,6 @@ class TransferSplitTests(unittest.TestCase):
         self.assertFalse(stale.exists())
         self.assertFalse(leftover_dir.exists())
         self.assertTrue((dest / ".gitkeep").is_file())
-        empty = Path(tempfile.mkdtemp()) / "working"
-        empty.mkdir()
-        (empty / ".gitkeep").write_text("", encoding="utf-8")
-        self.assertFalse(working_is_occupied(empty))
-        split_transfer(EXAMPLE, empty)
 
     def test_assembled_upload_filename_is_company_and_stamp(self) -> None:
         when = datetime(2026, 10, 2, 12, 27, 13)

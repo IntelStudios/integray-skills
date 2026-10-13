@@ -9,6 +9,8 @@ All paths are `{baseUrl}/api/Remote/{CompanySlug}/…`. Auth: `Authorization: Be
 
 Instance **product line** (git branch) is not this API. Unauthenticated `GET {baseUrl}/api/Integray`
 returns `Version`; the first token is `rel-YYYY-MM.patch` — [instance-version.md](../instance-version.md).
+Remote API itself is from **`rel-2025-03.017`**. Older lines had none. Snapshot GET is
+**`rel-2025-03.018`**.
 
 ## Remote API map
 

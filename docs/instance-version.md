@@ -57,15 +57,17 @@ Compare two `rel-YYYY-MM.patch` tokens as **(year, month, patch)**. A later **bu
 `productLine`, add a row here. Do not leave the floor only in a skill or a chat.
 Protocol details stay in the linked doc; the floor lives in this table.
 
-`From` = first `productLine` that has the feature (that token **and later**). Empty
-`From` = no known floor; still confirm with `get-instance-version.py` before assuming
-a brand-new path.
+Unless a row says otherwise, **every Remote API path in this KB is available from
+`rel-2025-03.017`**. Older product lines had no Remote API — the skills are unusable.
+
+`From` = first `productLine` that has the feature (that token **and later**). List a
+later floor only when it differs from `017`.
 
 | Feature | From `productLine` | Use | Older instance |
 |---------|--------------------|-----|----------------|
-| Config Transfer Download / Backup / Upload / Process | — | `/download-config`, `/backup`, `/publish` | — |
-| `POST Task/{id}/Start`, `GET TaskRun/{id}` | — (present on `rel-2025-03.017`) | `/debug-task-run` `start` / `status` | — |
-| Step data snapshot `GET TaskRun/{taskRunId}/Step/{stepId}/Snapshot` | **`rel-2025-03.018`** | `/debug-task-run` `snapshot`; `scripts/task-run.py snapshot`. Protocol: [remote-api.md](transfer/remote-api.md) (Task run snapshot). `$dataRef` expanded in JSON; 204 if nothing stored. | Script **refuses**. Path is absent (typically HTTP 404). |
+| Remote API (Download / Backup / Upload / Process, Task Start / status, Variable, …) | **`rel-2025-03.017`** | `/download-config`, `/backup`, `/publish`, `/debug-task-run` `start` / `status` | No Remote API |
+| Step data snapshot `GET TaskRun/{taskRunId}/Step/{stepId}/Snapshot` | **`rel-2025-03.018`** | `/debug-task-run` `snapshot`; `scripts/task-run.py snapshot`. Protocol: [remote-api.md](transfer/remote-api.md) (Task run snapshot). `$dataRef` expanded in JSON; 204 if nothing stored. | Script **refuses**. Path is absent (typically HTTP 404). Start / status still work on `017`. |
 
-`scripts/task-run.py snapshot` enforces the snapshot row itself (`SNAPSHOT_PRODUCT_LINE` in
-`scripts/integray_remote.py` must match **From** in this table).
+`scripts/task-run.py snapshot` enforces the snapshot row (`SNAPSHOT_PRODUCT_LINE` in
+`scripts/integray_remote.py` must match **From** in this table). `REMOTE_API_PRODUCT_LINE`
+is `rel-2025-03.017`.

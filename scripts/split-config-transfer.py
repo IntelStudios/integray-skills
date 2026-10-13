@@ -28,11 +28,6 @@ def main() -> int:
         required=True,
         help="Destination directory (usually projects/<name>/working)",
     )
-    parser.add_argument(
-        "--replace-working",
-        action="store_true",
-        help="Ignored; split always clears and replaces --out.",
-    )
     args = parser.parse_args()
     if not args.file.is_file():
         print(f"{args.file}: file not found", file=sys.stderr)

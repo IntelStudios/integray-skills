@@ -193,8 +193,9 @@ def parse_instance_version(version: str) -> tuple[str, str]:
 
 _PRODUCT_LINE_RE = re.compile(r"^rel-(\d{4})-(\d{2})\.(\d+)$")
 
-# GET TaskRun/{id}/Step/{stepId}/Snapshot — must match Feature availability in
-# docs/instance-version.md
+# Must match Feature availability in docs/instance-version.md
+REMOTE_API_PRODUCT_LINE = "rel-2025-03.017"
+# GET TaskRun/{id}/Step/{stepId}/Snapshot
 SNAPSHOT_PRODUCT_LINE = "rel-2025-03.018"
 
 

@@ -157,12 +157,11 @@ until proven otherwise, not just Step.
 
 ### Looking up connector/configuration/schema data — three cross-referenced files
 
-**`data/connectors.json`** (269 connectors), **`data/configuration-schemas.json`** (185
-Configuration schemas), **`data/data-schemas.json`** (652 system DataSchemas) — a raw,
-authoritative platform export, each a flat list of entities (`{$schema, kind, guid,
-version, name, metadata, ...}`, the type-specific fields — `actions`/`schema`/`columns`
-— alongside). Entities cross-reference the *other* two files by `{guid, version}`, never
-inlined:
+**`data/connectors.json`**, **`data/configuration-schemas.json`**,
+**`data/data-schemas.json`** — a raw, authoritative platform export, each a flat list of
+entities (`{$schema, kind, guid, version, name, metadata, ...}`, the type-specific fields
+— `actions`/`schema`/`columns` — alongside). Entities cross-reference the *other* two
+files by `{guid, version}`, never inlined:
 
 ```
 Connector action → configurationRefs[].{guid,version} → data/configuration-schemas.json entry
@@ -693,8 +692,8 @@ Workaround: set the producing step's `OutputFormat: 2` (Text) instead of `3` (JS
 call `JSON.parse()` on it yourself inside the script.
 
 This table only covers schemas seen in the worked example / this KB's own self-test
-project — for anything else, **check `data/data-schemas.json` first** (652 entries, each
-`{guid, version, name, columns[], ...}`) before asking the user or guessing. **Match on
+project — for anything else, **check `data/data-schemas.json` first**
+(`{guid, version, name, columns[], ...}`) before asking the user or guessing. **Match on
 `{guid, version}`
 together, not `guid` alone** — the same `guid` can have multiple version entries in that
 file (e.g. `Rest API Output` has both `2.0.0`, 4 columns, and `2.1.0`, 5 columns incl.

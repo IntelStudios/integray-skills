@@ -15,8 +15,9 @@ Use it when debugging a process: start the task, wait until the step has run, th
 read the JSON.
 
 **Floor:** [docs/instance-version.md](../../../docs/instance-version.md) **Feature
-availability** (Step data snapshot). Protocol: [docs/transfer/remote-api.md](../../../docs/transfer/remote-api.md)
-(Task run snapshot). Do **not** invent this path when the table says the instance is older.
+availability**. Remote API (`start` / `status`) from **`rel-2025-03.017`**. Snapshot GET
+from **`rel-2025-03.018`**. Protocol: [docs/transfer/remote-api.md](../../../docs/transfer/remote-api.md)
+(Task run snapshot). Do **not** invent the snapshot path on `017`.
 
 ## Version gate (mandatory)
 

@@ -50,11 +50,6 @@ def main() -> None:
         action="store_true",
         help="Write the snapshot only (do not decompose into working/). Agents must not pass this.",
     )
-    parser.add_argument(
-        "--replace-working",
-        action="store_true",
-        help="Ignored; download always clears and replaces working/.",
-    )
     args = parser.parse_args()
 
     try:

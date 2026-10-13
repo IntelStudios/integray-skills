@@ -61,7 +61,7 @@ Optional flags:
 - `--project projects/<name>` — override project directory (default: parent of connection file)
 - `--timeout 300` — HTTP timeout seconds (default 300)
 
-Do **not** pass `--no-split`. `--replace-working` is ignored (always replace).
+Do **not** pass `--no-split`.
 
 Download **clears** `projects/<name>/working/` (everything except `.gitkeep`) and writes a fresh split of the live export. Do **not** ask. Unpublished edits in `working/` are lost (`snapshots/` stay).
 

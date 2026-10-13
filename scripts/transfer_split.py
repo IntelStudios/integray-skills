@@ -137,27 +137,7 @@ class SplitStats:
         return lines
 
 
-def working_is_occupied(path: Path) -> bool:
-    """True when dest already has a split tree or other entity JSON (not just .gitkeep)."""
-    if not path.is_dir():
-        return False
-    if is_split_dir(path):
-        return True
-    for child in path.iterdir():
-        if child.name.startswith("."):
-            continue
-        if child.is_file() and child.suffix == ".json":
-            return True
-        if child.is_dir() and any(child.glob("*.json")):
-            return True
-    return False
-
-
-class WorkingOccupiedError(ValueError):
-    """Unused. Split always clears working/."""
-
-
-def split_transfer(src: Path, dest: Path, *, replace: bool = True) -> SplitStats:
+def split_transfer(src: Path, dest: Path) -> SplitStats:
     data = json.loads(src.read_text(encoding="utf-8"))
     if not isinstance(data, dict):
         raise ValueError(f"{src}: expected a JSON object")
