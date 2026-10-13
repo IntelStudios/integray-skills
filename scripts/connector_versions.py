@@ -85,10 +85,18 @@ def advise(
             target = newest or max_used
             lines.append(
                 f"connector-mixed: {name} {guid} used {listed}; unify to {target}"
+                + (
+                    f"; if {target} is not on the instance, "
+                    "update connectors in Integray first"
+                    if newest
+                    else ""
+                )
             )
         elif newest and parse_version(max_used) < parse_version(newest):
             lines.append(
                 f"connector-outdated: {name} {guid} used {listed}; "
-                f"catalog newest {newest}"
+                f"catalog newest {newest}; "
+                "if that version is not on the instance, "
+                "update connectors in Integray first"
             )
     return lines

@@ -22,7 +22,8 @@ From script stdout (same facts as a Download that already ran):
 - Collection counts: `tasks`, `endpoints`, `dataSchemas`, `configurations`, plus the other lines the script prints
 - `sensitiveVariables=` — **names** of `IsSensitive: true` variables (export `Value` is empty). Not a secret dump.
 - `connector-outdated:` / `connector-mixed:` — company Step versions vs newest in
-  `data/connectors.json`. Offer an update or unification; do not bump until they confirm.
+  `data/connectors.json`. If that Version is not on the **instance**, the user updates
+  connectors in Integray first. Only then offer to bump `working/`.
   `python scripts/check-connector-versions.py projects/<name>/working` (empty stdout = ok).
 
 ## Layout

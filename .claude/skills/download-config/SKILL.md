@@ -81,17 +81,18 @@ The script already printed these. Repeat them to the user. Do not re-read the sn
 - **Counts** — `tasks`, `endpoints`, `dataSchemas`, `configurations`, and the other `key=n` lines
 - **Sensitive variables** — `sensitiveVariables=` names (`IsSensitive: true`; `Value` empty on export). Do not treat the file as a secret dump.
 - **Connector versions** — lines `connector-outdated:` / `connector-mixed:` vs
-  `data/connectors.json` newest. Repeat them. **Offer** an update to the catalog
-  newest, and unification when one Guid has several Versions. Do **not** bump
-  Versions until they confirm. Same check anytime:
-  `python scripts/check-connector-versions.py projects/<name>/working`
+  `data/connectors.json` newest. Repeat them. Download cannot see the **instance**
+  catalog. **First:** if that Version is not installed on Integray, tell the user
+  to update/install connectors there (DX). Do **not** bump `working/` until the
+  instance has it. **Then** offer to unify / update the transfer. Same check
+  anytime: `python scripts/check-connector-versions.py projects/<name>/working`
   (empty stdout = nothing to offer; not a delivery gate).
 
 Remove `snapshots/.gitkeep` if real content was written.
 
 ## On success — suggest next step
 
-Editing is the split tree in `working/` (preserve CopyIDs). `/publish` assembles to a temp file, Uploads, deletes the temp. `/assemble` writes a JSON and leaves it. Do not offer `/publish` from download alone. If connector version lines printed, ask whether to update / unify.
+Editing is the split tree in `working/` (preserve CopyIDs). `/publish` assembles to a temp file, Uploads, deletes the temp. `/assemble` writes a JSON and leaves it. Do not offer `/publish` from download alone. If connector version lines printed: instance first (update connectors in Integray if Missing), then ask whether to bump `working/`.
 
 ## Errors
 

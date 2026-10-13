@@ -367,6 +367,9 @@ publish fails.
 The transfer references connectors not installed (or wrong version) on the target company.
 Cross-check `connectors[].guid` and `connectors[].version` against `data/connectors.json`.
 The user must install the missing connectors in Integray before Process can succeed.
+Download does not call Upload, so it cannot see `Installed` / `Missing`. After
+`/download-config`, if KB-newest is not on the instance, tell the user to update
+connectors in Integray first; do not bump `working/` until then.
 
 ### Unresolved references (`hasUnresolvedReferences === true`)
 

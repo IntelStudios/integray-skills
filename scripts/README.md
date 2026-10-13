@@ -83,7 +83,7 @@ Download writes JSON under `snapshots/` (do not edit), **clears `working/`**, sp
 
 `check-transfer-schemas.py` is local. Pass the split `working/` directory or an assembled JSON. **Stdout** empty + exit 0 = pass (DataSchemas[] membership, `*CopyID` refs, Configuration JSON required fields, connector action/restrictions when the catalog has that version, unused Connectors/Configurations/TaskGroups/EndpointGroups). **Stderr** `catalog may be stale` does not fail the gate — tell the user. Run after every edit of `working/` before declaring the transfer done. Deploy already runs it.
 
-`check-connector-versions.py` is advisory (not a delivery gate). Empty stdout = company Steps already on the newest catalog Version per Guid, one Version each. `connector-outdated:` / `connector-mixed:` → offer update / unify; do not bump until the user confirms. `/download-config` prints the same lines.
+`check-connector-versions.py` is advisory (not a delivery gate). Empty stdout = company Steps already on the newest catalog Version per Guid, one Version each. `connector-outdated:` / `connector-mixed:` → if the Version is not installed on the instance, the user updates connectors in Integray first; only then bump `working/`. `/download-config` prints the same lines.
 
 `task-run.py` is live Remote API: `start` (needs `read-write` or `full`), `status`, `snapshot`.
 `snapshot` is version-gated — [docs/instance-version.md](../docs/instance-version.md) Feature

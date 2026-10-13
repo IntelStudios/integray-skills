@@ -39,7 +39,7 @@ Agent-oriented knowledge base for Integray: **Config Transfer JSON** and **.NET 
 | [scripts/get-instance-version.py](scripts/get-instance-version.py) | Unauthenticated `GET /api/Integray` (`productLine`, `buildStamp`) |
 | [scripts/task-run.py](scripts/task-run.py) | Start task / task-run status / step snapshot (version-gated — [instance-version.md](docs/instance-version.md)) |
 | [scripts/download-config-transfer.py](scripts/download-config-transfer.py) | Remote API Config Transfer download (always replaces `working/`) |
-| [scripts/check-connector-versions.py](scripts/check-connector-versions.py) | Advisory: outdated / mixed connector Guid versions vs catalog |
+| [scripts/check-connector-versions.py](scripts/check-connector-versions.py) | Advisory: outdated / mixed connector versions vs catalog (instance first) |
 | [scripts/backup-config-transfer.py](scripts/backup-config-transfer.py) | Remote API Config Transfer backup (`transferId`) |
 | [scripts/upload-config-transfer.py](scripts/upload-config-transfer.py) | Remote API Config Transfer upload (pre-check + `transferId`) |
 | [scripts/process-config-transfer.py](scripts/process-config-transfer.py) | Remote API Process (`--only-test` / `--publish`) |

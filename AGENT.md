@@ -214,7 +214,7 @@ projects/<name>/
 - [ ] `working/` was **split** from the latest `snapshots/<stamp>/` by `/download-config` (do not edit snapshots; do not copy the snapshot as one JSON)
 - [ ] Output transfer is **complete** (Full Sync) unless greenfield
 - [ ] Existing CopyIDs preserved
-- [ ] Connector Guid+Version from `data/connectors.json` (flag if catalog may be stale). After download, offer `connector-outdated:` / `connector-mixed:` updates — do not bump until they confirm.
+- [ ] Connector Guid+Version from `data/connectors.json` (flag if catalog may be stale). After download, if `connector-outdated:` / `connector-mixed:`: instance first (update connectors in Integray if Missing), then bump `working/` only after they confirm.
 - [ ] Ran `python scripts/check-transfer-schemas.py projects/<name>/working` — empty **stdout**, exit 0 (DataSchemas[], all `*CopyID` refs, Configuration JSON; [config-transfer-format.md](docs/transfer/config-transfer-format.md) §7 / §11). Stderr catalog lines mentioned to the user.
 - [ ] `onlyTest` succeeded before offering publish
 - [ ] Connection `permission` is `full` before Process `--publish`

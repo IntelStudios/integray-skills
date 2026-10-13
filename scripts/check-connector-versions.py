@@ -2,7 +2,9 @@
 """Advise on company connector versions vs the KB catalog (not a delivery gate).
 
 Stdout: mixed Guid versions and versions older than data/connectors.json newest.
-Empty stdout = nothing to offer. Exit 0 unless the transfer cannot be loaded.
+Lines tell the user to update connectors in Integray first if that Version is
+not on the instance. Empty stdout = nothing to offer. Exit 0 unless the
+transfer cannot be loaded.
 """
 
 from __future__ import annotations

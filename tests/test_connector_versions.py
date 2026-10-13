@@ -54,8 +54,10 @@ class ConnectorVersionTests(unittest.TestCase):
         self.assertIn("3.3.0 (1 step)", mixed)
         self.assertIn("3.4.4 (1 step)", mixed)
         self.assertIn("unify to 3.4.4", mixed)
+        self.assertIn("update connectors in Integray first", mixed)
         self.assertIn("3.2.0 (2 steps)", old)
         self.assertIn("catalog newest 3.3.1", old)
+        self.assertIn("update connectors in Integray first", old)
 
     def test_current_is_silent(self) -> None:
         catalog = {NODE: ("3.4.4", "Node.js processor")}
