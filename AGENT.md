@@ -77,7 +77,7 @@ Read [docs/connector-dev/rules.md](docs/connector-dev/rules.md). Validate metada
 
 ```text
 baseUrl + companySlug + token + permission
-  → /download-config → if working/ already split: ask, then --replace-working
+  → /download-config → always clears working/ and splits the new snapshot
                    → snapshots/<stamp>/     (do not edit)
                    → split into working/      (immediately, same command)
                    → print statistics         (Name, counts, sensitive names)

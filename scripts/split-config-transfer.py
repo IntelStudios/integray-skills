@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from transfer_split import WorkingOccupiedError, split_transfer  # noqa: E402
+from transfer_split import split_transfer  # noqa: E402
 
 
 def main() -> int:
@@ -31,19 +31,14 @@ def main() -> int:
     parser.add_argument(
         "--replace-working",
         action="store_true",
-        help="Overwrite an existing split in --out. Ask the user first.",
+        help="Ignored; split always clears and replaces --out.",
     )
     args = parser.parse_args()
     if not args.file.is_file():
         print(f"{args.file}: file not found", file=sys.stderr)
         return 1
     try:
-        stats = split_transfer(
-            args.file, args.out, replace=args.replace_working
-        )
-    except WorkingOccupiedError as exc:
-        print(exc, file=sys.stderr)
-        return 2
+        stats = split_transfer(args.file, args.out)
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(exc, file=sys.stderr)
         return 1

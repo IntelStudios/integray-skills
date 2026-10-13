@@ -154,19 +154,14 @@ def working_is_occupied(path: Path) -> bool:
 
 
 class WorkingOccupiedError(ValueError):
-    """working/ already has a split; refuse to replace without --replace-working."""
+    """Unused. Split always clears working/."""
 
 
-def split_transfer(src: Path, dest: Path, *, replace: bool = False) -> SplitStats:
+def split_transfer(src: Path, dest: Path, *, replace: bool = True) -> SplitStats:
     data = json.loads(src.read_text(encoding="utf-8"))
     if not isinstance(data, dict):
         raise ValueError(f"{src}: expected a JSON object")
     dest = dest.resolve()
-    if working_is_occupied(dest) and not replace:
-        raise WorkingOccupiedError(
-            f"{dest}: already has a split tree (or entity JSON). "
-            "Ask the user, then re-run with --replace-working."
-        )
     return split_data(data, dest)
 
 
@@ -241,27 +236,17 @@ def _replace_working(dest: Path, staging: Path) -> None:
 
 
 def _clear_split_artifacts(dest: Path) -> None:
-    meta_path = dest / META_FILE
-    folders: set[str] = set(COLLECTION_FOLDERS.values())
-    if meta_path.is_file():
-        try:
-            meta = json.loads(meta_path.read_text(encoding="utf-8"))
-            for col in meta.get("collections") or []:
-                if isinstance(col, dict) and col.get("folder"):
-                    folders.add(str(col["folder"]))
-        except (OSError, json.JSONDecodeError):
-            pass
-    for name in folders:
-        folder = dest / name
-        if folder.is_dir():
-            shutil.rmtree(folder)
-    for name in (TRANSFER_FILE, META_FILE):
-        path = dest / name
-        if path.is_file():
-            path.unlink()
-    for path in dest.glob("*.json"):
-        if path.is_file():
-            path.unlink()
+    """Wipe working/ so a new split cannot leave leftover entity files."""
+    keep = {".gitkeep", ".split-staging"}
+    if not dest.is_dir():
+        return
+    for child in dest.iterdir():
+        if child.name in keep:
+            continue
+        if child.is_dir():
+            shutil.rmtree(child)
+        else:
+            child.unlink()
 
 
 def assemble_transfer(src: Path) -> dict[str, Any]:

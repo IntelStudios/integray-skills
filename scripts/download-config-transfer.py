@@ -19,7 +19,7 @@ from integray_remote import (  # noqa: E402
     download_config_transfer,
     project_from_connection,
 )
-from transfer_split import WorkingOccupiedError, split_transfer, working_is_occupied  # noqa: E402
+from transfer_split import split_transfer  # noqa: E402
 
 
 def main() -> None:
@@ -52,7 +52,7 @@ def main() -> None:
     parser.add_argument(
         "--replace-working",
         action="store_true",
-        help="Overwrite an existing split in working/. Required when working/ is occupied. Agents must ask first.",
+        help="Ignored; download always clears and replaces working/.",
     )
     args = parser.parse_args()
 
@@ -65,17 +65,6 @@ def main() -> None:
     project = project_from_connection(args.connection, args.project)
 
     working = project / "working"
-    if (
-        not args.no_split
-        and working_is_occupied(working)
-        and not args.replace_working
-    ):
-        print(
-            f"{working}: already has a split tree (or entity JSON). "
-            "Ask the user, then re-run with --replace-working.",
-            file=sys.stderr,
-        )
-        raise SystemExit(2)
 
     stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     out_dir = project / "snapshots" / stamp
@@ -92,12 +81,7 @@ def main() -> None:
     if args.no_split:
         return
     try:
-        stats = split_transfer(
-            out_path, working, replace=args.replace_working
-        )
-    except WorkingOccupiedError as exc:
-        print(exc, file=sys.stderr)
-        raise SystemExit(2) from exc
+        stats = split_transfer(out_path, working)
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(exc, file=sys.stderr)
         raise SystemExit(1) from exc

@@ -6,10 +6,9 @@ Canonical loop: [AGENT.md](../../AGENT.md). Download skill: [`.agents/skills/dow
 
 ## Download order (do not invert)
 
-1. If `working/` already has a split (or entity JSON), **ask** before replacing it (`--replace-working` after they confirm; skip the ask when conventions **Download after publish** is `auto`).
-2. Write the immutable snapshot under `snapshots/<stamp>/`.
-3. **Immediately** split that snapshot into `working/`.
-4. **Then** print statistics from the script stdout. Do not open the snapshot JSON in chat to count entities.
+1. Write the immutable snapshot under `snapshots/<stamp>/`.
+2. **Clear** `working/` (keep `.gitkeep`) and **immediately** split that snapshot into it. Do not ask. Nothing from the previous split stays.
+3. **Then** print statistics from the script stdout. Do not open the snapshot JSON in chat to count entities.
 
 Do not copy the snapshot as a single `working/*.json`. Do not skip split. Do not edit `snapshots/`.
 

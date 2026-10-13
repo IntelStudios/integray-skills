@@ -83,7 +83,7 @@ Before creating a company folder, downloading a transfer, or otherwise using `pr
 | `snapshots/<stamp>/*.json` | Output of `/download-config`. Immutable. New download = new stamp. |
 | `working/` | Split entity JSON from that snapshot. Edit here. `/publish` assembles, Uploads, deletes the temp file. |
 
-Start work: `/download-config`. If `working/` already has a split, the agent **asks** before replacing it. Two parallel edits = a git branch, not a second working folder. There is no `changes/<slug>/` loop.
+Start work: `/download-config`. It **clears** `working/` and writes a fresh split (do not ask). Two parallel edits = a git branch, not a second working folder. There is no `changes/<slug>/` loop.
 
 After a successful Process with `publish: true`, `/download-config` again (split + statistics). Deploy is `/publish` (assemble `working/` → Upload → Process `--only-test` → `--publish` per conventions). See [working-split.md](transfer/working-split.md).
 

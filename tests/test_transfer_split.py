@@ -14,7 +14,6 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from transfer_split import (  # noqa: E402
     WorkingBundle,
-    WorkingOccupiedError,
     assembled_upload_filename,
     assemble_transfer,
     is_split_dir,
@@ -61,13 +60,20 @@ class TransferSplitTests(unittest.TestCase):
             else:
                 self.assertIn(f"{ds['CopyID']}.json", named)
 
-    def test_occupied_working_refuses_without_replace(self) -> None:
+    def test_resplit_clears_stale_files(self) -> None:
         dest = Path(tempfile.mkdtemp()) / "working"
         split_transfer(EXAMPLE, dest)
-        self.assertTrue(working_is_occupied(dest))
-        with self.assertRaises(WorkingOccupiedError):
-            split_transfer(EXAMPLE, dest)
-        split_transfer(EXAMPLE, dest, replace=True)
+        stale = dest / "tasks" / "stale-left-over.json"
+        stale.write_text("{}", encoding="utf-8")
+        leftover_dir = dest / "not-a-collection"
+        leftover_dir.mkdir()
+        (leftover_dir / "old.json").write_text("{}", encoding="utf-8")
+        (dest / ".gitkeep").write_text("", encoding="utf-8")
+        split_transfer(EXAMPLE, dest)
+        self.assertTrue(is_split_dir(dest))
+        self.assertFalse(stale.exists())
+        self.assertFalse(leftover_dir.exists())
+        self.assertTrue((dest / ".gitkeep").is_file())
         empty = Path(tempfile.mkdtemp()) / "working"
         empty.mkdir()
         (empty / ".gitkeep").write_text("", encoding="utf-8")

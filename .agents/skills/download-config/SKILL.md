@@ -61,25 +61,13 @@ Optional flags:
 - `--project projects/<name>` — override project directory (default: parent of connection file)
 - `--timeout 300` — HTTP timeout seconds (default 300)
 
-Do **not** pass `--no-split`.
+Do **not** pass `--no-split`. `--replace-working` is ignored (always replace).
 
-### Existing `working/` (ask before replacing)
+Download **clears** `projects/<name>/working/` (everything except `.gitkeep`) and writes a fresh split of the live export. Do **not** ask. Unpublished edits in `working/` are lost (`snapshots/` stay).
 
-If `projects/<name>/working/` already has a split (`_transfer.json` + `_meta.json`) or other entity JSON, **stop and ask**. Download **deletes** those files and replaces them with a fresh split of the live export. Unpublished edits in `working/` would be lost (`snapshots/` stay). Do not run the script until they confirm.
+**Download after publish:** `auto` — they already opted in; run this command after a successful `--publish`. `ask` — still ask whether to download, not whether to replace `working/`.
 
-Empty `working/` (or only `.gitkeep`): run without `--replace-working`.
-
-After they confirm:
-
-```bash
-$PYTHON scripts/download-config-transfer.py \
-  --connection projects/<name>/.integray-connection.json \
-  --replace-working
-```
-
-**Download after publish:** `auto` — they already opted in; pass `--replace-working` and say that conventions replace `working/` with the new live split.
-
-The script writes `snapshots/<stamp>/`, **immediately** splits into `working/`, then prints statistics. Without `--replace-working` on an occupied `working/` it exits 2 and does **not** download.
+The script writes `snapshots/<stamp>/`, **immediately** splits into `working/`, then prints statistics.
 
 Keep the snapshot; do not delete it and **do not edit it**. Do not copy the snapshot JSON into `working/` as a single file. Import is Full Sync — do not generate a partial transfer from this download. Do not open the snapshot JSON in chat.
 

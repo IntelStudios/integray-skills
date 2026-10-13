@@ -8,12 +8,10 @@ python scripts/get-instance-version.py \
 
 python scripts/download-config-transfer.py \
   --connection projects/<name>/.integray-connection.json
-# if working/ already has a split, ask first, then add --replace-working
 
 python scripts/split-config-transfer.py \
   --file projects/<name>/snapshots/<stamp>/<file>.json \
   --out projects/<name>/working
-# same: --replace-working after the user confirms
 
 python scripts/assemble-config-transfer.py \
   --dir projects/<name>/working \
@@ -68,7 +66,7 @@ python scripts/sync-claude-skills.py
 python scripts/sync-claude-skills.py --check
 ```
 
-Download writes JSON under `snapshots/` (do not edit), **immediately splits** into `working/` entity files, then prints `Name`, collection counts, and sensitive variable names. If `working/` already has a split, the script exits 2 until `--replace-working` (agent asks first). Do not copy the snapshot as a single `working/*.json`. `/publish` assembles `working/` to a temp file, Uploads, deletes the temp. `/assemble` writes a JSON and leaves it. Process the Upload `transferId` (`--only-test`, then `--publish`). Do not Process a Backup id. `--apply` is Process with `publish: false` (rare). Layout: [docs/transfer/working-split.md](../docs/transfer/working-split.md).
+Download writes JSON under `snapshots/` (do not edit), **clears `working/`**, splits into entity files, then prints `Name`, collection counts, and sensitive variable names. Do not copy the snapshot as a single `working/*.json`. `/publish` assembles `working/` to a temp file, Uploads, deletes the temp. `/assemble` writes a JSON and leaves it. Process the Upload `transferId` (`--only-test`, then `--publish`). Do not Process a Backup id. `--apply` is Process with `publish: false` (rare). Layout: [docs/transfer/working-split.md](../docs/transfer/working-split.md).
 
 `deploy-config-transfer.py` is schema check + Backup + Upload + onlyTest + `--publish` when conventions say auto and `permission` is `full`. It does **not** download into `working/`. `--stamp-copy-id` is optional (`generated YYYY-MM-DD HH:MM:SS` in that Statement). Backup always runs (returns an int `backupTransferId`; do not Process it). Standalone `upload-config-transfer.py` is pre-check only — it does not Backup.
 
