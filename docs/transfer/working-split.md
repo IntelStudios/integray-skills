@@ -21,6 +21,9 @@ From script stdout (same facts as a Download that already ran):
 - Transfer `Name=`
 - Collection counts: `tasks`, `endpoints`, `dataSchemas`, `configurations`, plus the other lines the script prints
 - `sensitiveVariables=` — **names** of `IsSensitive: true` variables (export `Value` is empty). Not a secret dump.
+- `connector-outdated:` / `connector-mixed:` — company Step versions vs newest in
+  `data/connectors.json`. Offer an update or unification; do not bump until they confirm.
+  `python scripts/check-connector-versions.py projects/<name>/working` (empty stdout = ok).
 
 ## Layout
 

@@ -19,6 +19,7 @@ from integray_remote import (  # noqa: E402
     download_config_transfer,
     project_from_connection,
 )
+from connector_versions import advise, newest_in_catalog  # noqa: E402
 from transfer_split import split_transfer  # noqa: E402
 
 
@@ -87,6 +88,12 @@ def main() -> None:
         raise SystemExit(1) from exc
     for line in stats.format_lines():
         print(line)
+    try:
+        snapshot = json.loads(out_path.read_text(encoding="utf-8"))
+        for line in advise(snapshot, newest_in_catalog(ROOT / "data")):
+            print(line)
+    except (OSError, ValueError, json.JSONDecodeError):
+        pass
 
 
 if __name__ == "__main__":

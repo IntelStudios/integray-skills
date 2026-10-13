@@ -80,7 +80,7 @@ baseUrl + companySlug + token + permission
   → /download-config → always clears working/ and splits the new snapshot
                    → snapshots/<stamp>/     (do not edit)
                    → split into working/      (immediately, same command)
-                   → print statistics         (Name, counts, sensitive names)
+                   → print statistics         (Name, counts, sensitive names, connector versions)
   → edit working/ entity files (complete transfer when assembled, preserve CopyIDs)
   → deploy working/ when the user asks (needs read-write, then full for --publish):
        /backup  (always; do not ask; do not Process this id)
@@ -214,7 +214,7 @@ projects/<name>/
 - [ ] `working/` was **split** from the latest `snapshots/<stamp>/` by `/download-config` (do not edit snapshots; do not copy the snapshot as one JSON)
 - [ ] Output transfer is **complete** (Full Sync) unless greenfield
 - [ ] Existing CopyIDs preserved
-- [ ] Connector Guid+Version from `data/connectors.json` (flag if catalog may be stale)
+- [ ] Connector Guid+Version from `data/connectors.json` (flag if catalog may be stale). After download, offer `connector-outdated:` / `connector-mixed:` updates — do not bump until they confirm.
 - [ ] Ran `python scripts/check-transfer-schemas.py projects/<name>/working` — empty **stdout**, exit 0 (DataSchemas[], all `*CopyID` refs, Configuration JSON; [config-transfer-format.md](docs/transfer/config-transfer-format.md) §7 / §11). Stderr catalog lines mentioned to the user.
 - [ ] `onlyTest` succeeded before offering publish
 - [ ] Connection `permission` is `full` before Process `--publish`
