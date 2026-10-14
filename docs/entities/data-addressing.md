@@ -48,10 +48,11 @@ If **either** is true, the mapping is ignored for storage and the Step is added 
 
 Reason: folding 1:N / N:1 back onto the old path would be a cartesian product.
 
-DX **forces Bulk** when you add `AdditionalInputs`. That is why a multi-input Step almost
-always lives at root. Hand-edited JSON can still be RowByRow + `AdditionalInputs`;
-storage then follows Rule 1 from the **primary** mapping only. Do not treat
-`AdditionalInputs` as its own storage switch.
+**`AdditionalInputs` ⇒ Bulk.** A Step with more than one input cannot be RowByRow.
+Designer and backend both require `InputProcessType: 1` when `AdditionalInputs` is
+non-empty. Do not emit `InputProcessType: 2` or `4` together with `AdditionalInputs`.
+Every input (primary and each AdditionalInputs entry) is the **entire** collection in
+one call. Storage is this rule: the Step attaches at **root**.
 
 ### Rule 3 — how a later Step reads this one’s output
 
@@ -106,8 +107,9 @@ goes `null`.
 ### Rule 4 — second tree = `AdditionalInputs`
 
 Trees created by Rule 2 (and the Endpoint node) do not mix in one primary mapping. A
-Step that needs two of them uses `AdditionalInputs`: each entry has its **own** query
-tree and shows up as `inputData2`, `inputData3`, … in JS Mapper / Node.js.
+Step that needs two of them uses `AdditionalInputs` and is therefore **Bulk** (Rule 2):
+each entry has its **own** query tree, arrives as the full collection (`inputData2`,
+`inputData3`, … in JS Mapper / Node.js), and the Step’s output sits at root.
 
 ```json
 "AdditionalInputs": [
@@ -293,6 +295,7 @@ Two inputs on a merge Step — one nested RowByRow tree, one Bulk tree at root:
    ([config-transfer-format.md](../transfer/config-transfer-format.md) §7).
 5. Every mapped pair: same `Type` (and `ComplexType` for tables). Import will not save
    you.
-6. Two root nodes needed on one Step → primary + `AdditionalInputs`, never two forks in
-   one mapping. Nested same Name stays primary.
+6. Two root nodes needed on one Step → primary + `AdditionalInputs` (Bulk, root), never
+   two forks in one mapping and never RowByRow on that Step. Nested same Name stays
+   primary.
 7. One `PrevStepCopyID: null` per Task.

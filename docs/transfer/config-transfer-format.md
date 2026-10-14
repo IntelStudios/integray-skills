@@ -1026,10 +1026,11 @@ Mapping"** error from §7. The Endpoint's own `*InputMapping` and the Step's
 Rule 2 no longer applies — Rule 1 does, so the Step nests **under the Endpoint's node**:
 its own output is addressed as `<Endpoint Name>.<Step Name>.<Column>` (3 segments), not
 just `<Step Name>.<Column>` (2 segments) like a Bulk / no-`InputSchema` root Step.
-DX sets Bulk when you add `AdditionalInputs`, which is why a multi-input first Step
-stays at root. Any later reference to this Step's output — including this same
-Endpoint's own `*OutputMapping`, if it reads from this Step — must use the full
-3-segment path.
+A first Step with `AdditionalInputs` is Bulk and stays at root — designer and backend
+do not allow RowByRow on a multi-input Step
+([data-addressing.md](../entities/data-addressing.md) Rule 2). Any later reference to a
+**RowByRow** first Step’s output — including this same Endpoint’s own `*OutputMapping`
+— must use the full 3-segment path.
 
 **Response shaping (output side):** `*OutputSchema`/`*OutputMapping`/`*OutputStepCopyID`
 work the same way as `GetOutputSchema`/`GetOutputMapping`/`GetOutputStepCopyID` (§8) — map
