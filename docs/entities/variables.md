@@ -85,11 +85,11 @@ scanning literally any occurrence of the pattern anywhere in a `Configuration`'s
 content — including inside a comment or a human-readable label that was never meant as a
 real substitution site.** Confirmed: a self-test `TestName` string containing
 the literal documentation text `${#Code}` (meant as generic placeholder notation, not a
-real reference) made the DX publish step fail with `"configurations for step ... uses
-invalid variable Code, Code"` — publish rejected the whole Task/Endpoint because no
-`Variables[]` entry has `Code: "Code"`. The transfer still imports fine (import doesn't
-validate this); it only surfaces at publish, and a failed publish means the Endpoint was
-never actually deployed — calling its URL looks like it doesn't exist at all. **Never
+real reference) made publish emit `CACHE_FILLING_STEP_CONFIGURATION_APPLY_VARIABLE_FAILED`
+(`"configurations for step ... uses invalid variable Code"`) and skip that Task —
+see [publish-codes.md](../transfer/publish-codes.md). Import does not validate this.
+If the skipped Task was the only bind for an Endpoint, that method is not in the cache
+and its URL 404s. **Never
 write the literal text `${#anything}` inside a `Configuration` string unless `anything`
 is a real `Variables[]` `Code` (or a real `SYSTEM_...` name)** — including in comments,
 log messages, or descriptive strings that merely *talk about* the templating syntax.

@@ -254,23 +254,23 @@ When `publish: true`, the response includes `publishResult`:
 
 | Field | Meaning |
 |---|---|
-| `publishResult.isSuccess` | `true` when status is `Published`, even if warnings exist. |
+| `publishResult.isSuccess` | `true` exactly when `status` is `Published` (warnings **and** some Errors that only skipped one entity). Not a “no messages” flag. |
 | `publishResult.status` | `Published`, `Failed`, or transitional states (see OpenAPI). |
 | `publishResult.publishedAt` | Timestamp when publish succeeded; otherwise `null`. |
 | `publishResult.messages[]` | Warnings and errors (`type`, `code`, `message`). |
 
 **HTTP 422** on Process means the import **succeeded** but publish **failed** — the
 configuration was already applied; inspect `publishResult.messages`. See the publish
-cheat-sheet in `docs/transfer/config-transfer-format.md` §8.6 (`CACHE_BINDING_GET_TASK_NOT_EXECUTABLE`,
-invalid `${#Code}` references, step naming, etc.).
+catalog in [`publish-codes.md`](publish-codes.md) (short list in
+`docs/transfer/config-transfer-format.md` §8.6).
 
 ### Process / publish troubleshooting
 
 | Symptom | Meaning | What to do |
 |---|---|---|
 | HTTP 422 + `publishResult.isSuccess: false` | Import applied, cache rebuild failed | Read `publishResult.messages[]`; fix transfer; Process again with `publish: true` |
-| `CACHE_BINDING_GET_TASK_NOT_EXECUTABLE` in messages | Step `OutputSchema` mismatch (typical: HTML Creator) | §8.4 exception in `docs/transfer/config-transfer-format.md` |
-| `configurations … invalid variable Code` | `${#Code}` without `Variables[]` | `docs/entities/variables.md` |
+| `CACHE_BINDING_{VERB}_*` in messages | Endpoint method not bound into the cache. Can accompany `Published` + later HTTP 404 | [publish-codes.md](publish-codes.md) |
+| `CACHE_FILLING_STEP_CONFIGURATION_APPLY_VARIABLE_FAILED` | `${#Code}` without `Variables[]` | `docs/entities/variables.md` |
 | Process OK, endpoint returns wrong/error | Config live but mapping/schema wrong | Verify with GET below |
 | Company orchestrator off after publish or after you switch it on | Runtime DB size monitor, not Remote API | See [Company orchestrator vs DB size](#company-orchestrator-vs-db-size) |
 
@@ -747,7 +747,7 @@ the family is no longer waiting/running, then `snapshot`.
 
 | Topic | File |
 |---|---|
-| Transfer JSON structure, Full Sync, publish failures | `docs/transfer/config-transfer-format.md` (§8.4, §8.6) |
+| Transfer JSON structure, Full Sync, publish failures | `docs/transfer/config-transfer-format.md` (§8.4, §8.6), [publish-codes.md](publish-codes.md) |
 | Instance `productLine` and gated features | `docs/instance-version.md` (Feature availability) |
 | Top-level `Variables[]`, `${#Code}`, `${#SYSTEM_...}` | `docs/entities/variables.md` |
 | Connector GUIDs and versions | `data/connectors.json` |

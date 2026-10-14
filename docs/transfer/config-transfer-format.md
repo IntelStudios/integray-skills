@@ -13,6 +13,7 @@
 > `${#Code}` templating), `docs/entities/configuration-overrides.md` (hidden Configuration fields
 > not in `data/configuration-schemas.json` — connector-specific overrides),
 > `docs/transfer/remote-api.md` (upload and process a transfer via the Integray Remote API),
+> `docs/transfer/publish-codes.md` (`publishResult.messages[].code`),
 > `examples/generic_worked_example.json`
 > (generic worked example, §10). Company working copies live under `projects/<name>/working/`
 > as **split entity JSON** ([working-split.md](working-split.md)) — not KB.
@@ -33,6 +34,7 @@
 | Tasks and steps | §6 |
 | DataSchemas and mapping | §7 |
 | Endpoints | §8 |
+| `publishResult.messages[].code` | [publish-codes.md](publish-codes.md) / §8.6 |
 | `EntityComments` | §9 |
 | Worked example | §10 |
 | Pre-generation checklist | §11 |
@@ -568,14 +570,14 @@ the `Name`. `*OutputMapping` is often a JSON *string*, not a dict — rewriting 
 in-object `InputSchemaMapping` misses it. The checker flags a first segment that is not
 a Step `Name` in this Task and not a bound Endpoint `Name`.
 
-**On a GET-bound task, a missing required-column mapping can surface only at publish
-time, as `CACHE_BINDING_GET_TASK_NOT_EXECUTABLE`, instead of "Incorrect Mapping" at
-import.** Import can succeed with no mapping error even though a required column is
-missing several steps upstream of the endpoint's `GetOutputStepCopyID` — the generic
-`"task <Name> bound to the GET method is not executable"` message gives no hint the cause
-is a mapping gap. This error code does not always mean the §8.4 special-schema mismatch
-(its only other documented cause) — check every step's mapping coverage first, ideally
-with `scripts/check-transfer-schemas.py`.
+**On a task-bound Endpoint, a missing required-column mapping can surface only at
+publish time, as `CACHE_BINDING_{METHOD}_TASK_NOT_EXECUTABLE`,
+instead of "Incorrect Mapping" at import.** Import can succeed with no mapping error
+even though a required column is missing several steps upstream of the endpoint's
+`*OutputStepCopyID` — the generic `"task <Name> bound to the <METHOD> method is not
+executable"` message gives no hint the cause is a mapping gap. This error code does
+not always mean the §8.4 special-schema mismatch — check every step's mapping coverage
+first, ideally with `scripts/check-transfer-schemas.py`. Codes: [publish-codes.md](publish-codes.md).
 
 Before declaring a transfer done, run `python scripts/check-transfer-schemas.py <transfer.json>`.
 **Empty stdout and exit 0 required** — that is the delivery gate. It flags:
@@ -1057,26 +1059,32 @@ hold — response is the schema's own empty rendering instead (varies per schema
 **When `*IsAsync: true`, leave `*OutputSchema`/`*OutputMapping`/`*OutputStepCopyID` all
 `null`.** The immediate async response is always the fixed `Status:"Scheduled"` shape
 above — `Result` is always `null` regardless of what the output mapping says, since the
-task hasn't finished yet. Defining them anyway does nothing useful and produces an
-import-time warning: `"Output from POST endpoint <Name> is defined, but no data will be
-returned; processing is set to asynchronous."` (confirmed against a real
-instance) — and, if the schema is one of §8.4's six special schemas, also the empty-body
+task hasn't finished yet. Defining them anyway does nothing useful and produces a
+publish Warning `CACHE_POST_ASYNC_OUTPUT_*` ([publish-codes.md](publish-codes.md))
+— and, if the schema is one of §8.4's six special schemas, also the empty-body
 anomaly above (†). Only set `*OutputSchema`/`*OutputMapping`/`*OutputStepCopyID` when
 `*IsAsync: false`.
 
 ### 8.6 Publish-time errors — cheat-sheet
 
-Central reference for errors that surface during **Process with `publish: true`** (or
-standalone `POST .../Publish`). Import may succeed while publish fails — see
-`docs/transfer/remote-api.md` (HTTP 422). After a failed publish the configuration is
-**already applied** on the instance; fix the transfer and run Process/Publish again.
+Full `messages[].code` list: [publish-codes.md](publish-codes.md). Import may succeed
+while publish fails ([remote-api.md](remote-api.md), HTTP 422). After a failed publish
+the configuration is **already applied**; fix the transfer and Process/Publish again.
 
-| Code / symptom | Typical cause | Where to look |
-|---|---|---|
-| `CACHE_BINDING_GET_TASK_NOT_EXECUTABLE` | Step has an Endpoint special schema instead of connector native output (typical: HTML Creator + Endpoint HTML Output); **or** a required column is missing from a step's `InputSchemaMapping`/`AdditionalInputs` mapping somewhere upstream of `GetOutputStepCopyID` | §8.4 exception, `data/connectors.json`; §7 mapping-coverage script |
-| `configurations … invalid variable Code` | `${#Code}` in a Configuration without a matching `Variables[]` entry | `docs/entities/variables.md` |
-| Step `Name` contains `.` | Publish fails for the whole Endpoint | §2.1 |
-| HTTP 422 + `publishResult.messages[]` | Import OK, publish failed — inspect messages | `docs/transfer/remote-api.md` |
+`Published` + HTTP 200 does **not** mean every Endpoint is in the cache. An Error can
+skip one Endpoint or Task and still leave `isSuccess=true`. That method then **404**s.
+Live-confirmed: `CACHE_BINDING_POST_TASK_NOT_EXECUTABLE`.
+
+When generating a transfer, these are the usual ones:
+
+| Code | Typical cause |
+|---|---|
+| `CACHE_BINDING_{VERB}_TASK_NOT_EXECUTABLE` | Bound Task not executable (step mapping / missing schema or configuration / §8.4 special-schema mismatch). `{VERB}` = GET, POST, PUT, PATCH, or DELETE. Message does not name the Step — run the §7 checker |
+| `CACHE_BINDING_{VERB}_INCORRECT_INPUT_MAPPING` / `_INCORRECT_OUTPUT_MAPPING` | Endpoint `*InputMapping` / `*OutputMapping` invalid |
+| `CACHE_FILLING_STEP_CONFIGURATION_APPLY_VARIABLE_FAILED` | `${#Code}` with no `Variables[]` entry ([variables.md](../entities/variables.md)) |
+| `T_ADDITIONAL_INPUTS_CIRCULAR_DEPENDENCY` | AdditionalInputs + `PrevStepCopyID` cycle ([data-addressing.md](../entities/data-addressing.md)) |
+| `CACHE_FORBIDDEN_CONNETOR_USAGE` | Connector not allowed on the Step’s agent (spelling `CONNETOR` is the real code) |
+| Step `Name` contains `.` | Publish fails for the whole Endpoint (§2.1) |
 
 ---
 
@@ -1158,7 +1166,7 @@ about a company-specific detail. That tree is not KB content.
    - `Task.Type`: `2` only with a real bound Endpoint; `0` only for a genuinely intended schedule; otherwise `1`.
    - `Cron`: `null` unless `Type: 0` — never copy it from another task without checking `Type` first.
    - Exactly one `PrevStepCopyID: null` per task (see `docs/entities/data-addressing.md`) — multi-branch tasks need one shared root step, not one `null` per branch.
-   - `InputSchemaMapping`/`AdditionalInputs` cover every `AllowNull: false` column of the target `InputSchema` (same script) and every mapped pair has the same `Type` (and `ComplexType` for tables) as the source column (`docs/entities/data-addressing.md`) — name match is not enough. The script flags Type mismatch when the source column name is unique in the Task/Endpoint schemas. On a GET-bound task, a missed required column can surface only at publish time as `CACHE_BINDING_GET_TASK_NOT_EXECUTABLE`, not as "Incorrect Mapping" at import (§7).
+   - `InputSchemaMapping`/`AdditionalInputs` cover every `AllowNull: false` column of the target `InputSchema` (same script) and every mapped pair has the same `Type` (and `ComplexType` for tables) as the source column (`docs/entities/data-addressing.md`) — name match is not enough. The script flags Type mismatch when the source column name is unique in the Task/Endpoint schemas. On a task-bound Endpoint, a missed required column can surface only at publish time as `CACHE_BINDING_{METHOD}_TASK_NOT_EXECUTABLE`, not as "Incorrect Mapping" at import (§7 / §8.6).
    - Cloned Endpoints: `*OutputMapping` points at a step that exists, by name, in the new task (§8).
    - Renaming an Endpoint or Step: rewrite `InputSchemaMapping` / `AdditionalInputs` /
      `*OutputMapping` path values in the same edit — they store display names (§7). The
