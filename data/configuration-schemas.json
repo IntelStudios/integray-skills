@@ -16761,5 +16761,96 @@
         "Address"
       ]
     }
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/configuration.json",
+    "kind": "Integray/ConfigurationSchema/1.0",
+    "guid": "be8ee4b4-f180-4f32-9829-f4e5f5c5a18d",
+    "version": "1.0.0",
+    "name": "CUZK Report Format",
+    "metadata": {
+      "defaultSaveType": "public"
+    },
+    "schema": {
+      "properties": {
+        "ReportFormat": {
+          "type": "string",
+          "widget": "select",
+          "title": "Format",
+          "oneOf": [
+            {
+              "enum": [
+                "pdf"
+              ],
+              "description": "PDF"
+            },
+            {
+              "enum": [
+                "xml"
+              ],
+              "description": "XML"
+            },
+            {
+              "enum": [
+                "html"
+              ],
+              "description": "HTML"
+            },
+            {
+              "enum": [
+                "zip"
+              ],
+              "description": "ZIP"
+            }
+          ],
+          "default": "pdf"
+        },
+        "IncludeXml": {
+          "type": "boolean",
+          "title": "Include XML",
+          "description": "<p>When true, the report request also asks CUZK for the XML rendition.</p>",
+          "default": false
+        }
+      },
+      "required": [
+        "ReportFormat"
+      ]
+    }
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/configuration.json",
+    "kind": "Integray/ConfigurationSchema/1.0",
+    "guid": "f4221af3-0de4-42f4-afab-f9070212c11e",
+    "version": "1.0.0",
+    "name": "CUZK Service",
+    "metadata": {
+      "defaultSaveType": "public"
+    },
+    "schema": {
+      "properties": {
+        "BaseUrl": {
+          "type": "string",
+          "title": "Service URL",
+          "description": "<p>Base URL of CUZK Service.</p><p>Example: <i>https://cuzk-v2.xeelo.online</i></p>",
+          "default": "https://cuzk-v2.xeelo.online"
+        },
+        "Username": {
+          "type": "string",
+          "title": "CUZK username",
+          "description": "<p><i>WSTEST</i> and <i>WSTESTB</i> are the public test accounts described in the connector documentation.</p>"
+        },
+        "Password": {
+          "type": "string",
+          "title": "CUZK password",
+          "masked": true,
+          "description": "<p>Password for the CUZK login. <i>WSTEST</i> uses <i>WSHESLO</i> and <i>WSTESTB</i> uses <i>WSHESLOB</i>.</p>"
+        }
+      },
+      "required": [
+        "BaseUrl",
+        "Username",
+        "Password"
+      ]
+    }
   }
 ]

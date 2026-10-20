@@ -39932,5 +39932,624 @@
         }
       }
     ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "41483a33-6791-4828-a782-6bbde989ab3f",
+    "version": "1.0.0",
+    "name": "CUZK Authorized Entity By ID Input",
+    "metadata": {},
+    "columns": [
+      {
+        "name": "PersonalID",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "7a357115-38d5-479d-847b-9dfd497e0df0",
+    "version": "1.0.0",
+    "name": "CUZK Authorized Entity",
+    "metadata": {},
+    "columns": [
+      {
+        "name": "ID",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "Name",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "OIN",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "AdditionOIN",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "LastName",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "FirstName",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "TitleBefore",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "TitleAfter",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "PINShort",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "Street",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "HouseNumber",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "OrientationNumber",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "PartOfTheMunicipalityName",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "MunicipalityName",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "CityPartName",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "CityDistrictName",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "ZipCode",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "OwnerType",
+        "type": "int",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "CountryName",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "DistrictName",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "CharOSType",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "0bb1906d-dd42-4014-8f61-fff417e9018c",
+    "version": "1.0.0",
+    "name": "CUZK Document Search By Type Input",
+    "metadata": {},
+    "columns": [
+      {
+        "name": "ProceedingTypeCode",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      },
+      {
+        "name": "SerialNumber",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      },
+      {
+        "name": "Year",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      },
+      {
+        "name": "GroundOfficeCode",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "3cc4a2d7-735f-4d87-bfee-f6d76d8d5049",
+    "version": "1.0.0",
+    "name": "CUZK Cadastral Territories",
+    "metadata": {},
+    "columns": [
+      {
+        "name": "LastUpdate",
+        "type": "datetime",
+        "constraints": {
+          "allowNull": false
+        }
+      },
+      {
+        "name": "Territories",
+        "type": "table",
+        "constraints": {
+          "allowNull": true
+        },
+        "tableRef": {
+          "guid": "9394c000-2246-47c5-bd8d-48d93d59cd6a",
+          "version": "1.0.0"
+        }
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "c0f8200e-664b-46aa-9fab-c2496be32fe6",
+    "version": "1.0.0",
+    "name": "CUZK Report ID",
+    "metadata": {},
+    "columns": [
+      {
+        "name": "ReportID",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "c16a2164-0a2b-4717-a432-b094e2f73f34",
+    "version": "1.0.0",
+    "name": "CUZK Report Status",
+    "metadata": {
+      "hidden": true
+    },
+    "columns": [
+      {
+        "name": "Code",
+        "type": "int",
+        "constraints": {
+          "allowNull": false
+        }
+      },
+      {
+        "name": "Text",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "1bc00bb8-9821-4557-ae97-5a558f90bbfc",
+    "version": "1.0.0",
+    "name": "CUZK Report File Format",
+    "metadata": {
+      "hidden": true
+    },
+    "columns": [
+      {
+        "name": "Code",
+        "type": "int",
+        "constraints": {
+          "allowNull": false
+        }
+      },
+      {
+        "name": "Text",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "469d3e0a-b27c-4eb8-96d3-515882ae813e",
+    "version": "1.0.0",
+    "name": "CUZK Document Search Input",
+    "metadata": {},
+    "columns": [
+      {
+        "name": "ProceedingID",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "d0cea064-0a6c-45fd-8738-b6f6121be104",
+    "version": "1.0.0",
+    "name": "CUZK Document",
+    "metadata": {},
+    "columns": [
+      {
+        "name": "Created",
+        "type": "datetime",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "DocumentID",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "DocumentDesignation",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "e9ca4616-27ba-4e31-b47e-f4b0b3fc43af",
+    "version": "1.0.0",
+    "name": "CUZK Document Generate Input",
+    "metadata": {},
+    "columns": [
+      {
+        "name": "DocumentID",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "467688e3-f74d-43d3-a24b-6d191608a158",
+    "version": "1.0.0",
+    "name": "CUZK Report",
+    "metadata": {},
+    "columns": [
+      {
+        "name": "ID",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      },
+      {
+        "name": "Name",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      },
+      {
+        "name": "EntitiesCount",
+        "type": "int",
+        "constraints": {
+          "allowNull": false
+        }
+      },
+      {
+        "name": "PagesCount",
+        "type": "int",
+        "constraints": {
+          "allowNull": false
+        }
+      },
+      {
+        "name": "Price",
+        "type": "double",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "RequestDate",
+        "type": "datetime",
+        "constraints": {
+          "allowNull": false
+        }
+      },
+      {
+        "name": "GeneratingDate",
+        "type": "datetime",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "CreatingDate",
+        "type": "datetime",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "ParentReportId",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "IsSigned",
+        "type": "bool",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "HasTimestamp",
+        "type": "bool",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "Content",
+        "type": "base64",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "Status",
+        "type": "table",
+        "constraints": {
+          "allowNull": false
+        },
+        "tableRef": {
+          "guid": "c16a2164-0a2b-4717-a432-b094e2f73f34",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "name": "Format",
+        "type": "table",
+        "constraints": {
+          "allowNull": false
+        },
+        "tableRef": {
+          "guid": "1bc00bb8-9821-4557-ae97-5a558f90bbfc",
+          "version": "1.0.0"
+        }
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "5e583952-0f43-49d6-9cc5-2126fb6f6ac4",
+    "version": "1.0.0",
+    "name": "CUZK Parcel Input",
+    "metadata": {},
+    "columns": [
+      {
+        "name": "ParcelID",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "09bce138-252b-4f0a-998e-cc3c98e2bd24",
+    "version": "1.0.0",
+    "name": "CUZK Authorized Entity By ICO Input",
+    "metadata": {},
+    "columns": [
+      {
+        "name": "ICO",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "fdbf4ad3-766e-49ca-9c38-3ecd4614dcae",
+    "version": "1.0.0",
+    "name": "CUZK Ownership Certificate Input",
+    "metadata": {},
+    "columns": [
+      {
+        "name": "OwnershipNumber",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      },
+      {
+        "name": "CadastralTerritoryCode",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "2ba4fc35-c2f9-4303-be4f-73dff0870d29",
+    "version": "1.0.0",
+    "name": "CUZK Property Overview Input",
+    "metadata": {},
+    "columns": [
+      {
+        "name": "PersonID",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      },
+      {
+        "name": "LegalRelationshipCode",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "CountryCode",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      },
+      {
+        "name": "VillageCode",
+        "type": "string",
+        "constraints": {
+          "allowNull": true
+        }
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/data-schema.json",
+    "kind": "Integray/DataSchema/1.0",
+    "guid": "9394c000-2246-47c5-bd8d-48d93d59cd6a",
+    "version": "1.0.0",
+    "name": "CUZK Cadastral Territory",
+    "metadata": {
+      "hidden": true
+    },
+    "columns": [
+      {
+        "name": "Code",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      },
+      {
+        "name": "Name",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      },
+      {
+        "name": "VillageCode",
+        "type": "string",
+        "constraints": {
+          "allowNull": false
+        }
+      }
+    ]
   }
 ]

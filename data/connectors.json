@@ -17857,5 +17857,471 @@
         ]
       }
     ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/connector.json",
+    "kind": "Integray/ConnectorSchema/1.0",
+    "guid": "89d9dea7-0e6e-4724-a847-87aa802d236d",
+    "version": "1.0.0",
+    "name": "CUZK",
+    "changeLog": "First release. Calls CUZK Service.",
+    "executable": "3944eb7a-113b-4e25-8dae-ba0e511026ce#Integray.Connector.CUZK.dll",
+    "targetPlatform": "ConnectorApi/2.0",
+    "metadata": {
+      "icon": "ebdd847d-7e4f-4c74-a5af-7f0c0330353d",
+      "description": "46c4e929-5a98-403d-85e5-67313a008085"
+    },
+    "actions": [
+      {
+        "name": "List reports",
+        "code": "listReports",
+        "metadata": {
+          "defaultProcessType": "rowByRow",
+          "description": "805866ee-40aa-4926-9108-734ed1273763",
+          "icon": "d360bc8e-f60c-4ad4-a15f-b12f6225cc6e"
+        },
+        "features": [],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "optional",
+          "schemaRef": {
+            "guid": "c0f8200e-664b-46aa-9fab-c2496be32fe6",
+            "version": "1.0.0"
+          }
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "467688e3-f74d-43d3-a24b-6d191608a158",
+            "version": "1.0.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "f4221af3-0de4-42f4-afab-f9070212c11e",
+            "version": "1.0.0"
+          }
+        ]
+      },
+      {
+        "name": "Get report",
+        "code": "getReport",
+        "metadata": {
+          "defaultProcessType": "rowByRow",
+          "description": "7fb9d9e9-e72b-4cd2-af2e-381ec3614b50",
+          "icon": "e674cc91-b1dc-4876-add0-5e26c2eafb5f"
+        },
+        "features": [],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "c0f8200e-664b-46aa-9fab-c2496be32fe6",
+            "version": "1.0.0"
+          }
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "467688e3-f74d-43d3-a24b-6d191608a158",
+            "version": "1.0.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "f4221af3-0de4-42f4-afab-f9070212c11e",
+            "version": "1.0.0"
+          }
+        ]
+      },
+      {
+        "name": "Delete report",
+        "code": "deleteReport",
+        "metadata": {
+          "defaultProcessType": "rowByRow",
+          "description": "4b299cef-da46-41f5-b784-b42d31eb103f",
+          "icon": "bc3d5909-8b9c-4fcd-95a6-08c95f74e48b"
+        },
+        "features": [],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "c0f8200e-664b-46aa-9fab-c2496be32fe6",
+            "version": "1.0.0"
+          }
+        },
+        "outputSchema": {
+          "mode": "none"
+        },
+        "configurationRefs": [
+          {
+            "guid": "f4221af3-0de4-42f4-afab-f9070212c11e",
+            "version": "1.0.0"
+          }
+        ]
+      },
+      {
+        "name": "Request ownership certificate",
+        "code": "requestOwnershipCertificate",
+        "metadata": {
+          "defaultProcessType": "rowByRow",
+          "description": "bbb7b32a-fd6e-4195-bc11-6904b16e4fec",
+          "icon": "5001082c-f7a9-418a-b9c9-995667d7b77f"
+        },
+        "features": [],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "fdbf4ad3-766e-49ca-9c38-3ecd4614dcae",
+            "version": "1.0.0"
+          }
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "467688e3-f74d-43d3-a24b-6d191608a158",
+            "version": "1.0.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "f4221af3-0de4-42f4-afab-f9070212c11e",
+            "version": "1.0.0"
+          },
+          {
+            "guid": "be8ee4b4-f180-4f32-9829-f4e5f5c5a18d",
+            "version": "1.0.0"
+          }
+        ]
+      },
+      {
+        "name": "Request property overview",
+        "code": "requestPropertyOverview",
+        "metadata": {
+          "defaultProcessType": "rowByRow",
+          "description": "364d5b5b-0eac-4013-97c3-06d4318a3509",
+          "icon": "a430cae2-87ce-42a7-813f-4bba037bfdde"
+        },
+        "features": [],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "2ba4fc35-c2f9-4303-be4f-73dff0870d29",
+            "version": "1.0.0"
+          }
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "467688e3-f74d-43d3-a24b-6d191608a158",
+            "version": "1.0.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "f4221af3-0de4-42f4-afab-f9070212c11e",
+            "version": "1.0.0"
+          },
+          {
+            "guid": "be8ee4b4-f180-4f32-9829-f4e5f5c5a18d",
+            "version": "1.0.0"
+          }
+        ]
+      },
+      {
+        "name": "Request parcel info",
+        "code": "requestParcel",
+        "metadata": {
+          "defaultProcessType": "rowByRow",
+          "description": "6ccc11ab-2568-49ec-99a7-9e2034cbc0ec",
+          "icon": "53bd392c-d934-48b2-b34c-84a61a18d09d"
+        },
+        "features": [],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "5e583952-0f43-49d6-9cc5-2126fb6f6ac4",
+            "version": "1.0.0"
+          }
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "467688e3-f74d-43d3-a24b-6d191608a158",
+            "version": "1.0.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "f4221af3-0de4-42f4-afab-f9070212c11e",
+            "version": "1.0.0"
+          },
+          {
+            "guid": "be8ee4b4-f180-4f32-9829-f4e5f5c5a18d",
+            "version": "1.0.0"
+          }
+        ]
+      },
+      {
+        "name": "List cadastral territories",
+        "code": "listCadastralTerritories",
+        "metadata": {
+          "defaultProcessType": "rowByRow",
+          "description": "c221d433-efe1-4d3b-9443-4f8380888516",
+          "icon": "c3ebb5b6-b169-4d21-b1a5-d670ca903e03"
+        },
+        "features": [],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "none"
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "3cc4a2d7-735f-4d87-bfee-f6d76d8d5049",
+            "version": "1.0.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "f4221af3-0de4-42f4-afab-f9070212c11e",
+            "version": "1.0.0"
+          }
+        ]
+      },
+      {
+        "name": "Search document",
+        "code": "searchDocument",
+        "metadata": {
+          "defaultProcessType": "rowByRow",
+          "description": "d76943a3-623b-48f6-8a92-1d613caf5ae5",
+          "icon": "e4cef9a7-0cce-4fe1-9eb2-90714639d35a"
+        },
+        "features": [],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "469d3e0a-b27c-4eb8-96d3-515882ae813e",
+            "version": "1.0.0"
+          }
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "d0cea064-0a6c-45fd-8738-b6f6121be104",
+            "version": "1.0.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "f4221af3-0de4-42f4-afab-f9070212c11e",
+            "version": "1.0.0"
+          }
+        ]
+      },
+      {
+        "name": "Search document by type",
+        "code": "searchDocumentByType",
+        "metadata": {
+          "defaultProcessType": "rowByRow",
+          "description": "770c9986-e1a5-4000-bd63-aeb05a9771da",
+          "icon": "b9a3c638-94de-4a2d-a4e2-e5ff7f5579cc"
+        },
+        "features": [],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "0bb1906d-dd42-4014-8f61-fff417e9018c",
+            "version": "1.0.0"
+          }
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "d0cea064-0a6c-45fd-8738-b6f6121be104",
+            "version": "1.0.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "f4221af3-0de4-42f4-afab-f9070212c11e",
+            "version": "1.0.0"
+          }
+        ]
+      },
+      {
+        "name": "Generate document",
+        "code": "generateDocument",
+        "metadata": {
+          "defaultProcessType": "rowByRow",
+          "description": "9c4c8b50-6d0a-4aa5-a02d-87bfc29116a1",
+          "icon": "9d9c1e8c-4c7c-4b17-918a-048a72c18020"
+        },
+        "features": [],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "e9ca4616-27ba-4e31-b47e-f4b0b3fc43af",
+            "version": "1.0.0"
+          }
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "c0f8200e-664b-46aa-9fab-c2496be32fe6",
+            "version": "1.0.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "f4221af3-0de4-42f4-afab-f9070212c11e",
+            "version": "1.0.0"
+          }
+        ]
+      },
+      {
+        "name": "Authorized entity by ICO",
+        "code": "authorizedEntityByIco",
+        "metadata": {
+          "defaultProcessType": "rowByRow",
+          "description": "07378a7a-f552-4c67-93bd-815132da86a9",
+          "icon": "b220f66b-7101-4a9a-8c1f-852a1db39d6e"
+        },
+        "features": [],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "09bce138-252b-4f0a-998e-cc3c98e2bd24",
+            "version": "1.0.0"
+          }
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "7a357115-38d5-479d-847b-9dfd497e0df0",
+            "version": "1.0.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "f4221af3-0de4-42f4-afab-f9070212c11e",
+            "version": "1.0.0"
+          }
+        ]
+      },
+      {
+        "name": "Authorized entity by personal ID",
+        "code": "authorizedEntityById",
+        "metadata": {
+          "defaultProcessType": "rowByRow",
+          "description": "006c11cc-d741-48f2-a6b5-935842b4161b",
+          "icon": "4f2091f3-7abf-48d9-84b8-dc4bdd8f81f8"
+        },
+        "features": [],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "41483a33-6791-4828-a782-6bbde989ab3f",
+            "version": "1.0.0"
+          }
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "7a357115-38d5-479d-847b-9dfd497e0df0",
+            "version": "1.0.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "f4221af3-0de4-42f4-afab-f9070212c11e",
+            "version": "1.0.0"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "$schema": "https://icr.integray.app/schemas/connector.json",
+    "kind": "Integray/ConnectorSchema/1.0",
+    "guid": "ac321bb6-a3c4-483a-9d87-bc556318bf81",
+    "version": "3.4.1",
+    "name": "Microsoft Exchange Reader Connector",
+    "changeLog": "Kept the recipient name when the address is missing and filled the address from the mailbox.",
+    "executable": "7e0ece09-e702-44fa-a447-eef5e911dcfb#DataExchange.Plugin.IS.Mail.Exchange.dll",
+    "targetPlatform": "ConnectorApi/1.0",
+    "metadata": {
+      "icon": "74760c2e-0788-4057-bf08-26fc22b70925",
+      "description": "62e95478-1241-4061-be21-16ee5b9df5dc",
+      "helpLink": "/connectoracademy/connectors/MicrosoftExchangeReader/3.4/"
+    },
+    "actions": [
+      {
+        "name": "Default action",
+        "code": "defaultAction",
+        "metadata": {
+          "description": "62e95478-1241-4061-be21-16ee5b9df5dc"
+        },
+        "features": [
+          "checkpoint"
+        ],
+        "inputProcessing": [
+          "rowByRow"
+        ],
+        "inputSchema": {
+          "mode": "optional"
+        },
+        "outputSchema": {
+          "mode": "required",
+          "schemaRef": {
+            "guid": "75f22468-fa12-4f7d-bd75-da6824f66485",
+            "version": "1.4.0"
+          }
+        },
+        "configurationRefs": [
+          {
+            "guid": "c06169a4-2c2b-45f2-9594-f51f051a513f",
+            "version": "1.0.1"
+          },
+          {
+            "guid": "a4f2e703-c49a-486a-9ed7-e7142beb1a2d",
+            "version": "1.0.0"
+          }
+        ]
+      }
+    ]
   }
 ]

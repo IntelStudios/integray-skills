@@ -229,7 +229,8 @@ the user pins an older Version. **GraphQL `1.2.1`** (`e0136e1e-…`) applies the
 default. Unified **Datové schránky (ISDS)** `e9985d75-…` **`4.0.11`** replaces five older
 single-purpose ISDS connectors via actions `readIncoming` / `sendMessage` / `markAsRead` /
 `readOutgoing` / `readOutgoingChanges` (system schemas `4.0.0`). The older ISDS connectors
-remain in the catalog; do not invent a new Guid.
+remain in the catalog; do not invent a new Guid. **Microsoft Exchange Reader**
+(`ac321bb6-…`) newest catalog version is **`3.4.1`**.
 
 ---
 
