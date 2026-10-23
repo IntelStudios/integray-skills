@@ -46,6 +46,7 @@ Canonical files: [`.agents/skills/`](.agents/skills/). Claude CLI copies them to
 | [docs/projects.md](docs/projects.md) | One private git per `projects/<name>/` |
 | [docs/transfer/config-transfer-format.md](docs/transfer/config-transfer-format.md) | Transfer JSON rules (IDs, Full Sync, checklist) |
 | [docs/transfer/remote-api.md](docs/transfer/remote-api.md) | Download / Upload / Process / Backup / Task-run snapshot |
+| [docs/transfer/remote-debugger.md](docs/transfer/remote-debugger.md) | `POST Debugger/Run` — one installed connector, no saved task (`rel-2025-03.018`) |
 | [docs/instance-version.md](docs/instance-version.md) | `GET /api/Integray` and **Feature availability** by `productLine` |
 | [docs/entities/](docs/entities/) | Tasks, mapping, variables, endpoints, … |
 | [docs/connector-dev/](docs/connector-dev/) | Connector project rules |

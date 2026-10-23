@@ -18,7 +18,7 @@ Do not present `projects/` or `internal/` as “what’s in the KB”. Mention a
 
 ## Work mode
 
-Source of truth: `internal/work-mode.md` (gitignored; this machine only). Read it before project work. Template: [`templates/internal/work-mode.md`](templates/internal/work-mode.md). Do not rewrite it unless the user asks to switch.
+Source of truth: `internal/work-mode.md` (gitignored; this machine only). Read it before project work. Template: [`templates/internal/work-mode.md`](templates/internal/work-mode.md). Do not rewrite it unless the user asks to switch `kb`, `project`, or `publish`. Debugger grants are in the company's `conventions.md`, not here.
 
 ```text
 kb: read
@@ -43,7 +43,7 @@ Direct KB requests (“fix this recipe”, “what does the KB say”) are **not
 
 If the user names a different `projects/` folder than `project:`, use that folder for the request. Do not change the stored value unless they ask to switch.
 
-Announce once at the start of project work (`KB: read` or `KB: read-write`, plus `projekt: <name>` or `bez projektu`, plus `publish: never|ask|always`, plus `Oprávnění: read-only` / `read-write` / `full` from that project’s `.integray-connection.json` when the file exists). If `projects/<name>/conventions.md` exists, **read it** before editing transfers.
+Announce once at the start of project work (`KB: read` or `KB: read-write`, plus `projekt: <name>` or `bez projektu`, plus `publish: never|ask|always`, plus which connectors this company's `conventions.md` marks `debugger-connector: … always` (or none), plus `Oprávnění: read-only` / `read-write` / `full` from that project’s `.integray-connection.json` when the file exists). If `projects/<name>/conventions.md` exists, **read it** before editing transfers.
 
 Compatibility: if the file still has only `mode: project` / `mode: project-kb` and no `kb:` key, treat `project-kb` as `kb: read-write` and `project` as `kb: read`. Legacy `kb: write` → `kb: read-write`.
 
@@ -120,6 +120,8 @@ These apply **inside** `/publish` (after `onlyTest`, after a successful Process)
 
 **Remember** → set that key to `auto` in this company’s `conventions.md`. Failed `onlyTest` or missing connection: do not offer publish. **Download after publish** runs `/download-config` (snapshot, immediate split, then statistics).
 
+**Debugger** lines (`debugger-connector: <guid> always|never`) are also in this file, under `## Debugger`. They are per company, not machine-wide. Rules: [remote-debugger.md](docs/transfer/remote-debugger.md). The company repo root `README.md` points at the same section.
+
 ### Project permission
 
 `permission` in `projects/<name>/.integray-connection.json` is an **agent + script gate** (not the Remote control token, not work-mode `kb` / `project`). Missing or empty → **`read-only`**. Invalid value → stop (allowed: `read-only` | `read-write` | `full`). Do not rewrite existing connection files to add the key. Do not change `permission` unless the user asks.
@@ -180,6 +182,8 @@ Canonical location: [`.agents/skills/`](.agents/skills/). Claude CLI: [CLAUDE.md
 | `/debug-task-run` | Start a Task, poll the run, fetch a step data snapshot (gated — [instance-version.md](docs/instance-version.md) Feature availability) | [`.agents/skills/debug-task-run/SKILL.md`](.agents/skills/debug-task-run/SKILL.md) |
 | Statement HTML | One Configuration.Statement without opening the transfer | [`.agents/skills/edit-statement/SKILL.md`](.agents/skills/edit-statement/SKILL.md) |
 | `/sync-main` | Hourly check/pull of **integray-skills `main`** | [`.agents/skills/sync-main/SKILL.md`](.agents/skills/sync-main/SKILL.md) |
+
+One installed connector, without a saved task: [docs/transfer/remote-debugger.md](docs/transfer/remote-debugger.md) (`POST Debugger/Run`, from `rel-2025-03.018`). Use it for that action's result when `debugger-connector` for that guid is `always`. It does not replace `/publish` or `/debug-task-run`.
 
 ## Project layout
 

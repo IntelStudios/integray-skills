@@ -7,7 +7,7 @@ alwaysApply: true
 
 **Read** `internal/work-mode.md` before project work (and at the start of a chat when the task is a project). This file is an exception: other `internal/` content is read only when the KB is incomplete. Do not present the file as KB.
 
-Parse three keys:
+Parse these keys:
 
 - **`kb:`** `read` | `read-write`. There is no write-only mode. Missing `internal/`, missing file, missing key, empty, or any other value → **`read`**. Legacy `kb: write` → **`read-write`**.
 - **`project:`** folder name under `projects/`. This is **not** the Integray `companySlug` (that lives in `.integray-connection.json`). Empty or missing → no project. If set, `projects/<name>/` must already exist (clone or `/new-project`); do not silently scaffold.
@@ -17,7 +17,9 @@ Old single key `mode: project` / `mode: project-kb` (if still present and `kb:` 
 
 Do **not** rewrite `internal/work-mode.md` unless the user asks to switch `kb`, `project`, or `publish` — except to write `publish:` after they answered the missing-key prompt.
 
-Announce once at the start of project work (`KB: read` or `KB: read-write`, plus `projekt: <name>` or `bez projektu`, plus `publish: never|ask|always`, plus `Oprávnění:` from `.integray-connection.json` when it exists), not on every reply. If `projects/<name>/conventions.md` exists, **read it** before editing transfers.
+`debugger-connector` lines live in **this company's** `projects/<name>/conventions.md`, not in work-mode. See [remote-debugger.md](../../docs/transfer/remote-debugger.md). Append a line there only after they answered for that guid in that company.
+
+Announce once at the start of project work (`KB: read` or `KB: read-write`, plus `projekt: <name>` or `bez projektu`, plus `publish: never|ask|always`, plus which connector guids this company's conventions mark `debugger-connector: … always` or `žádný`, plus `Oprávnění:` from `.integray-connection.json` when it exists), not on every reply. If `projects/<name>/conventions.md` exists, **read it** before editing transfers.
 
 ## kb: read (default)
 

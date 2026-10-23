@@ -11,7 +11,7 @@ This repository is the **generic** knowledge base. It must stay usable without k
 3. The entity/transfer file for the thing you are changing
 4. That project’s `conventions.md` before editing `working/`
 
-Work mode (`internal/work-mode.md`, gitignored): `kb: read|read-write` (no write-only), `project:` = folder under `projects/` (not Integray `companySlug`), `publish: never|ask|always` (after `working/` edits; missing = ask the user and write the choice; explicit `/publish` always runs). Connection `permission` (`read-only` | `read-write` | `full`) gates live Remote API writes — [AGENT.md § Project permission](../AGENT.md#project-permission).
+Work mode (`internal/work-mode.md`, gitignored): `kb: read|read-write` (no write-only), `project:` = folder under `projects/` (not Integray `companySlug`), `publish: never|ask|always` (after `working/` edits; missing = ask the user and write the choice; explicit `/publish` always runs). `debugger-connector` lines are per company in `projects/<name>/conventions.md`, not in work-mode. Connection `permission` (`read-only` | `read-write` | `full`) gates live Remote API writes — [AGENT.md § Project permission](../AGENT.md#project-permission).
 
 ## Two work tracks
 
@@ -46,6 +46,7 @@ These files are a snapshot of the **platform catalog** (ICR). Company `working/`
 | Transfer JSON, IDs, tasks, endpoints, publish errors | [transfer/config-transfer-format.md](transfer/config-transfer-format.md) (one section, not the whole file) |
 | Split `working/` (download → decompose → stats) | [transfer/working-split.md](transfer/working-split.md) |
 | Remote API (Config Transfer + Variable + other live endpoints) | [transfer/remote-api.md](transfer/remote-api.md) |
+| Run one installed connector without a saved task | [transfer/remote-debugger.md](transfer/remote-debugger.md) |
 | Instance version and **feature availability by `productLine`** | [instance-version.md](instance-version.md) |
 | CopyIDs on edit, unique names, `VariablesDefaults` | [best-practices.md](best-practices.md) |
 | Step-to-step addressing | [entities/data-addressing.md](entities/data-addressing.md) |

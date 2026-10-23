@@ -67,6 +67,7 @@ later floor only when it differs from `017`.
 |---------|--------------------|-----|----------------|
 | Remote API (Download / Backup / Upload / Process, Task Start / status, Variable, …) | **`rel-2025-03.017`** | `/download-config`, `/backup`, `/publish`, `/debug-task-run` `start` / `status` | No Remote API |
 | Step data snapshot `GET TaskRun/{taskRunId}/Step/{stepId}/Snapshot` | **`rel-2025-03.018`** | `/debug-task-run` `snapshot`; `scripts/task-run.py snapshot`. Protocol: [remote-api.md](transfer/remote-api.md) (Task run snapshot). `$dataRef` expanded in JSON; 204 if nothing stored. | Script **refuses**. Path is absent (typically HTTP 404). Start / status still work on `017`. |
+| Run debugger `POST Debugger/Run` | **`rel-2025-03.018`** | Run one installed connector without a saved task. Protocol: [remote-debugger.md](transfer/remote-debugger.md). | Path is absent (HTTP 404, empty body). Other Remote API paths on `017` still work. |
 
 `scripts/task-run.py snapshot` enforces the snapshot row (`SNAPSHOT_PRODUCT_LINE` in
 `scripts/integray_remote.py` must match **From** in this table). `REMOTE_API_PRODUCT_LINE`

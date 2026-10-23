@@ -13,6 +13,8 @@
 #   always  — after finishing working/ edits, /publish immediately
 #   missing, empty, or any other value → ask the user (explain never/ask/always), then write their choice
 #   explicit /publish from the user always runs
+# Debugger allow-list is per company: projects/<name>/conventions.md
+#   (debugger-connector lines). Not this file.
 # Do not rewrite this file unless the user asks to switch.
 
 kb: read

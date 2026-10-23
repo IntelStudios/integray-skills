@@ -9,8 +9,9 @@ All paths are `{baseUrl}/api/Remote/{CompanySlug}/…`. Auth: `Authorization: Be
 
 Instance **product line** (git branch) is not this API. Unauthenticated `GET {baseUrl}/api/Integray`
 returns `Version`; the first token is `rel-YYYY-MM.patch` — [instance-version.md](../instance-version.md).
-Remote API itself is from **`rel-2025-03.017`**. Older lines had none. Snapshot GET is
-**`rel-2025-03.018`**.
+Remote API itself is from **`rel-2025-03.017`**. Older lines had none. Snapshot GET
+and `POST Debugger/Run` are **`rel-2025-03.018`**
+([remote-debugger.md](remote-debugger.md)).
 
 ## Remote API map
 
@@ -26,12 +27,13 @@ extra paths.
 | Task | `GET Task`; `POST Task/{id}/Start`; `/Kill`; `/Clean`; `/Runnable` | `/debug-task-run` (`Start`) | GET: `read-only`; Start/Kill/Clean/Runnable: `read-write` or `full` |
 | Task run | `GET TaskRun/…`; logs; restart | `/debug-task-run` (`status`) | GET: `read-only`; restart: `read-write` or `full` |
 | Task run snapshot | `GET TaskRun/{taskRunId}/Step/{stepId}/Snapshot` | `/debug-task-run` | `read-only`. Floor: [instance-version.md](../instance-version.md) Feature availability |
+| Run debugger | `POST Debugger/Run` | none. Protocol: [remote-debugger.md](remote-debugger.md) | `read-write` or `full`. Runs one installed connector. Does not Upload or publish. Floor: [instance-version.md](../instance-version.md) Feature availability |
 | Agent | `GET Agent/List` | none | `read-only` |
 | Orchestrator | `GET Orchestrator`; `POST Orchestrator/Runnable` | none | GET: `read-only`; set runnable: `read-write` or `full` |
 
 Scripts enforce the Config Transfer rows and the Task Run snapshot path
 (`scripts/task-run.py`). For the rest, the agent must still honour `permission`
-(do not PUT a variable or start a task in `read-only`).
+(do not PUT a variable, start a task, or call `Debugger/Run` in `read-only`).
 
 ---
 
@@ -749,6 +751,7 @@ the family is no longer waiting/running, then `snapshot`.
 |---|---|
 | Transfer JSON structure, Full Sync, publish failures | `docs/transfer/config-transfer-format.md` (§8.4, §8.6), [publish-codes.md](publish-codes.md) |
 | Instance `productLine` and gated features | `docs/instance-version.md` (Feature availability) |
+| Run one installed connector without a saved task | [remote-debugger.md](remote-debugger.md) |
 | Top-level `Variables[]`, `${#Code}`, `${#SYSTEM_...}` | `docs/entities/variables.md` |
 | Connector GUIDs and versions | `data/connectors.json` |
 | In-platform scripts building Remote API URLs | Use `${#SYSTEM_BaseURL}` (instance) and `${#SYSTEM_CompanySlug}` (company within that instance) separately — `docs/entities/variables.md` |
