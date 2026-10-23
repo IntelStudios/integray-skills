@@ -44,6 +44,12 @@ A task, an endpoint, mapping between steps, publish, and Full Sync stay on the
 transfer. This call does not show them. A successful run is not saved in the
 company.
 
+Before building the body, print the catalog card. It does not call this API:
+
+```bash
+python scripts/connector-info.py <connector-guid>
+```
+
 Live spec: `{baseUrl}/api-docs/remote/swagger.json` (tag Debugger, summary
 `Run debugger`). UI: `{baseUrl}/apidocs/remote-api`.
 
@@ -205,10 +211,15 @@ load; it appears in `logs` only when `includeSystem` is true.
 
 ### Checkpoint
 
-Send `checkpoint` only when the action has a checkpoint. The string is the
-connector's own JSON; this API does not describe that shape. Missing, null, or
-`""` means there is no previous checkpoint. A non-empty checkpoint on an action
-that has none is rejected.
+Send `checkpoint` only when the action has a checkpoint. The string is that
+connector's stored JSON. Look it up before sending one:
+
+```bash
+python scripts/checkpoint-example.py <connector-guid>
+```
+
+Missing, null, or `""` means there is no previous checkpoint. A non-empty
+checkpoint on an action that has none is rejected.
 
 The response `checkpoint` is the value after the run, and only when the connector
 changed it. Unchanged is null, not a copy of the string that was sent. `""` in

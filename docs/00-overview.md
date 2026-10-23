@@ -36,8 +36,9 @@ Import is **Full Sync**: match by `CopyID` (update vs insert); anything on the t
 | [data/configuration-schemas.json](../data/configuration-schemas.json) | NGX Configuration schemas |
 | [data/data-schemas.json](../data/data-schemas.json) | System DataSchemas and nested table refs |
 | [data/connector-restrictions.json](../data/connector-restrictions.json) | Which agent kinds a connector Guid may run on |
+| [data/connector-checkpoints.json](../data/connector-checkpoints.json) | Checkpoint JSON a connector stores between runs. Not an ICR dump. `python scripts/checkpoint-example.py <guid>` |
 
-These files are a snapshot of the **platform catalog** (ICR). Company `working/` is not a copy of them — only entities that company uses. If a transfer uses a connector version not in the dump, say so (stderr `catalog may be stale`) and verify against the target instance. Dump freshness is separate from the split.
+`data/connectors.json`, `data/configuration-schemas.json`, and `data/data-schemas.json` are a snapshot of the **platform catalog** (ICR). `connector-restrictions.json` and `connector-checkpoints.json` are not. Company `working/` is not a copy of them — only entities that company uses. If a transfer uses a connector version not in the dump, say so (stderr `catalog may be stale`) and verify against the target instance. Dump freshness is separate from the split.
 
 ## Entity docs
 

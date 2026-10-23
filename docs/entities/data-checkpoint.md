@@ -6,6 +6,18 @@
 > `docs/entities/local-variables.md`'s Local Variables (Task-scoped, reset per Task Run) — Data
 > Checkpoint is scoped to a single Step and explicitly persists *across* runs.
 
+The JSON stored for a column checkpoint is `{ "DataCheckpoint": <value> }`. Other
+connectors store a different object (last message ids, last file, OAuth bearer).
+Look up one connector by guid — the file is not an ICR dump:
+
+```bash
+python scripts/checkpoint-example.py <connector-guid>
+```
+
+Catalog: [data/connector-checkpoints.json](../../data/connector-checkpoints.json).
+An empty stored checkpoint is `{}` or `""`. A guid that is not in the file is
+unknown, not “no checkpoint”.
+
 ---
 
 ## How it works

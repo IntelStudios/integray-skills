@@ -1,0 +1,184 @@
+{
+  "empty": ["{}", ""],
+  "shapes": {
+    "imap-last-read-email": {
+      "summary": "Last downloaded messages. Dictionary key is the mailbox username from the connection. Received is the newest DateSent in the batch (UTC). IDs are the messages with that timestamp; a later run with the same timestamp unions them so a message is not read twice. Several mailboxes are several keys under LastReadEmail.",
+      "example": {
+        "LastReadEmail": {
+          "user@example.com": {
+            "IDs": ["4821", "4822"],
+            "Received": "2026-10-23T09:15:00Z"
+          }
+        }
+      }
+    },
+    "exchange-last-read-email": {
+      "summary": "Last messages plus a folder-name to folder-id map. Dictionary key is Username for user/password login, or Mailbox for client-secret login (Shared mailbox when Mailbox is empty). Received is the newest DateReceived in the batch (UTC). IDs with that timestamp are unioned with the previous IDs.",
+      "example": {
+        "LastReadEmail": {
+          "shared@contoso.com": {
+            "LastRead": {
+              "IDs": ["AAMkAGI2TG93AAA="],
+              "Received": "2026-10-23T09:15:00Z"
+            },
+            "FoldersMap": {
+              "Inbox": "AAMkAGI2Inbox"
+            }
+          }
+        }
+      }
+    },
+    "exchange-ews-last-read-email": {
+      "summary": "Same object as Exchange Reader (LastRead plus FoldersMap). Dictionary key is Username when there is no shared mailbox, or Username/SharedMailbox when there is one.",
+      "example": {
+        "LastReadEmail": {
+          "user@contoso.com/shared@contoso.com": {
+            "LastRead": {
+              "IDs": ["AAMkAGI2TG93AAA="],
+              "Received": "2026-10-23T09:15:00Z"
+            },
+            "FoldersMap": {
+              "Inbox": "AAMkAGI2Inbox"
+            }
+          }
+        }
+      }
+    },
+    "isds-last-reads": {
+      "summary": "Dictionary key is the data-box RecipientID from configuration. Received is the time of the last processed message. IDs are the messages with that time.",
+      "example": {
+        "LastReads": {
+          "abc123": {
+            "IDs": ["512300", "512301"],
+            "Received": "2026-10-23T09:15:00Z"
+          }
+        }
+      }
+    },
+    "file-last-read": {
+      "summary": "One mode is stored per run; the other key is removed. Read-all clears both keys and leaves no checkpoint. Changed files use LastReadFile (Path, Modified). New files use ReadFiles (paths already read).",
+      "examples": {
+        "changed": {
+          "LastReadFile": {
+            "Path": "/inbox/orders/order-1042.xml",
+            "Modified": "2026-10-23T09:15:00Z"
+          }
+        },
+        "new": {
+          "ReadFiles": [
+            "/inbox/orders/order-1042.xml",
+            "/inbox/orders/order-1043.xml"
+          ]
+        }
+      }
+    },
+    "webdav-file-last-read": {
+      "summary": "Same two modes as other file readers, but the changed-file time is DateModified, not Modified. ReadSingleFile does not use a checkpoint.",
+      "examples": {
+        "changed": {
+          "LastReadFile": {
+            "Path": "/remote.php/dav/files/user/inbox/order-1042.xml",
+            "DateModified": "2026-10-23T09:15:00Z"
+          }
+        },
+        "new": {
+          "ReadFiles": [
+            "/remote.php/dav/files/user/inbox/order-1042.xml"
+          ]
+        }
+      }
+    },
+    "data-checkpoint": {
+      "summary": "Value of the configured checkpoint column from the last output row. Storage is cleared before write, so the JSON has only this key. A missing or null column on the last row leaves the stored checkpoint unchanged. The JSON type follows the column (number, string, boolean, or an ISO date string). On the next run the value is supplied as DataCheckpoint.",
+      "examples": {
+        "string": { "DataCheckpoint": "ORD-1042" },
+        "number": { "DataCheckpoint": 1042 },
+        "datetime": { "DataCheckpoint": "2026-10-23T09:15:00Z" }
+      }
+    },
+    "endpoint-last-read": {
+      "summary": "One object, not a mailbox map. Received is Created of the last record in the response. IDs are records with that same Created. An empty output does not replace the checkpoint. A new batch that ends on the same time unions IDs.",
+      "example": {
+        "LastRead": {
+          "IDs": [
+            "91f0c2e0-1a2b-4c3d-9e8f-001122334455"
+          ],
+          "Received": "2026-10-23T09:15:00Z"
+        }
+      }
+    },
+    "catalogdb-select": {
+      "summary": "Last processed RecVersion (SQL Server rowversion) as a 0x hex string of 16 hex digits. The next select reads rows with a higher RecVersion.",
+      "example": { "LastRead": "0x00000000000007D1" }
+    },
+    "catalogdb-error": {
+      "summary": "Last SysIntErrorID. The stored string is SqlGuid byte order in lowercase, not Guid.ToString(). Versions 3.1 and 3.2 share this guid and this shape.",
+      "example": { "LastRead": "d4c3b2a1-f6e5-9078-abcd-ef1234567890" }
+    },
+    "rest-oauth-bearer": {
+      "summary": "Written only during OAuth2 authorization, and only when the connector obtained a new bearer. Otherwise storage is left as it was. Bearer is the access token. Used is when it was used.",
+      "example": {
+        "RestAPIOauth2LastBearer": {
+          "Bearer": "<access-token>",
+          "Used": "2026-10-23T09:15:00Z"
+        }
+      }
+    },
+    "feature-only": {
+      "summary": "The connector reports HasCheckpoint but does not read or write storage. After a run the stored JSON stays empty unless something else changed it.",
+      "example": null
+    },
+    "none": {
+      "summary": "This connector does not write a checkpoint.",
+      "example": null
+    }
+  },
+  "connectors": [
+    {"guid": "d7d7ce40-b04c-4d32-9124-219c403fd35a", "name": "IMAP Reader Connector", "shape": "imap-last-read-email"},
+    {"guid": "07efca41-32cf-41d0-8b01-9174b076d9aa", "name": "Gmail IMAP Reader Connector", "shape": "imap-last-read-email", "note": "Same shape as IMAP Reader."},
+    {"guid": "45f5c2f7-c09e-475b-bf08-5f8790cf9576", "name": "Seznam IMAP Reader Connector", "shape": "imap-last-read-email", "note": "Same shape as IMAP Reader."},
+    {"guid": "ac321bb6-a3c4-483a-9d87-bc556318bf81", "name": "Microsoft Exchange Reader Connector", "shape": "exchange-last-read-email"},
+    {"guid": "6954c755-b335-497b-9bb8-cca9fcf66a8e", "name": "Microsoft Exchange EWS Reader Connector", "shape": "exchange-ews-last-read-email"},
+    {"guid": "aaf95185-1108-493e-a1f2-c1eec59c8968", "name": "ISDS - Incoming Reader", "shape": "isds-last-reads"},
+    {"guid": "256a15dc-49c9-4315-beb5-90e1bb5ba8cf", "name": "ISDS - Outgoing Reader", "shape": "isds-last-reads"},
+    {"guid": "ada51174-4d37-4543-b3e2-221b72da424b", "name": "ISDS - Outgoing Changes Reader", "shape": "isds-last-reads"},
+    {"guid": "ab7e51d1-1433-4d8d-8d1b-99f13b4dc153", "name": "File Reader", "shape": "file-last-read", "note": "Modes: ReadModifiedFromDirectory, ReadNewFromDirectory, ReadAllFromDirectory."},
+    {"guid": "60b8839a-a12f-430f-b27a-13730a461daa", "name": "FTP(S) Reader", "shape": "file-last-read", "note": "Path is an FTP path."},
+    {"guid": "4c84f12f-fe26-44d1-acf7-77860d8a1727", "name": "Microsoft Sharepoint O365 File Reader Connector", "shape": "file-last-read", "note": "Path is a path inside the SharePoint library."},
+    {"guid": "40f6778e-d84d-4405-958a-1f01e6f25a2a", "name": "WebDAV - Read Files", "shape": "webdav-file-last-read", "note": "Modes: ReadOnlyModifiedFiles, ReadOnlyNewFiles, ReadAllFiles. ReadSingleFile ignores the checkpoint."},
+    {"guid": "1d1b1033-acf7-44a3-aa5f-932649cf91ca", "name": "Microsoft SQL Database", "shape": "data-checkpoint"},
+    {"guid": "47126e89-8bf7-4911-9374-567cd8edf7ba", "name": "Postgre SQL Database", "shape": "data-checkpoint"},
+    {"guid": "ce4d8ae6-4212-4d3b-a625-441939662a74", "name": "Oracle Database", "shape": "data-checkpoint"},
+    {"guid": "faf9c22b-a77a-4006-a8ee-050960df0dcc", "name": "MySQL Database", "shape": "data-checkpoint"},
+    {"guid": "84f0d195-c5b7-4854-93d4-ca0d69f4ac39", "name": "SQLite Mapper", "shape": "data-checkpoint", "note": "The next run sees the value as column DataCheckpoint on the variables view."},
+    {"guid": "1bea42f2-ca51-4ca7-9585-f10323a1d804", "name": "JS Mapper", "shape": "data-checkpoint", "note": "The script reads the variable DataCheckpoint."},
+    {"guid": "e14ea2c1-42d4-4224-b308-8ed55168e0c8", "name": "Python processor", "shape": "data-checkpoint", "note": "The script reads DataCheckpoint from the context."},
+    {"guid": "5a70dfd2-9803-4bcf-b090-652b156f7236", "name": "Node.js processor", "shape": "data-checkpoint", "note": "The script reads DataCheckpoint from the context."},
+    {"guid": "21ad7ba5-e24d-4574-8a96-2e6586112265", "name": "IBM Db2 SQL Database (for Windows agent)", "shape": "data-checkpoint", "note": "New interface, version 3.0.8. defaultAction has the checkpoint feature."},
+    {"guid": "525b28e3-12e8-489f-a6f9-f052d8d68c32", "name": "IBM Db2 SQL Database (for Linux agent)", "shape": "data-checkpoint", "note": "Same shape as the Windows Db2 connector. Different guid and agent platform."},
+    {"guid": "673c5a4d-f19d-4d1f-974b-b12e3b97777c", "name": "ODBC Database", "shape": "data-checkpoint", "note": "The code writes DataCheckpoint, but defaultAction metadata lists debugscript only, not checkpoint. Until that feature is on, the platform does not pass a checkpoint in and does not store one coming back."},
+    {"guid": "d25ba8f6-94b4-4d0f-8fb0-cfce5937808c", "name": "Integray Endpoint Connector", "shape": "endpoint-last-read"},
+    {"guid": "637aa624-ffb8-4c30-a42f-ddd93aa3db7c", "name": "CatalogDB Select connector", "shape": "catalogdb-select"},
+    {"guid": "3da39045-e037-47c3-b304-11a26ebc21ec", "name": "CatalogDB Integration Error Reader", "shape": "catalogdb-error"},
+    {"guid": "9ef583db-7342-4013-82c7-aeec32fdedc6", "name": "Rest API Connector", "shape": "rest-oauth-bearer"},
+    {"guid": "fa4f643f-d1bf-48a3-92ed-fda1a682aa6d", "name": "Advanced Rest API Connector", "shape": "rest-oauth-bearer", "note": "Same write as Rest API Connector, from the shared action. Applies to actions that use OAuth2."},
+    {"guid": "368bdf88-ab67-4ce8-a979-d22e5f9d6e7f", "name": "eDoklad - Transaction Connector", "shape": "feature-only"},
+    {"guid": "d49ed6f2-ef20-4531-8593-796e701baa23", "name": "eDoklad - Virtual Service Counter Connector", "shape": "feature-only"},
+    {"guid": "386554f4-c7cc-4002-8f21-893a32c4e6dd", "name": "NetSuite - Account", "shape": "feature-only"},
+    {"guid": "006cb8e5-f44b-472c-b808-4adaaf466144", "name": "NetSuite - Contact", "shape": "feature-only"},
+    {"guid": "adeca359-3abe-4fe2-ab37-7db4b3a7d0b8", "name": "NetSuite - Credit Memo", "shape": "feature-only"},
+    {"guid": "4a6d487c-1731-4636-9f60-3ce7bec86238", "name": "NetSuite - Customer", "shape": "feature-only"},
+    {"guid": "fbf6d91f-33ec-4255-91ac-4b84d336c34a", "name": "NetSuite - Employee", "shape": "feature-only"},
+    {"guid": "cfd50299-4358-495c-a6db-cfc3b40e9347", "name": "NetSuite - Expense Report", "shape": "feature-only"},
+    {"guid": "4aee38d8-050d-4562-bcfa-54092474b316", "name": "NetSuite - Invoice", "shape": "feature-only"},
+    {"guid": "5a518c25-648d-4b72-9a80-a63bc19cc53f", "name": "NetSuite - Journal Entry", "shape": "feature-only"},
+    {"guid": "b95ae7e7-8831-489c-b817-9496a7305c55", "name": "NetSuite - Vendor", "shape": "feature-only"},
+    {"guid": "0d37be59-5b90-4296-b7e5-11d6c4d5fcd9", "name": "NetSuite - Vendor Bill", "shape": "feature-only"},
+    {"guid": "97b8bdc3-f5a6-4643-bb4e-452f93131d7c", "name": "NetSuite - Vendor Credit", "shape": "feature-only"},
+    {"guid": "8a0d666f-a402-41bd-b686-523a4086893f", "name": "NetSuite - Generic", "shape": "none", "note": "Does not report HasCheckpoint."},
+    {"guid": "18a77bfb-51fa-4661-87fa-ecb727167012", "name": "OpenWeather Current Data Reader", "shape": "none"},
+    {"guid": "5911d6d5-8b10-4f7e-ad0e-637350ae9bb9", "name": "Generic Potato Connector", "shape": "none"},
+    {"guid": "4e6b8f42-27db-4b03-bd1b-00ab5d1ceb1b", "name": "Base64 data generator", "shape": "none"},
+    {"guid": "e730a967-154c-4d12-befe-934e4ec5b9fe", "name": "PowerShell Connector", "shape": "none", "note": "The older PowerShell connector with this same guid also has no checkpoint."}
+  ]
+}
