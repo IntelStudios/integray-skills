@@ -171,7 +171,9 @@ def config_card(ref: dict, configs: dict[tuple[str, str], dict]) -> tuple[str, d
         kind = prop_type(prop)
         mark = "required" if name in required else "optional"
         fields.append(f"{name} ({kind}, {mark})")
-        if name in required:
+        # Every array is present. An omitted array deserializes to null and
+        # connectors that walk it fail the step before the request is sent.
+        if name in required or kind.split("|", 1)[0] == "array":
             payload[name] = empty_value(kind)
     field_text = ", ".join(fields) if fields else "(no properties)"
     line = f"  {item.get('name')} {guid} {ver}\n    {field_text}"

@@ -73,10 +73,14 @@ string (`"marker": "..."` vs `"marker":"..."`).
 
 ---
 
+## Configuration arrays
+
+Every array property in a Configuration JSON string is present and is a JSON array. An empty list is `[]`. Omitting the property or sending JSON `null` is wrong.
+
+That omission deserializes to a null list. A connector that walks the list then fails the step before the request is sent: `ArgumentNullException`, message `Value cannot be null.`, `ParamName: source`.
+
+`connector-info.py` writes `[]` for every array property in the configuration skeleton. A configuration string that still lacks one of those properties is not ready to upload.
+
 ## HTTP calls — Advanced Rest API Connector
 
 An HTTP call uses **Advanced Rest API Connector** (`fa4f643f-d1bf-48a3-92ed-fda1a682aa6d`). It is the evolution of Rest API Connector (`9ef583db-7342-4013-82c7-aeec32fdedc6`). Take the version from `data/connectors.json`: the newest one that this instance has installed. The action follows the response body: `json`, `text`, or `base64`.
-
-`Headers` on **Advanced Rest API - Data Endpoint** (`a4c0d45f-f12d-40d7-984e-a6497949e4b9`) is a JSON array. An empty list is `[]`. Omitting the property, or sending JSON `null`, deserializes to a null list. The connector enumerates that list before it sends the request and the step fails with `ArgumentNullException` (`Value cannot be null.`, `ParamName: source`). The same applies to **Rest API Endpoint** (`cd54120c-7817-4361-ac06-8aaac2a393a3`) `Headers`. The property is not in `required`, and `connector-info.py` only fills required properties, so add `[]` yourself.
-
-`NTLMTicketRequestHeaders` on the connection must also be `[]` when Authorization is NTLM Ticket. On Advanced Rest API, an omitted `Oauth2RequestHeaders` is treated as an empty list. On Rest API Connector it is not: an OAuth2 call with that property omitted fails the same way.
