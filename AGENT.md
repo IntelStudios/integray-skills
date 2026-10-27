@@ -132,7 +132,7 @@ Higher level = everything from the previous plus the extra column.
 |-------|-----|-------------------|
 | **`read-only`** | `/download-config`; `/backup`; read `snapshots/` / `working/` | (base — do not Upload or Process) |
 | **`read-write`** | everything from `read-only` | edit `working/`; Upload; Process `--only-test` |
-| **`full`** | everything from `read-write` | Process `--publish` (and `--apply`) |
+| **`full`** | everything from `read-write` | Process `--publish` (and `--apply`); `POST Debugger/Run` |
 
 `/backup` does not apply the transfer; it only stores a server-side undo record. It is allowed at every level. Do not Process a Backup `transferId`.
 
@@ -164,7 +164,7 @@ When the user asks for a **new empty company** (`projects/<name>/`):
 | `baseUrl` | Integray instance URL (not implied by slug) |
 | `companySlug` | Company slug in DX / `${#SYSTEM_CompanySlug}` |
 | `token` | **Remote control token** — Company Detail → **Remote control** → **Allow control** / **Token**. Not a login JWT. See [remote-api.md](docs/transfer/remote-api.md). |
-| `permission` | `read-only` (default) / `read-write` (edit + Upload + `onlyTest`) / `full` (also Process `--publish`). Missing = `read-only`. Ask once whether to set `read-write` or `full`. Do not change it later unless the user asks. |
+| `permission` | `read-only` (default) / `read-write` (edit + Upload + `onlyTest`) / `full` (also Process `--publish` and `POST Debugger/Run`). Missing = `read-only`. Ask once whether to set `read-write` or `full`. Do not change it later unless the user asks. |
 
 File is gitignored in the **company** git (template ignore). Commit in `projects/<name>/`, not in integray-skills. Download requires **Allow sharing remote config transfer** on the company. Do not download until connection fields are filled. Next: `/download-config`.
 
@@ -183,7 +183,7 @@ Canonical location: [`.agents/skills/`](.agents/skills/). Claude CLI: [CLAUDE.md
 | Statement HTML | One Configuration.Statement without opening the transfer | [`.agents/skills/edit-statement/SKILL.md`](.agents/skills/edit-statement/SKILL.md) |
 | `/sync-main` | Hourly check/pull of **integray-skills `main`** | [`.agents/skills/sync-main/SKILL.md`](.agents/skills/sync-main/SKILL.md) |
 
-One installed connector, without a saved task: [docs/transfer/remote-debugger.md](docs/transfer/remote-debugger.md) (`POST Debugger/Run`, from `rel-2025-03.018`). Use it for that action's result when `debugger-connector` for that guid is `always`. It does not replace `/publish` or `/debug-task-run`.
+One installed connector, without a saved task: [docs/transfer/remote-debugger.md](docs/transfer/remote-debugger.md) (`POST Debugger/Run`, from `rel-2025-03.018`). Use it for that action's result when `permission` is `full` and `debugger-connector` for that guid is `always`. It does not replace `/publish` or `/debug-task-run`.
 
 ## Project layout
 

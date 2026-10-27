@@ -101,4 +101,4 @@ older. 200 JSON is the identity-key tree (`{ts:}` Step CopyID, `{dsc:}` column C
 (Task run snapshot). Stdout resolves those keys against `working/` beside the connection
 (unless `--no-working`). Skill: [`.agents/skills/debug-task-run/SKILL.md`](../.agents/skills/debug-task-run/SKILL.md).
 
-Connection `permission`: download and backup at every level; Upload and `--only-test` need `read-write` or `full`; `--publish` / `--apply` need `full`. Missing `permission` defaults to `read-only`.
+Connection `permission`: download and backup at every level; Upload and `--only-test` need `read-write` or `full`; `--publish` / `--apply` and `POST Debugger/Run` need `full`. Missing `permission` defaults to `read-only`.

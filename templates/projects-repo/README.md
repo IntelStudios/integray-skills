@@ -22,4 +22,4 @@ Do not add this tree to the public integray-skills repository. Pull KB updates i
 
 ## Debugger
 
-Which connectors may run via `POST Debugger/Run` is **this company's** list in [`conventions.md`](conventions.md) (`## Debugger`, lines `debugger-connector: <guid> always|never`). Test and production each have their own file. No line for a guid means the agent asks once and writes the answer here. It is not a machine-wide switch. Agent rules: `docs/transfer/remote-debugger.md` in the integray-skills repo.
+Which connectors may run via `POST Debugger/Run` is **this company's** list in [`conventions.md`](conventions.md) (`## Debugger`, lines `debugger-connector: <guid> always|never`). The connection `permission` must be `full`. Test and production each have their own file. No line for a guid means the agent asks once and writes the answer here. It is not a machine-wide switch. Agent rules: `docs/transfer/remote-debugger.md` in the integray-skills repo.

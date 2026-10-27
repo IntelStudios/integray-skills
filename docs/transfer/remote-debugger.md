@@ -14,9 +14,9 @@ step; this call does not.
 (`rel-2025-03.018`). On an older line the path is absent (HTTP 404, empty body).
 Other Remote API paths on `017` still work.
 
-Check `productLine` before calling. `permission` `read-only` must not call it.
-`read-write` or `full` may. The call does not Upload or publish, so `full` is not
-required. It does run the connector, which can call systems outside the company.
+Check `productLine` before calling. Call it only when `permission` is `full`.
+`read-only` and `read-write` must not call it. It runs the connector, which can
+call systems outside the company.
 
 ## When to call
 
@@ -37,7 +37,7 @@ that section.
 | no line | Stop and ask once: may the agent run this connector in the debugger **in this company**, on any agent? Name any outside write. Do not ask per agent. Yes appends `debugger-connector: <guid> always` under `## Debugger` in this company's `conventions.md`. No appends `never`. |
 
 An explicit request runs this once and does not add or change a line. The line does not override
-the version floor, `permission` `read-only`, or the connector restriction (a Shared-only
+the version floor, a `permission` other than `full`, or the connector restriction (a Shared-only
 connector still cannot run on a remote agent).
 
 A task, an endpoint, mapping between steps, publish, and Full Sync stay on the

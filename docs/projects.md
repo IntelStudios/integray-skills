@@ -93,7 +93,7 @@ After a successful Process with `publish: true`, `/download-config` again (split
 
 Whether the agent **starts** `/publish` after finishing `working/` edits is **`publish:`** in `internal/work-mode.md` (`never` | `ask` | `always`; missing = ask the user and write the choice). That key is this machine, not the company repo.
 
-Whether it calls `POST Debugger/Run` is a **`debugger-connector:`** line in **this company's** `conventions.md` (guid → `always` or `never`; no line = ask once for that connector in this company). A test company and a production company keep separate lists. The company repo root `README.md` says where that list is. See [remote-debugger.md](transfer/remote-debugger.md).
+Whether it calls `POST Debugger/Run` is a **`debugger-connector:`** line in **this company's** `conventions.md` (guid → `always` or `never`; no line = ask once for that connector in this company). The call also needs connection `permission` `full`. A test company and a production company keep separate lists. The company repo root `README.md` says where that list is. See [remote-debugger.md](transfer/remote-debugger.md).
 
 **Agent loop** keys (`ask` | `auto`; missing = `ask`): **Publish after dry-run**, **Download after publish**. Backup before Process is always (not a convention). After a successful `onlyTest` the agent offers Process with `publish: true` including “remember for this company”. Remember writes `auto` into that file. See [AGENT.md](../AGENT.md).
 

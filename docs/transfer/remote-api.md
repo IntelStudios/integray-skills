@@ -27,13 +27,13 @@ extra paths.
 | Task | `GET Task`; `POST Task/{id}/Start`; `/Kill`; `/Clean`; `/Runnable` | `/debug-task-run` (`Start`) | GET: `read-only`; Start/Kill/Clean/Runnable: `read-write` or `full` |
 | Task run | `GET TaskRun/…`; logs; restart | `/debug-task-run` (`status`) | GET: `read-only`; restart: `read-write` or `full` |
 | Task run snapshot | `GET TaskRun/{taskRunId}/Step/{stepId}/Snapshot` | `/debug-task-run` | `read-only`. Floor: [instance-version.md](../instance-version.md) Feature availability |
-| Run debugger | `POST Debugger/Run` | none. Protocol: [remote-debugger.md](remote-debugger.md) | `read-write` or `full`. Runs one installed connector. Does not Upload or publish. Floor: [instance-version.md](../instance-version.md) Feature availability |
+| Run debugger | `POST Debugger/Run` | none. Protocol: [remote-debugger.md](remote-debugger.md) | `full` only. Runs one installed connector. Floor: [instance-version.md](../instance-version.md) Feature availability |
 | Agent | `GET Agent/List` | none | `read-only` |
 | Orchestrator | `GET Orchestrator`; `POST Orchestrator/Runnable` | none | GET: `read-only`; set runnable: `read-write` or `full` |
 
 Scripts enforce the Config Transfer rows and the Task Run snapshot path
 (`scripts/task-run.py`). For the rest, the agent must still honour `permission`
-(do not PUT a variable, start a task, or call `Debugger/Run` in `read-only`).
+(do not PUT a variable or start a task in `read-only`; call `Debugger/Run` only when `permission` is `full`).
 
 ---
 

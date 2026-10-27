@@ -17,7 +17,7 @@ Old single key `mode: project` / `mode: project-kb` (if still present and `kb:` 
 
 Do **not** rewrite `internal/work-mode.md` unless the user asks to switch `kb`, `project`, or `publish` — except to write `publish:` after they answered the missing-key prompt.
 
-`debugger-connector` lines live in **this company's** `projects/<name>/conventions.md`, not in work-mode. See [remote-debugger.md](../../docs/transfer/remote-debugger.md). Append a line there only after they answered for that guid in that company.
+`debugger-connector` lines live in **this company's** `projects/<name>/conventions.md`, not in work-mode. Call `POST Debugger/Run` only when connection `permission` is `full`. See [remote-debugger.md](../../docs/transfer/remote-debugger.md). Append a line there only after they answered for that guid in that company.
 
 Announce once at the start of project work (`KB: read` or `KB: read-write`, plus `projekt: <name>` or `bez projektu`, plus `publish: never|ask|always`, plus which connector guids this company's conventions mark `debugger-connector: … always` or `žádný`, plus `Oprávnění:` from `.integray-connection.json` when it exists), not on every reply. If `projects/<name>/conventions.md` exists, **read it** before editing transfers.
 
