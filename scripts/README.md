@@ -49,6 +49,16 @@ python scripts/checkpoint-example.py <connector-guid>
 
 python scripts/connector-info.py <connector-guid>
 
+python scripts/debugger-call.py \
+  --connection projects/<name>/.integray-connection.json \
+  --body /tmp/debugger-run.json
+
+python scripts/debugger-call.py \
+  --connection projects/<name>/.integray-connection.json \
+  --format http \
+  --title "Advanced Rest API, text" \
+  --body /tmp/debugger-run.json
+
 python scripts/config-statement.py \
   --file projects/<name>/working list
 
@@ -90,6 +100,8 @@ Download writes JSON under `snapshots/` (do not edit), **clears `working/`**, sp
 `checkpoint-example.py <guid>` prints the checkpoint JSON that connector stores between runs (`data/connector-checkpoints.json`). Exit 2 when the guid is not in the file. Empty stored checkpoint is `{}` or `""`.
 
 `connector-info.py <guid>` prints the catalog card used before `Debugger/Run`: newest version, agent restriction, action, input and output schema mode, configuration fields, checkpoint shape, and the `debugger-connector` line from the company `conventions.md` (work-mode `project:`, or `--project`). It also prints a request skeleton. It does not call the API. `--version` and `--action` pin a catalog row. Exit 2 when the guid, version, or action is missing.
+
+`debugger-call.py` prints that same request body as `curl` (default) or as an HTTP file (`--format http`). The HTTP file is the REST Client format (JetBrains HTTP Client and the VS Code REST Client): `@host`, `@company`, `@token`, `{{name}}`, and `###` between requests. It does not call the API. The remote control token stays `$REMOTE_CONTROL_TOKEN` / an empty `@token` unless `--include-token` is set. Body is `--body` or stdin. Host and slug come from `--connection`, or from `--base-url` and `--company`.
 
 `check-connector-versions.py` is advisory (not a delivery gate). Empty stdout = company Steps already on the newest catalog Version per Guid, one Version each. `connector-outdated:` / `connector-mixed:` → if the Version is not installed on the instance, the user updates connectors in Integray first; only then bump `working/`. `/download-config` prints the same lines.
 

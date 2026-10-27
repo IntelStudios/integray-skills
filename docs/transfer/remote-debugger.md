@@ -80,6 +80,7 @@ ones installed on that runtime. Guids in the examples below are illustrations.
 | `actionCode` | when the connector has more than one action | Action to run. One stored action, including a synthetic `defaultAction`, is used when the code is omitted. No stored actions: omit the code; schema and configuration rules then come from the connector. |
 | `agentId` | no | Omit or `-1` for the Shared agent. A positive id is a connected remote agent of this company. |
 | `timeout` | no | Seconds the connector may run. Omit or JSON null for 60. `0` and negative values are rejected. There is no upper bound. The HTTP call can return a few seconds after the connector is cancelled; allow about 10 seconds beyond `timeout` on the client. |
+| `inputProcessType` | no | How input rows are processed. Omit or JSON null for Bulk. A name (`Bulk`, `RowByRowSequentially`, `RowByRowInParallel`, any letter case) or the flag number `1`, `2`, or `4`. The type must be one the action allows. |
 | `logFilter` | no | Which log lines come back. Omit for connector lines at Info, Warning, and Error. |
 | `input` | depends on the action | Input data table. |
 | `additionalInputs` | no | Further input tables. A non-empty list is allowed only when the action has multiple inputs. |
@@ -109,21 +110,28 @@ and configuration checks:
 
 ### Input process type
 
-The request does not choose bulk, row by row, or parallel. The action does.
+`inputProcessType` on the request chooses how the connector receives `input`. Omit the property, or send JSON null, and the run uses **Bulk**. `DefaultProcessType` in action metadata is not used. A connector that allows only one type does not get that type automatically: an omitted property is still Bulk, and the call is rejected when that connector does not allow Bulk.
 
-- Exactly one allowed type: that type is used.
-- More than one: the action's `DefaultProcessType` is used, when it is one of the allowed types.
-- Otherwise the call is rejected and the connector does not run.
-
-| Stored value | What the connector receives |
+| Value | What the connector receives |
 | --- | --- |
-| `Bulk` | The whole input table at once. |
-| `RowByRowSequentially` | One row at a time, in order. |
-| `RowByRowInParallel` | One row at a time. This call uses one thread. |
+| `Bulk` or `1` | The whole input table at once. |
+| `RowByRowSequentially` or `2` | One row at a time, in order. |
+| `RowByRowInParallel` or `4` | One row at a time. This call uses one thread (`InputProcessThreads` is 1). |
 
-A connector with no actions stores the same names in `InputProcessTypeList`.
+Names ignore letter case. `None`, `0`, a combination of flags (for example `3`), unknown text, a JSON object, and a JSON array are rejected. They are not treated as omitted.
+
+The allowed set is the action's `InputProcessType`. When the connector has no actions, it is the connector's `InputProcessTypeList`. The sent type, or Bulk when the property was omitted, must be in that set. Otherwise the call is HTTP 400, `status` is Error, and `taskRunStatus` is null. The connector does not run.
+
+Supported names in the error are ordered Bulk, RowByRowSequentially, RowByRowInParallel. An empty set is the word `none`. The name in the message is the connector name, even when the action limits the set.
+
+```json
+{ "inputProcessType": "RowByRowSequentially" }
+```
+
+The same body without the property runs as Bulk when the action or the connector allows Bulk.
+
 On a saved task step these are the same three process types
-([data-addressing.md](../entities/data-addressing.md)).
+([data-addressing.md](../entities/data-addressing.md)). The step stores its own `InputProcessType`. This call does not read that step.
 
 ### Schema rules
 
@@ -386,19 +394,20 @@ the only `errorMessage`.
 1. Body is present.
 2. `timeout` is omitted or greater than zero.
 3. Every `logFilter.levels` value is 0 through 5.
-4. `connectorGuid` and `connectorVersion` are present, and the version is `major.minor.patch`.
-5. That connector version is installed, and its plugin is installed.
-6. `actionCode`, as in the request table.
-7. `agentId`. A positive id must belong to this company and be connected now.
-8. Connector restriction for that agent.
-9. One input process type can be chosen.
-10. A non-empty `checkpoint` is allowed only when the action has a checkpoint.
-11. `input`, `outputSchema`, `additionalInputs`, and `localVariables` match the schema rules.
-12. `configurations` is exactly the linked set. OAuth `TokenResponse` and an empty `ServiceUrl` are filled here.
-13. `${#Code}` resolves from `companyVariablesOverride`, then from an active company variable with no template, then from a system variable.
+4. `inputProcessType`, when sent, is Bulk, RowByRowSequentially, or RowByRowInParallel (name or flag `1`, `2`, or `4`). Omit or JSON null stays unset here.
+5. `connectorGuid` and `connectorVersion` are present, and the version is `major.minor.patch`.
+6. That connector version is installed, and its plugin is installed.
+7. `actionCode`, as in the request table.
+8. `agentId`. A positive id must belong to this company and be connected now.
+9. Connector restriction for that agent.
+10. `inputProcessType` is allowed. Omitted means Bulk. The candidate must be in the action's `InputProcessType`, or in `InputProcessTypeList` when the connector has no actions.
+11. A non-empty `checkpoint` is allowed only when the action has a checkpoint.
+12. `input`, `outputSchema`, `additionalInputs`, and `localVariables` match the schema rules.
+13. `configurations` is exactly the linked set. OAuth `TokenResponse` and an empty `ServiceUrl` are filled here.
+14. `${#Code}` resolves from `companyVariablesOverride`, then from an active company variable with no template, then from a system variable.
 
-An agent that disconnects after step 7 is still HTTP 400. That message has no
-agent name: `Remote agent (ID: {id}) is not active.` The check in step 7 names
+An agent that disconnects after step 8 is still HTTP 400. That message has no
+agent name: `Remote agent (ID: {id}) is not active.` The check in step 8 names
 the agent: `Remote agent {name} (ID: {id}) is not active.`
 
 ## Messages
@@ -420,7 +429,9 @@ HTTP 400, connector did not run:
 | Unknown agent, or another company's agent | `Remote agent (ID: {id}) was not found.` |
 | Remote agent is not connected | `Remote agent {name} (ID: {id}) is not active.` |
 | Restriction forbids this agent | `Connector '{name}' v{version} is not allowed to run on {Shared\|Remote} agent. Allowed agents: {list}.` |
-| Several process types and no single default | `Connector '{name}' allows more than one input process type and has no single default.` |
+| `inputProcessType` is not one of the three types | `Input process type '{value}' is not valid. Send Bulk, RowByRowSequentially, or RowByRowInParallel.` |
+| Sent type is not allowed | `Input process type '{type}' is not supported by connector '{name}'. Supported types: {list}.` |
+| Omitted, and Bulk is not allowed | `Input process type was omitted, so Bulk is used, but connector '{name}' does not support Bulk. Supported types: {list}.` |
 | No input process type | `Connector does not define an input process type.` |
 | Process-type list cannot be read | `Connector input process type could not be read.` |
 | Checkpoint on an action that has none | `Checkpoint must not be sent for this connector.` |
