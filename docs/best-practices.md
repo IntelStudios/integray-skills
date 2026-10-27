@@ -70,3 +70,9 @@ Confirmed by pulling the actual `POST /api/admin/Transfer/{id}/MergeResult` diff
 directly (not just the DX UI's truncated preview) — the *only* remaining byte-level
 difference on an otherwise-clean `VariablesDefaults` diff was one space inside that inner
 string (`"marker": "..."` vs `"marker":"..."`).
+
+---
+
+## HTTP calls — Advanced Rest API Connector
+
+An HTTP call uses **Advanced Rest API Connector** (`fa4f643f-d1bf-48a3-92ed-fda1a682aa6d`). It is the evolution of Rest API Connector (`9ef583db-7342-4013-82c7-aeec32fdedc6`). Take the version from `data/connectors.json`: the newest one that this instance has installed. The action follows the response body: `json`, `text`, or `base64`.
