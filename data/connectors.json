@@ -11602,7 +11602,7 @@
     "$schema": "https://icr.integray.app/schemas/connector.json",
     "kind": "Integray/ConnectorSchema/1.0",
     "guid": "da2a0ded-12c7-4287-a5da-27dcf76dd68c",
-    "version": "3.1.0",
+    "version": "3.2.0",
     "name": "LinuxShell Connector",
     "changeLog": "Initial",
     "executable": "9b1324a6-0e81-4f77-baa5-be6872924998#DataExchange.Plugin.IS.LinuxShell.dll",
