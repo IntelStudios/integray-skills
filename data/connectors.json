@@ -17084,7 +17084,7 @@
     "$schema": "https://icr.integray.app/schemas/connector.json",
     "kind": "Integray/ConnectorSchema/1.0",
     "guid": "5a70dfd2-9803-4bcf-b090-652b156f7236",
-    "version": "3.4.4",
+    "version": "3.4.5",
     "name": "Node.js processor",
     "changeLog": "Migrated to Integray Connector SDK (ConnectorApi/2.0). Added dataRefs support.",
     "executable": "393118ad-c96e-4e68-8007-a6f453f85a3c#Integray.Connector.NodeJS.dll",

@@ -220,7 +220,7 @@ the whole time, invisible from the Step `Timeout` field in the UI. **Always set 
 explicit `"Timeout"` (seconds) in the Configuration JSON, at least matching the Step's
 own `Timeout`, on every `Node.js processor` step that calls `fetch()`.**
 
-Newest catalog versions: **Node.js processor `3.4.4`**,
+Newest catalog versions: **Node.js processor `3.4.5`**,
 **Python processor `3.3.1`**. Both are `ConnectorApi/2.0` and add the `datarefs` feature
 (changelog: SDK migrate + dataRefs). Configuration schema Guid+Version is unchanged
 (`b0b15d2d-…` / `1.0.0` for Node, `49e63f7b-…` / `1.0.0` for Python). Prefer these unless
