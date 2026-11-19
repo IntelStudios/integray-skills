@@ -32,6 +32,8 @@ human editing it via DX administration changes the value.
 - **`IsSensitive: true`** for passwords, connection strings, API keys, tokens, logins —
   anything secret. Don't hardcode secret values inline in a `Configurations[].Configuration`
   string (or anywhere else in the transfer) — put them here instead.
+- A secret held in a data column uses `Sensitive` on that column
+  ([sensitive-column.md](sensitive-column.md)). `IsSensitive` stays this variable flag.
 - **Export / `/download-config` always blanks those values.** The platform writes
   `Value: ""` whenever `IsSensitive` is `true`. The variable stays in `Variables[]`
   (`Code`, `CopyID`, `IsSensitive: true`); only the secret is omitted. A snapshot is not a

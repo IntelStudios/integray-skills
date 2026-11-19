@@ -648,6 +648,8 @@ under that parent. Do not treat `{ts:…}` as “this GET’s Step only” — t
 A cell stored as `{"$dataRef":"<guid>"}` is replaced with the file contents as a
 **string**. There is no separate multipart part. When `$dataRefSource` is set (endpoint
 data), the file is taken from there. If the file is missing on disk, that cell is `null`.
+A sensitive cell in this snapshot is `********`. Null stays null. A `$dataRef` in that
+cell is not expanded ([sensitive-column.md](../entities/sensitive-column.md)).
 
 Example (200) — two root Steps; the second has a nested RowByRow Step. The long `Text`
 cell is already expanded from `$dataRef`:

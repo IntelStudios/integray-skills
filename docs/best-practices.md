@@ -11,7 +11,8 @@ Full reference (structure, `${#<Code>}` templating, `IsSensitive`, predefined
 `${#SYSTEM_...}` values, how this differs from Task-scoped Local Variables) now lives in
 **`docs/entities/variables.md`** — read it whenever a transfer needs a secret (password, connection
 string, API key, token) or an instance-specific value (company slug, base URL) that
-shouldn't be hardcoded.
+shouldn't be hardcoded. A secret stored in a schema column is the column flag `Sensitive`
+([entities/sensitive-column.md](entities/sensitive-column.md)). `IsSensitive` stays the company variable.
 
 ---
 

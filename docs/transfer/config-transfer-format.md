@@ -10,7 +10,8 @@
 > `VariablesSchemaMapping`), `docs/entities/data-checkpoint.md` (Step-scoped `DataCheckpointColumn`/
 > `DataStorageColumn`, persists across separate Task Runs), `docs/entities/variables.md`
 > (top-level `Variables[]` and `${#SYSTEM_...}` — company-wide constants/secrets,
-> `${#Code}` templating), `docs/entities/configuration-overrides.md` (hidden Configuration fields
+> `${#Code}` templating), `docs/entities/sensitive-column.md` (schema column
+> `Sensitive`, transfer version 7), `docs/entities/configuration-overrides.md` (hidden Configuration fields
 > not in `data/configuration-schemas.json` — connector-specific overrides),
 > `docs/transfer/remote-api.md` (upload and process a transfer via the Integray Remote API),
 > `docs/transfer/publish-codes.md` (`publishResult.messages[].code`),
@@ -138,9 +139,9 @@ until proven otherwise, not just Step.
 ```
 
 - `TransferType` — always exactly `"ConfigTransfer"`.
-- Field names in this file are **PascalCase** (`Tasks`, `CopyID`, `IsSensitive`). That is not the Remote API JSON (`transferId`, `onlyTest`) — see `docs/transfer/remote-api.md` (JSON field names).
+- Field names in this file are **PascalCase** (`Tasks`, `CopyID`, `IsSensitive`, `Sensitive`). That is not the Remote API JSON (`transferId`, `onlyTest`) — see `docs/transfer/remote-api.md` (JSON field names). `Sensitive` is the schema column. `IsSensitive` is the company variable.
 - `Name` — **always ask the user.**
-- `CreatedByProduct`/`CreatedBy` — `"Integray"`. `CreatedByUrl` — `"integray.com"`. `TransferVersion` — `6`, unless the user specifies otherwise.
+- `CreatedByProduct`/`CreatedBy` — `"Integray"`. `CreatedByUrl` — `"integray.com"`. `TransferVersion` stays `6` while every column has `Sensitive` omitted or `false`. A file downloaded from `rel-2025-03.018` or later is already `7`, and every column has `Sensitive`. Keep that number and those flags. `Sensitive: true` belongs only in version 7, and only on an instance from `rel-2025-03.018`. An older instance rejects version 7. Details: [sensitive-column.md](../entities/sensitive-column.md).
 - `Created` — current ISO 8601 timestamp.
 - Every collection may legally be `[]` — none is required to be non-empty.
 
@@ -500,7 +501,7 @@ genuinely empty *primary* input.
 **Two fundamentally different kinds — know which one you're writing before you write it.**
 
 - **Custom schema** — yours to design. Free choice of `Name`, column `Name`s, `Type`s,
-  `AllowNull`, however many columns you want. Generate a fresh `CopyID` for the schema and
+  `AllowNull`, and `Sensitive`, however many columns you want. Generate a fresh `CopyID` for the schema and
   for every column. Nothing to look up, nothing to get wrong except your own intent.
 - **System schema** — the platform's, not yours. A fixed contract with a real `Guid`+
   `Version` identity that already exists on every instance, columns and all. You don't
@@ -519,7 +520,7 @@ genuinely empty *primary* input.
 ```json
 {
   "TemplateCopyID": null,
-  "Columns": [ { "Order": 0, "Type": 2, "AllowNull": true, "ID": 0, "Name": "ColumnName", "CopyID": "<new UUID per column>" } ],
+  "Columns": [ { "Order": 0, "Type": 2, "AllowNull": true, "Sensitive": false, "ID": 0, "Name": "ColumnName", "CopyID": "<new UUID per column>" } ],
   "IsHidden": false, "ID": 0, "Name": "<schema name>", "CopyID": "<new UUID>"
 }
 ```
@@ -642,9 +643,14 @@ merge. The sub-schema itself must also be present in `DataSchemas[]`, not just
 referenced.
 
 ```json
-{ "Order": 1, "Type": 7, "AllowNull": true, "ID": 0, "Name": "Headers", "CopyID": "...",
+{ "Order": 1, "Type": 7, "AllowNull": true, "Sensitive": false, "ID": 0, "Name": "Headers", "CopyID": "...",
   "ComplexType": { "Guid": "3db38ca0-04ea-4dc1-9300-8963615c4457", "Version": "1.0.0" } }
 ```
+
+`Sensitive` is a boolean beside `AllowNull`. A `Type: 7` column is stored with
+`Sensitive: false`. A column inside that nested schema keeps its own flag.
+`Sensitive: true` requires `TransferVersion` 7 and `productLine` `rel-2025-03.018`
+or later ([sensitive-column.md](../entities/sensitive-column.md)).
 
 - New custom schema → generate a `CopyID`, no `Guid`/`Version`.
 - **`ID`:** never rewrite an existing entity’s `ID`. Required uniqueness is **within the same entity kind** (two Tasks cannot share an `ID`; a Task and a DataSchema may). Live exports reuse numbers across kinds; the checker flags duplicates **within** a kind only. When **creating** a new entity, allocate with `python scripts/next-transfer-id.py projects/<name>/working` (`--count N` for several) — that value is unused in the whole transfer. Greenfield `ID: 0` is still fine except TaskGroups/EndpointGroups (those need a real non-zero `ID`). Columns may keep `ID: 0` (import remaps).

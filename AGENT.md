@@ -54,7 +54,7 @@ Compatibility: if the file still has only `mode: project` / `mode: project-kb` a
 When the user asks to create, edit, upload, or deploy Integray tasks / endpoints / transfers:
 
 1. Read this playbook. Open [docs/transfer/config-transfer-format.md](docs/transfer/config-transfer-format.md) **only the section you need** (table at the top of that file). Do not load the whole file for a small edit.
-2. Read [docs/best-practices.md](docs/best-practices.md) (CopyIDs) and [docs/entities/variables.md](docs/entities/variables.md) if secrets or `${#Code}` are involved
+2. Read [docs/best-practices.md](docs/best-practices.md) (CopyIDs) and [docs/entities/variables.md](docs/entities/variables.md) if secrets or `${#Code}` are involved. A schema column that holds a secret: [docs/entities/sensitive-column.md](docs/entities/sensitive-column.md)
 3. Look up connectors in [data/connectors.json](data/connectors.json) → configuration in [data/configuration-schemas.json](data/configuration-schemas.json) → columns in [data/data-schemas.json](data/data-schemas.json). Hidden fields: [docs/entities/configuration-overrides.md](docs/entities/configuration-overrides.md)
 4. Multi-step / branched tasks: [docs/entities/data-addressing.md](docs/entities/data-addressing.md). Filters: [docs/entities/input-data-filter.md](docs/entities/input-data-filter.md). Local vars: [docs/entities/local-variables.md](docs/entities/local-variables.md). Checkpoint: [docs/entities/data-checkpoint.md](docs/entities/data-checkpoint.md). Step agent vs connector: [docs/entities/connector-restrictions.md](docs/entities/connector-restrictions.md)
 5. Shape: [examples/generic_worked_example.json](examples/generic_worked_example.json). Live company files under `projects/<name>/working/` if present (split entity JSON — [working-split.md](docs/transfer/working-split.md))
@@ -214,6 +214,7 @@ projects/<name>/
 - After Process with `publish: true`, inspect `publishResult.messages[]`.
 - Never store the Remote control token in transfer JSON or commit it.
 - Connection `permission` (`read-only` / `read-write` / `full`) gates Remote API writes. Missing = `read-only`.
+- Schema column `Sensitive` is separate from variable `IsSensitive`. `Sensitive: true` needs `TransferVersion` 7 and an instance from `rel-2025-03.018`. A `Type: 7` column stays `Sensitive: false` ([sensitive-column.md](docs/entities/sensitive-column.md)).
 
 ## Checklist before delivery
 
@@ -225,3 +226,4 @@ projects/<name>/
 - [ ] `onlyTest` succeeded before offering publish
 - [ ] Connection `permission` is `full` before Process `--publish`
 - [ ] Sensitive variables empty in portable JSON; user sets values via Variable API after import
+- [ ] A column with `Sensitive: true` has `TransferVersion` 7 and the target instance is `rel-2025-03.018` or later. A `Type: 7` column has `Sensitive: false` ([sensitive-column.md](docs/entities/sensitive-column.md))

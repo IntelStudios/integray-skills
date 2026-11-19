@@ -53,6 +53,7 @@ Import is **Full Sync**: match by `CopyID` (update vs insert); anything on the t
 | Step-to-step addressing | [entities/data-addressing.md](entities/data-addressing.md) |
 | `InputDataFilter` | [entities/input-data-filter.md](entities/input-data-filter.md) |
 | Company variables `${#Code}` | [entities/variables.md](entities/variables.md) |
+| Schema column `Sensitive` | [entities/sensitive-column.md](entities/sensitive-column.md) |
 | Task local variables | [entities/local-variables.md](entities/local-variables.md) |
 | Data checkpoint | [entities/data-checkpoint.md](entities/data-checkpoint.md) |
 | Hidden configuration fields | [entities/configuration-overrides.md](entities/configuration-overrides.md) |
