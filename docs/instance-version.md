@@ -69,6 +69,7 @@ later floor only when it differs from `017`.
 | Step data snapshot `GET TaskRun/{taskRunId}/Step/{stepId}/Snapshot` | **`rel-2025-03.018`** | `/debug-task-run` `snapshot`; `scripts/task-run.py snapshot`. Protocol: [remote-api.md](transfer/remote-api.md) (Task run snapshot). `$dataRef` expanded in JSON; 204 if nothing stored. | Script **refuses**. Path is absent (typically HTTP 404). Start / status still work on `017`. |
 | Run debugger `POST Debugger/Run` | **`rel-2025-03.018`** | Run one installed connector without a saved task. Protocol: [remote-debugger.md](transfer/remote-debugger.md). | Path is absent (HTTP 404, empty body). Other Remote API paths on `017` still work. |
 | Schema column `Sensitive`, Config Transfer version 7 | **`rel-2025-03.018`** | Boolean on a schema column. Protocol: [sensitive-column.md](entities/sensitive-column.md). A download from this line is already version 7. | Version 7 is rejected (`Only transfer version 6 is supported.`). A version 6 file has no flag, so the column is stored as not sensitive. |
+| Parent task run header `int-parent-taskrun-id` | **`rel-2025-03.018`** | A task-bound endpoint stores the header as the new task run's `ParentID`. Protocol: [endpoint-parent.md](entities/endpoint-parent.md). Integray Endpoint Connector `4.6.4` sends it. A Node.js statement or another connector sets it. | Header is ignored. `ParentID` stays null. |
 
 `scripts/task-run.py snapshot` enforces the snapshot row (`SNAPSHOT_PRODUCT_LINE` in
 `scripts/integray_remote.py` must match **From** in this table). `REMOTE_API_PRODUCT_LINE`

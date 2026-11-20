@@ -31,3 +31,5 @@ $PYTHON scripts/deploy-config-transfer.py \
 Do not also run Upload/Process separately. Do not `/download-config` after unless they confirm replacing `working/`. Company git: `scripts/project-git.py projects/<name> status`.
 
 What this does **not** do: Process still waits minutes on the instance. New tasks/endpoints still need AGENT.md and the full transfer.
+
+A Node.js statement that calls a task-bound Integray endpoint and should nest the new task run under this run sends the header `int-parent-taskrun-id` with `String(TaskRunID)`. `TaskRunID` is already a global. The URL is `"${#SYSTEM_BaseURL}/api/endpoint/${#SYSTEM_CompanySlug}/<group-slug>/<endpoint-slug>"`, with the two `${#SYSTEM_…}` placeholders quoted in the statement. A Python statement cannot read `TaskRunID`. Details: [docs/entities/endpoint-parent.md](../../../docs/entities/endpoint-parent.md). Stored from `rel-2025-03.018`.

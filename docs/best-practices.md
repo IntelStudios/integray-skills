@@ -85,3 +85,5 @@ That omission deserializes to a null list. A connector that walks the list then 
 ## HTTP calls — Advanced Rest API Connector
 
 An HTTP call uses **Advanced Rest API Connector** (`fa4f643f-d1bf-48a3-92ed-fda1a682aa6d`). It is the evolution of Rest API Connector (`9ef583db-7342-4013-82c7-aeec32fdedc6`). Take the version from `data/connectors.json`: the newest one that this instance has installed. The action follows the response body: `json`, `text`, or `base64`.
+
+A task-bound Integray endpoint that should nest under the current task run needs the header `int-parent-taskrun-id`. This connector can put `${#SYSTEM_BaseURL}` and `${#SYSTEM_CompanySlug}` in `Endpoint`, and `${input.<Column>}` in a header value. It cannot read the current task run id, so a fixed `Headers` value would send the same id on every run. Use Integray Endpoint Connector `4.6.4` (it sends the header) or a Node.js statement, where `TaskRunID` is a global. [endpoint-parent.md](entities/endpoint-parent.md).

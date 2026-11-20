@@ -57,4 +57,5 @@ Import is **Full Sync**: match by `CopyID` (update vs insert); anything on the t
 | Task local variables | [entities/local-variables.md](entities/local-variables.md) |
 | Data checkpoint | [entities/data-checkpoint.md](entities/data-checkpoint.md) |
 | Hidden configuration fields | [entities/configuration-overrides.md](entities/configuration-overrides.md) |
+| Parent task run of an endpoint call (`int-parent-taskrun-id`) | [entities/endpoint-parent.md](entities/endpoint-parent.md) |
 | Which agent a connector may run on | [entities/connector-restrictions.md](entities/connector-restrictions.md) |

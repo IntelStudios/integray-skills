@@ -711,6 +711,17 @@ TimeSpan timeout = Timeout;
 CancellationToken cancellationToken = CancellationToken;
 ```
 
+A connector that calls a task-bound Integray endpoint and should nest the new task run under this one sends the current id on the request. The endpoint stores it as `ParentID` from `rel-2025-03.018` ([endpoint-parent.md](../entities/endpoint-parent.md)):
+
+```csharp
+if (context.HasTaskRunId())
+{
+    request.Headers.TryAddWithoutValidation(
+        "int-parent-taskrun-id",
+        context.GetTaskRunId()!.Value.ToString());
+}
+```
+
 ### Best practices
 
 1. **Always check for empty input** before processing

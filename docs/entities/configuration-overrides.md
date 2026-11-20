@@ -70,6 +70,10 @@ fixed by hand after import into a different instance.
   Use a Node.js processor Step with `fetch()` for those verbs against a same-company
   Endpoint instead (build the URL from `${#SYSTEM_BaseURL}`+`${#SYSTEM_CompanySlug}`,
   `docs/transfer/config-transfer-format.md` §8.3).
+- Version `4.6.4` already sends `int-parent-taskrun-id` with the current task run id.
+  Do not add that header in this Configuration. A Node.js `fetch()` or another HTTP
+  connector sets it itself ([endpoint-parent.md](endpoint-parent.md)). Stored from
+  `rel-2025-03.018`.
 
 ### `Integray Start Task Connector` — `TaskID`/`CompanyID` override
 

@@ -887,6 +887,12 @@ breaks the moment the transfer is imported into a different company/instance. Bo
 system-provided template variables, substituted before the script runs; no `Variables[]`
 entry needed.
 
+A Node.js `fetch()` that starts a task on that endpoint and should nest the new run
+under this one sends header `int-parent-taskrun-id`. The statement already has the
+global `TaskRunID`, and the URL is `${#SYSTEM_BaseURL}` plus `${#SYSTEM_CompanySlug}`
+plus the group and endpoint slugs. Full statement: [endpoint-parent.md](../entities/endpoint-parent.md).
+A Python statement cannot read `TaskRunID`. Stored from `rel-2025-03.018`.
+
 ### 8.4 Special "Endpoint ... Output" system schemas — raw response shaping
 
 Assigning one of these six system schemas to an Endpoint's `GetOutputSchema`/`*OutputSchema`
