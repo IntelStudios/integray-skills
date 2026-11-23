@@ -43,7 +43,7 @@ Direct KB requests (“fix this recipe”, “what does the KB say”) are **not
 
 If the user names a different `projects/` folder than `project:`, use that folder for the request. Do not change the stored value unless they ask to switch.
 
-Announce once at the start of project work (`KB: read` or `KB: read-write`, plus `projekt: <name>` or `bez projektu`, plus `publish: never|ask|always`, plus which connectors this company's `conventions.md` marks `debugger-connector: … always` (or none), plus `Oprávnění: read-only` / `read-write` / `full` from that project’s `.integray-connection.json` when the file exists). If `projects/<name>/conventions.md` exists, **read it** before editing transfers.
+Announce once at the start of project work (`KB: read` or `KB: read-write`, plus `projekt: <name>` or `bez projektu`, plus `publish: never|ask|always`, plus **Force publish** from that company's conventions (`never`, `ask`, or `auto`; missing = `never`), plus which connectors this company's `conventions.md` marks `debugger-connector: … always` (or none), plus `Oprávnění: read-only` / `read-write` / `full` from that project’s `.integray-connection.json` when the file exists). If `projects/<name>/conventions.md` exists, **read it** before editing transfers.
 
 Compatibility: if the file still has only `mode: project` / `mode: project-kb` and no `kb:` key, treat `project-kb` as `kb: read-write` and `project` as `kb: read`. Legacy `kb: write` → `kb: read-write`.
 
@@ -104,12 +104,15 @@ Download: `python scripts/download-config-transfer.py --connection projects/<nam
 
 ### Agent loop in conventions
 
-Keys in `projects/<name>/conventions.md` (`ask` | `auto`; missing = `ask`):
+Keys in `projects/<name>/conventions.md`:
 
-- **Publish after dry-run**
-- **Download after publish**
+- **Publish after dry-run** — `ask` | `auto`; missing = `ask`
+- **Download after publish** — `ask` | `auto`; missing = `ask`
+- **Force publish** — `never` | `ask` | `auto`; missing = `never`
 
-These apply **inside** `/publish` (after `onlyTest`, after a successful Process). Whether the agent **starts** `/publish` after finishing `working/` edits is work-mode **`publish:`** (`never` | `ask` | `always`) in `internal/work-mode.md`, not this file.
+Publish after dry-run and Download after publish apply **inside** `/publish` (after `onlyTest`, after a successful Process). Whether the agent **starts** `/publish` after finishing `working/` edits is work-mode **`publish:`** (`never` | `ask` | `always`) in `internal/work-mode.md`, not this file.
+
+**Force publish** chooses the cache rebuild once a publish is going to run. `never` waits for running task runs (Process `publish: true`). `auto` applies the transfer (`publish: false`), then `POST Publish?force=true`, and says this company's conventions say so. The result of a task run that was already going is not guaranteed. Needs product line `rel-2025-03.018`. `ask` offers Force publish / Force publish and remember for this company / Publish and wait. Remember writes `auto`. Do not force unless they pick a force option.
 
 **Backup before process** is not a convention. It always runs. Do not ask.
 

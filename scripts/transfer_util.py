@@ -19,6 +19,9 @@ CONVENTION_KEYS = {
     "download": re.compile(
         r"Download after publish:\**\s*(ask|auto)", re.IGNORECASE
     ),
+    "force": re.compile(
+        r"Force publish:\**\s*(never|ask|auto)", re.IGNORECASE
+    ),
 }
 
 
@@ -168,9 +171,10 @@ def step_labels_by_configuration(data: dict[str, Any]) -> dict[str, list[str]]:
 def parse_conventions(path: Path | None) -> dict[str, str]:
     """ask | auto for publish and download. Missing file or key → ask.
 
+    Force publish is never | ask | auto. Missing file or key → never.
     Backup before Process is always; it is not a convention.
     """
-    out = {"publish": "ask", "download": "ask"}
+    out = {"publish": "ask", "download": "ask", "force": "never"}
     if path is None or not path.is_file():
         return out
     text = path.read_text(encoding="utf-8")

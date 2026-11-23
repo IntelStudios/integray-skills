@@ -17,7 +17,7 @@ class ParseConventionsTests(unittest.TestCase):
     def test_missing_file_is_ask(self) -> None:
         self.assertEqual(
             parse_conventions(Path("/no/such/conventions.md")),
-            {"publish": "ask", "download": "ask"},
+            {"publish": "ask", "download": "ask", "force": "never"},
         )
 
     def test_reads_publish_and_download(self) -> None:
@@ -28,8 +28,13 @@ class ParseConventionsTests(unittest.TestCase):
         )
         self.assertEqual(
             parse_conventions(path),
-            {"publish": "auto", "download": "ask"},
+            {"publish": "auto", "download": "ask", "force": "never"},
         )
+
+    def test_reads_force_publish(self) -> None:
+        path = Path(tempfile.mkdtemp()) / "conventions.md"
+        path.write_text("Force publish: auto\n", encoding="utf-8")
+        self.assertEqual(parse_conventions(path)["force"], "auto")
 
     def test_ignores_legacy_backup_line(self) -> None:
         path = Path(tempfile.mkdtemp()) / "conventions.md"

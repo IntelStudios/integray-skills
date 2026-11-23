@@ -13,17 +13,80 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from integray_remote import (  # noqa: E402
     DEFAULT_TIMEOUT_SECONDS,
+    FORCE_PUBLISH_PRODUCT_LINE,
     ConnectionConfig,
     RemoteError,
     process_config_transfer,
+    publish_company_cache,
+    require_product_line,
 )
+
+
+def _force_publish(config: ConnectionConfig, transfer_id: int, timeout: float) -> None:
+    """Apply the upload, then POST Publish?force=true. Exits the process."""
+    try:
+        have = require_product_line(
+            config.base_url, FORCE_PUBLISH_PRODUCT_LINE, timeout_seconds=timeout
+        )
+    except RemoteError as exc:
+        print(exc, file=sys.stderr)
+        raise SystemExit(1) from exc
+    print(f"productLine={have}")
+    print(
+        f"Processing transferId={transfer_id} (apply) at "
+        f"{config.config_transfer_url(str(transfer_id) + '/Process')}"
+    )
+    try:
+        applied = process_config_transfer(
+            config,
+            transfer_id,
+            only_test=False,
+            publish=False,
+            timeout_seconds=timeout,
+        )
+    except RemoteError as exc:
+        print(exc, file=sys.stderr)
+        raise SystemExit(1) from exc
+    print(f"http={applied.http_status}")
+    print("publish=false")
+    if applied.http_status != 200:
+        print("apply failed; not force-publishing", file=sys.stderr)
+        raise SystemExit(1)
+
+    print(f"POST {config.remote_url('Publish')}?force=true")
+    try:
+        pub = publish_company_cache(config, force=True, timeout_seconds=timeout)
+    except RemoteError as exc:
+        print(exc, file=sys.stderr)
+        raise SystemExit(1) from exc
+
+    print(f"http={pub.http_status}")
+    print("force=true")
+    body = pub.raw or {}
+    is_success = body.get("isSuccess", body.get("IsSuccess"))
+    status = body.get("status", body.get("Status"))
+    print(f"publishResult.isSuccess={str(bool(is_success)).lower()}")
+    if status is not None:
+        print(f"publishResult.status={status}")
+    messages = body.get("messages", body.get("Messages")) or []
+    if isinstance(messages, list):
+        for msg in messages:
+            if not isinstance(msg, dict):
+                print(f"publishResult.message={msg}")
+                continue
+            code = msg.get("code", msg.get("Code", ""))
+            text = msg.get("message", msg.get("Message", msg))
+            print(f"publishResult.message={code} {text}".rstrip())
+    if pub.http_status == 422 or is_success is False:
+        print("publish failed", file=sys.stderr)
+        raise SystemExit(2)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
             "POST Config Transfer Process for a transferId from Upload. "
-            "Exactly one of --only-test, --publish, or --apply."
+            "Exactly one of --only-test, --publish, --apply, or --force."
         )
     )
     parser.add_argument(
@@ -54,6 +117,14 @@ def main() -> None:
         action="store_true",
         help="Apply without rebuilding the cache (publish=false). Rare; prefer --publish.",
     )
+    mode.add_argument(
+        "--force",
+        action="store_true",
+        help=(
+            "Apply this transfer (publish=false), then POST Publish?force=true. "
+            "Does not wait for running task runs. Needs rel-2025-03.018."
+        ),
+    )
     parser.add_argument(
         "--timeout",
         type=float,
@@ -67,6 +138,10 @@ def main() -> None:
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(exc, file=sys.stderr)
         raise SystemExit(1) from exc
+
+    if args.force:
+        _force_publish(config, args.transfer_id, args.timeout)
+        return
 
     only_test = bool(args.only_test)
     publish = bool(args.publish)

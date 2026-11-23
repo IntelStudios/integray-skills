@@ -95,7 +95,7 @@ Whether the agent **starts** `/publish` after finishing `working/` edits is **`p
 
 Whether it calls `POST Debugger/Run` is a **`debugger-connector:`** line in **this company's** `conventions.md` (guid → `always` or `never`; no line = ask once for that connector in this company). The call also needs connection `permission` `full`. A test company and a production company keep separate lists. The company repo root `README.md` says where that list is. See [remote-debugger.md](transfer/remote-debugger.md).
 
-**Agent loop** keys (`ask` | `auto`; missing = `ask`): **Publish after dry-run**, **Download after publish**. Backup before Process is always (not a convention). After a successful `onlyTest` the agent offers Process with `publish: true` including “remember for this company”. Remember writes `auto` into that file. See [AGENT.md](../AGENT.md).
+**Agent loop** keys (`ask` | `auto`; missing = `ask`): **Publish after dry-run**, **Download after publish**. **Force publish** is `never` | `ask` | `auto` (missing = `never`): `auto` applies the transfer and then `POST Publish?force=true`. Backup before Process is always (not a convention). After a successful `onlyTest` the agent offers Process with `publish: true` including “remember for this company”. Remember writes `auto` into that file. See [AGENT.md](../AGENT.md).
 
 ## Self-test
 

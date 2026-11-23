@@ -16,10 +16,15 @@ Read this file before creating or editing a Config Transfer for this company.
 
 ## Agent loop
 
-Values: `ask` (default) or `auto`. Missing key = `ask`. Backup before Process is **always** (KB); not listed here.
+Publish after dry-run and Download after publish: `ask` (default) or `auto`. Missing key = `ask`.
+
+Force publish: `never` (default), `ask`, or `auto`. Missing key = `never`. `never` waits for running task runs. `auto` does not wait (`POST Publish?force=true`). The result of a task run that was already going is not guaranteed. `ask` asks before the cache rebuild.
+
+Backup before Process is **always** (KB); not listed here.
 
 - **Publish after dry-run:** ask
 - **Download after publish:** ask
+- **Force publish:** never
 
 ## Debugger
 

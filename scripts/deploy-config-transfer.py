@@ -19,12 +19,15 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from integray_remote import (  # noqa: E402
     DEFAULT_TIMEOUT_SECONDS,
+    FORCE_PUBLISH_PRODUCT_LINE,
     ConnectionConfig,
     ConnectionPermissionError,
     RemoteError,
     backup_config_transfer,
     process_config_transfer,
     project_from_connection,
+    publish_company_cache,
+    require_product_line,
     upload_config_transfer,
 )
 from transfer_split import WorkingBundle, find_configuration_path  # noqa: E402
@@ -39,6 +42,66 @@ from transfer_util import (  # noqa: E402
 )
 
 PROCESS_TIMEOUT_SECONDS = 600.0
+
+
+def _publish_forced(config: ConnectionConfig, transfer_id: int, timeout: float) -> int:
+    """Apply the upload, then POST Publish?force=true. Returns a process exit code."""
+    try:
+        have = require_product_line(
+            config.base_url, FORCE_PUBLISH_PRODUCT_LINE, timeout_seconds=timeout
+        )
+    except RemoteError as exc:
+        print(exc, file=sys.stderr)
+        return 1
+    print(f"productLine={have}")
+    print(
+        f"Processing transferId={transfer_id} (apply) at "
+        f"{config.config_transfer_url(str(transfer_id) + '/Process')}"
+    )
+    try:
+        applied = process_config_transfer(
+            config,
+            transfer_id,
+            only_test=False,
+            publish=False,
+            timeout_seconds=timeout,
+        )
+    except (RemoteError, ConnectionPermissionError) as exc:
+        print(exc, file=sys.stderr)
+        return 1
+    print(f"http={applied.http_status}")
+    print("publish=false")
+    if applied.http_status != 200:
+        print("apply failed; not force-publishing", file=sys.stderr)
+        return 1
+
+    print(f"POST {config.remote_url('Publish')}?force=true")
+    try:
+        pub = publish_company_cache(config, force=True, timeout_seconds=timeout)
+    except (RemoteError, ConnectionPermissionError) as exc:
+        print(exc, file=sys.stderr)
+        return 1
+    return _report_publish(pub.http_status, pub.raw)
+
+
+def _report_publish(http_status: int, body: dict | None) -> int:
+    """Print a RemotePublishResult and return 0, or 2 when publish failed."""
+    print(f"http={http_status}")
+    print("force=true")
+    pr = body or {}
+    is_success = pr.get("isSuccess", pr.get("IsSuccess"))
+    print(f"publishResult.isSuccess={str(bool(is_success)).lower()}")
+    status = pr.get("status", pr.get("Status"))
+    if status is not None:
+        print(f"publishResult.status={status}")
+    if http_status == 422 or is_success is False:
+        print("publish failed", file=sys.stderr)
+        return 2
+    print(
+        "download=skipped (script will not overwrite working/; "
+        "run download-config-transfer.py if you want a new snapshot)"
+    )
+    return 0
 
 
 def _run_checker(script: str, path: Path) -> tuple[int, str, str]:
@@ -124,7 +187,8 @@ def main() -> int:
     print(
         "conventions="
         f"publish:{conventions['publish']} "
-        f"download:{conventions['download']}"
+        f"download:{conventions['download']} "
+        f"force:{conventions['force']}"
     )
 
     try:
@@ -207,6 +271,14 @@ def main() -> int:
             f"Process --transfer-id {uploaded.transfer_id} --publish when ready."
         )
         return 0
+    if conventions["force"] == "ask":
+        print(
+            "force=ask (conventions Force publish: ask). "
+            f"Process --transfer-id {uploaded.transfer_id} --force or --publish when ready."
+        )
+        return 0
+    if conventions["force"] == "auto":
+        return _publish_forced(config, uploaded.transfer_id, args.timeout)
 
     print(
         f"Processing transferId={uploaded.transfer_id} (publish) at "

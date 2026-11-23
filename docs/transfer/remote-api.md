@@ -376,6 +376,8 @@ publish still waits.
 
 Process with `publish: true` has no `force`. It always waits.
 
+Company `conventions.md` key **Force publish** (`never` | `ask` | `auto`, missing = `never`) chooses this for `/publish`. `auto` applies the transfer with `publish: false`, then calls `?force=true`. `never` is Process `publish: true`.
+
 On a busy or large company the call can take several minutes. HTTP 200 may still include
 warnings in `messages`; HTTP 422 means publish failed.
 

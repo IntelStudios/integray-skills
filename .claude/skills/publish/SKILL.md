@@ -54,6 +54,26 @@ $PYTHON scripts/process-config-transfer.py \
 
 After a **successful** `--publish` only: **Download after publish** (`ask` | `auto`). `auto` or they confirm → `/download-config`. Failed publish: do not download.
 
+## Force publish
+
+Company `conventions.md` key **Force publish:** `never` | `ask` | `auto`. Missing = `never`. It applies when the cache is about to be rebuilt, including the follow-up after **Publish after dry-run: ask**.
+
+- **never** — Process `--publish`. Waits for running task runs.
+- **auto** — say that this company's conventions say so, then:
+
+```bash
+$PYTHON scripts/process-config-transfer.py \
+  --connection projects/<name>/.integray-connection.json \
+  --transfer-id <upload-transferId> \
+  --force
+```
+
+That applies the transfer (`publish: false`) and then `POST Publish?force=true`. The result of a task run that was already going is not guaranteed. Needs product line `rel-2025-03.018` and `permission` `full`.
+
+- **ask** — before the cache rebuild, offer **Force publish** / **Force publish and remember for this company** / **Publish and wait**. Remember writes `auto` on **Force publish**. Do not force unless they pick a force option. Publish and wait is Process `--publish`.
+
+When **Publish after dry-run** is `auto` and **Force publish** is `auto`, `deploy-config-transfer.py` runs the force path itself. When **Force publish** is `ask`, that script prints `force=ask` and does not rebuild the cache.
+
 Split Upload / onlyTest / Process (when the combined script cannot run): [scripts/README.md](../../../scripts/README.md). Do not re-implement that path here.
 
 ## Errors

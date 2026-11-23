@@ -33,6 +33,11 @@ python scripts/process-config-transfer.py \
   --transfer-id <upload-id> \
   --publish
 
+python scripts/process-config-transfer.py \
+  --connection projects/<name>/.integray-connection.json \
+  --transfer-id <upload-id> \
+  --force
+
 python scripts/next-transfer-id.py \
   projects/<name>/working
 
@@ -83,9 +88,9 @@ python scripts/sync-claude-skills.py
 python scripts/sync-claude-skills.py --check
 ```
 
-Download writes JSON under `snapshots/` (do not edit), **clears `working/`**, splits into entity files, then prints `Name`, collection counts, and sensitive variable names. Do not copy the snapshot as a single `working/*.json`. `/publish` assembles `working/` to a temp file, Uploads, deletes the temp. `/assemble` writes a JSON and leaves it. Process the Upload `transferId` (`--only-test`, then `--publish`). Do not Process a Backup id. `--apply` is Process with `publish: false` (rare). Layout: [docs/transfer/working-split.md](../docs/transfer/working-split.md).
+Download writes JSON under `snapshots/` (do not edit), **clears `working/`**, splits into entity files, then prints `Name`, collection counts, and sensitive variable names. Do not copy the snapshot as a single `working/*.json`. `/publish` assembles `working/` to a temp file, Uploads, deletes the temp. `/assemble` writes a JSON and leaves it. Process the Upload `transferId` (`--only-test`, then `--publish`, or `--force` when conventions say so). Do not Process a Backup id. `--apply` is Process with `publish: false` (rare). `--force` is that apply plus `POST Publish?force=true`. Layout: [docs/transfer/working-split.md](../docs/transfer/working-split.md).
 
-`deploy-config-transfer.py` is schema check + Backup + Upload + onlyTest + `--publish` when conventions say auto and `permission` is `full`. It does **not** download into `working/`. `--stamp-copy-id` is optional (`generated YYYY-MM-DD HH:MM:SS` in that Statement). Backup always runs (returns an int `backupTransferId`; do not Process it). Standalone `upload-config-transfer.py` is pre-check only — it does not Backup.
+`deploy-config-transfer.py` is schema check + Backup + Upload + onlyTest + `--publish` when conventions say auto and `permission` is `full`. **Force publish: auto** uses `--force` instead (apply, then `POST Publish?force=true`). **Force publish: ask** stops before the cache rebuild and prints `force=ask`. It does **not** download into `working/`. `--stamp-copy-id` is optional (`generated YYYY-MM-DD HH:MM:SS` in that Statement). Backup always runs (returns an int `backupTransferId`; do not Process it). Standalone `upload-config-transfer.py` is pre-check only — it does not Backup.
 
 `config-statement.py` gets/puts `Configuration.Statement` so the agent does not open the whole transfer. `put --stamp` refreshes `generated YYYY-MM-DD HH:MM:SS` when that marker is already in the Statement.
 

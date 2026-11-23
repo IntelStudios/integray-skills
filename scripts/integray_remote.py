@@ -197,6 +197,8 @@ _PRODUCT_LINE_RE = re.compile(r"^rel-(\d{4})-(\d{2})\.(\d+)$")
 REMOTE_API_PRODUCT_LINE = "rel-2025-03.017"
 # GET TaskRun/{id}/Step/{stepId}/Snapshot
 SNAPSHOT_PRODUCT_LINE = "rel-2025-03.018"
+# POST Publish?force=true
+FORCE_PUBLISH_PRODUCT_LINE = "rel-2025-03.018"
 
 
 def product_line_tuple(token: str) -> tuple[int, int, int] | None:
@@ -605,6 +607,65 @@ def process_config_transfer(
         publish_result=publish_result,
         raw=raw,
     )
+
+
+@dataclass
+class CachePublishResult:
+    http_status: int
+    raw: dict | None
+
+
+def publish_company_cache(
+    config: ConnectionConfig,
+    *,
+    force: bool = False,
+    timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
+    client: httpx.Client | None = None,
+) -> CachePublishResult:
+    """POST Publish. force=True skips the wait for running task runs.
+
+    Requires permission full. force=True also requires product line
+    rel-2025-03.018. HTTP 422 is returned, not raised: the body is the publish result.
+    """
+    config.require_publish()
+    if force:
+        require_product_line(
+            config.base_url,
+            FORCE_PUBLISH_PRODUCT_LINE,
+            timeout_seconds=timeout_seconds,
+            client=client,
+        )
+
+    url = config.remote_url("Publish")
+    if force:
+        url += "?force=true"
+    headers = config.auth_headers(accept="application/json")
+
+    own_client = client is None
+    http = client or httpx.Client(timeout=timeout_seconds, follow_redirects=True)
+    try:
+        try:
+            response = http.post(url, headers=headers)
+        except httpx.HTTPError as exc:
+            raise RemoteError(f"{url}: {exc}") from exc
+    finally:
+        if own_client:
+            http.close()
+
+    if response.status_code != 422:
+        _raise_http_error(url, response)
+
+    raw: dict | None = None
+    if response.content and response.content.strip():
+        try:
+            parsed = response.json()
+        except json.JSONDecodeError as exc:
+            raise RemoteError(f"{url}: response is not JSON ({exc})") from exc
+        if parsed is not None and not isinstance(parsed, dict):
+            raise RemoteError(f"{url}: expected a JSON object")
+        raw = parsed if isinstance(parsed, dict) else None
+
+    return CachePublishResult(http_status=response.status_code, raw=raw)
 
 
 def start_task(
