@@ -9,9 +9,9 @@ All paths are `{baseUrl}/api/Remote/{CompanySlug}/…`. Auth: `Authorization: Be
 
 Instance **product line** (git branch) is not this API. Unauthenticated `GET {baseUrl}/api/Integray`
 returns `Version`; the first token is `rel-YYYY-MM.patch` — [instance-version.md](../instance-version.md).
-Remote API itself is from **`rel-2025-03.017`**. Older lines had none. Snapshot GET
-and `POST Debugger/Run` are **`rel-2025-03.018`**
-([remote-debugger.md](remote-debugger.md)).
+Remote API itself is from **`rel-2025-03.017`**. Older lines had none. Snapshot GET,
+`POST Debugger/Run`, and `POST Publish?force=true` are **`rel-2025-03.018`**
+([remote-debugger.md](remote-debugger.md), [Standalone Publish](#standalone-publish-fallback-only)).
 
 ## Remote API map
 
@@ -23,7 +23,7 @@ extra paths.
 |------|------------------|-------|----------------|
 | Config Transfer | `GET ConfigTransfer/Download`; `POST ConfigTransfer/Backup`; `POST ConfigTransfer/Upload`; `POST ConfigTransfer/{id}/Process`; `GET ConfigTransfer/List`; `DELETE ConfigTransfer/{id}` | `/download-config`, `/backup`, `/publish` | download + backup: every level; Upload + `--only-test`: `read-write` or `full`; `--publish` / `--apply`: `full`. List/Delete: treat like backup (`read-only` OK — they do not apply config) |
 | Variable | `GET Variable/{id}`; `GET Variable/Code/{code}`; `PUT` same | none (curl in this file) | GET: `read-only`; PUT: `read-write` or `full` |
-| Cache publish | `POST Publish` | none — prefer Process `--publish` | `full` |
+| Cache publish | `POST Publish`; `POST Publish?force=true` | none — prefer Process `--publish` | `full`. `force` is **`rel-2025-03.018`** ([instance-version.md](../instance-version.md)) |
 | Task | `GET Task`; `POST Task/{id}/Start`; `/Kill`; `/Clean`; `/Runnable` | `/debug-task-run` (`Start`) | GET: `read-only`; Start/Kill/Clean/Runnable: `read-write` or `full` |
 | Task run | `GET TaskRun/…`; logs; restart | `/debug-task-run` (`status`) | GET: `read-only`; restart: `read-write` or `full` |
 | Task run snapshot | `GET TaskRun/{taskRunId}/Step/{stepId}/Snapshot` | `/debug-task-run` | `read-only`. Floor: [instance-version.md](../instance-version.md) Feature availability |
@@ -346,6 +346,7 @@ Use only when the user explicitly requests a cache rebuild **after** a prior Pro
 
 ```
 POST /api/Remote/{CompanySlug}/Publish
+POST /api/Remote/{CompanySlug}/Publish?force=true
 Authorization: Bearer {token}
 ```
 
@@ -355,8 +356,27 @@ curl -sS -X POST \
   -H "Authorization: Bearer ${TOKEN}"
 ```
 
-The call is **synchronous**: it waits for running task runs to finish, then rebuilds the
-cache. On a busy or large company this can take several minutes. HTTP 200 may still include
+```bash
+curl -sS -X POST \
+  "${BASE_URL}/api/Remote/${COMPANY_SLUG}/Publish?force=true" \
+  -H "Authorization: Bearer ${TOKEN}"
+```
+
+The call is **synchronous**. Without `force` it waits for running task runs, at most 30
+seconds. If they are still running, publish fails with
+`CACHE_REBUILD_CANCELED_TASKS_NOT_FINISHED` (HTTP 422).
+
+`force=true` (from **`rel-2025-03.018`**) does not wait. The new cache is built beside the
+one the running task run still uses, then swapped in. The result of that task run is not
+guaranteed. When the run next needs a Task or Step the new cache does not contain, the run
+is stopped. Its log says the published Task or Step is no longer in the cache and the run
+was stopped. The run state is cleaned up so the step does not stay on the agent and the
+data structure does not stay behind. On **`rel-2025-03.017`** the query is ignored and
+publish still waits.
+
+Process with `publish: true` has no `force`. It always waits.
+
+On a busy or large company the call can take several minutes. HTTP 200 may still include
 warnings in `messages`; HTTP 422 means publish failed.
 
 Response: `RemotePublishResult` (same shape as `publishResult` on Process). HTTP 422 when

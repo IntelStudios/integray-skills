@@ -101,7 +101,7 @@ Cross-company Warning (step still publishes from the live DB):
 | Code | When |
 |---|---|
 | `O_SWITCH_OFF_FAILED` | Orchestrator off before publish returned failure |
-| `CACHE_REBUILD_CANCELED_TASKS_NOT_FINISHED` | Running Tasks did not finish in 30 s |
+| `CACHE_REBUILD_CANCELED_TASKS_NOT_FINISHED` | Running Tasks did not finish in 30 s. `POST Publish` without `force`. `?force=true` does not wait ([remote-api.md](remote-api.md)) |
 | `CACHE_REBUILDING_FAILED_SWITCHING_ORCHESTRATORS_FAILED` | Any exception from the rebuild body (including agent-status check). Often paired with `CACHE_CHECKING_AGENT_STATUSES_FAILED` |
 | `CACHE_LOADING_ENDPOINTS_FAILED` / `CACHE_LOADING_TASKS_FAILED` / `CACHE_LOADING_SCHEMAS_FAILED` | Load of that collection threw |
 | `CACHE_GETTING_SPECIAL_SCHEMAS_FAILED` | Load of Endpoint special output schemas (§8.4) threw |
