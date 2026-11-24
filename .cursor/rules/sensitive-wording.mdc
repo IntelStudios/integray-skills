@@ -1,0 +1,10 @@
+---
+description: How to name an endpoint whose schema has a Sensitive column
+alwaysApply: true
+---
+
+# Sensitive is a column flag
+
+Do not call an endpoint, task, or run "citlivý" or "sensitive endpoint".
+
+Sensitive is a flag on a schema column. Say which endpoint and which column has it on. Example: endpoint `sensitive-column-bound` has `Password` and `Account.Secret` set to Sensitive in schema **Sensitive column - Person**. The twin endpoint has the same columns with Sensitive off.
