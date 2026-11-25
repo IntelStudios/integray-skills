@@ -1,0 +1,8 @@
+---
+description: Bump the self-test version before every push of suite changes
+alwaysApply: true
+---
+
+# Self-test version on push
+
+Before every push of `projects/self-test` that changes the suite, bump `const TEST_VERSION` in Configuration `Create HTML Site` by one patch step. That bump belongs in the same push. Do not push suite changes while the version is still the one already on origin.
