@@ -5,4 +5,4 @@ alwaysApply: true
 
 # Self-test version on push
 
-Before every push of `projects/self-test` that changes the suite, bump `const TEST_VERSION` in Configuration `Create HTML Site` by one patch step. That bump belongs in the same push. Do not push suite changes while the version is still the one already on origin.
+Before every push of `projects/self-test` that changes the suite, bump `const TEST_VERSION` by one patch step in both Configuration `Create HTML Site` and Configuration `Run tests and save progress`. The two constants stay equal. The page badge reads the first. The results table's second number is `TestVersion`, written by the runner from the second. The bump belongs in the same push. Do not push suite changes while either constant is still the one already on origin.
